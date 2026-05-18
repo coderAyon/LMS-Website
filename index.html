@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Library Management System</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700&display=swap">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <div class="navbar-brand">
+                <span class="brand-icon">📚</span>
+                <h1>Digital Library</h1>
+            </div>
+            <div class="navbar-menu">
+                <button id="homeBtn" class="nav-btn active" onclick="navigateTo('home')">Home</button>
+                <button id="catalogBtn" class="nav-btn" onclick="navigateTo('catalog')">Catalog</button>
+                <button id="dashboardBtn" class="nav-btn" style="display:none;" onclick="navigateTo('dashboard')">My
+                    Library</button>
+                <button id="adminBtn" class="nav-btn" style="display:none;" onclick="navigateTo('admin')">Admin
+                    Panel</button>
+                <button id="logoutBtn" class="nav-btn logout-btn" style="display:none;"
+                    onclick="logout()">Logout</button>
+                <button id="loginBtn" class="nav-btn login-btn" onclick="showLoginModal()">Login</button>
+            </div>
+            <div class="user-info" id="userInfo" style="display:none;">
+                <span id="userName">Guest</span>
+                <span class="role-badge" id="userRole"></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Home Section -->
+    <section id="homeSection" class="section">
+        <div class="hero">
+            <div class="hero-content">
+                <h2>Welcome to Digital Library</h2>
+                <p>Explore thousands of books with modern interface</p>
+                <button class="btn btn-primary" onclick="navigateTo('catalog')">Explore Books</button>
+            </div>
+        </div>
+
+        <!-- Featured Books with Coverflow Carousel -->
+        <div class="featured-section">
+            <h3>Featured Books</h3>
+            <div class="coverflow-container">
+                <div class="coverflow-carousel">
+                    <div class="coverflow-stage">
+                        <div class="coverflow-books" id="coverflowBooks"></div>
+                    </div>
+                    <div class="coverflow-controls">
+                        <button class="coverflow-btn prev" onclick="prevCoverflow()">❮</button>
+                        <button class="coverflow-btn next" onclick="nextCoverflow()">❯</button>
+                    </div>
+                    <div class="coverflow-indicators" id="coverflowIndicators"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="stats-section">
+            <div class="stat-card">
+                <h4 id="totalBooks">0</h4>
+                <p>Total Books</p>
+            </div>
+            <div class="stat-card">
+                <h4 id="downloadedBooks">0</h4>
+                <p>Downloaded</p>
+            </div>
+            <div class="stat-card">
+                <h4 id="totalCategories">5</h4>
+                <p>Categories</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Catalog Section -->
+    <section id="catalogSection" class="section" style="display:none;">
+        <div class="catalog-header">
+            <h2>Book Catalog</h2>
+            <div class="search-filter">
+                <div class="search-input-wrapper">
+                    <input type="text" id="searchInput" placeholder="Search books..." class="search-input"
+                        oninput="filterBooks()">
+                    <button class="search-clear-btn" onclick="clearSearch()" title="Clear search">
+                        ✕
+                    </button>
+                </div>
+                <select id="categoryFilter" class="filter-select" onchange="filterBooks()">
+                    <option value="">All Categories</option>
+                    <option value="Science">Science</option>
+                    <option value="Technology">Technology</option>
+                    <option value="Fiction">Fiction</option>
+                    <option value="History">History</option>
+                    <option value="Business">Business</option>
+                </select>
+            </div>
+        </div>
+        <div class="books-grid" id="booksGrid"></div>
+    </section>
+
+    <!-- Admin Panel Section -->
+    <section id="adminSection" class="section" style="display:none;">
+        <div class="admin-container">
+            <h2>Admin Panel</h2>
+            <div class="admin-tabs">
+                <button class="tab-btn active" onclick="switchAdminTab('addBook')">Add Book</button>
+                <button class="tab-btn" onclick="switchAdminTab('manageBooks')">Manage Books</button>
+            </div>
+
+            <!-- Add Book Form -->
+            <div id="addBookTab" class="admin-tab active">
+                <div class="form-container">
+                    <h3>Add New Book</h3>
+                    <div class="form-group">
+                        <label>Book Title</label>
+                        <input type="text" id="bookTitle" class="form-input" placeholder="Enter book title">
+                    </div>
+                    <div class="form-group">
+                        <label>Author</label>
+                        <input type="text" id="bookAuthor" class="form-input" placeholder="Enter author name">
+                    </div>
+                    <div class="form-group">
+                        <label>Category</label>
+                        <select id="bookCategory" class="form-input">
+                            <option value="Science">Science</option>
+                            <option value="Technology">Technology</option>
+                            <option value="Fiction">Fiction</option>
+                            <option value="History">History</option>
+                            <option value="Business">Business</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea id="bookDescription" class="form-input" placeholder="Enter book description"
+                            rows="4"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Cover Image URL</label>
+                        <input type="text" id="bookCover" class="form-input" placeholder="Enter cover image URL">
+                    </div>
+                    <div class="form-group">
+                        <label>Preview Image URLs (comma-separated)</label>
+                        <input type="text" id="bookPreviewImages" class="form-input"
+                            placeholder="Image1.jpg, Image2.jpg">
+                    </div>
+                    <div class="form-group">
+                        <label>ISBN</label>
+                        <input type="text" id="bookISBN" class="form-input" placeholder="ISBN">
+                    </div>
+                    <button class="btn btn-primary" onclick="addBook()">Add Book</button>
+                </div>
+            </div>
+
+            <!-- Manage Books -->
+            <div id="manageBooksTab" class="admin-tab" style="display:none;">
+                <h3>Manage Books</h3>
+                <div class="admin-books-list" id="adminBooksList"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- User Dashboard -->
+    <section id="dashboardSection" class="section" style="display:none;">
+        <h2>My Library</h2>
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchDashboardTab('myBooks')">Downloaded Books</button>
+            <button class="tab-btn" onclick="switchDashboardTab('recommendations')">Recommendations</button>
+        </div>
+
+        <div id="myBooksTab" class="tab-content active">
+            <div class="books-grid" id="userBooksGrid"></div>
+        </div>
+
+        <div id="recommendationsTab" class="tab-content" style="display:none;">
+            <div class="books-grid" id="recommendationsGrid"></div>
+        </div>
+    </section>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <span class="close" onclick="closeLoginModal()">&times;</span>
+            <h2>Select Role</h2>
+            <p>Choose your role to access the system</p>
+            <div class="role-selection">
+                <button class="role-card" onclick="login('admin')">
+                    <span class="role-icon">👨‍💼</span>
+                    <h3>Admin</h3>
+                    <p>Manage books and uploads</p>
+                </button>
+                <button class="role-card" onclick="login('user')">
+                    <span class="role-icon">👤</span>
+                    <h3>User</h3>
+                    <p>Download and read books</p>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Book Details Modal -->
+    <div id="bookModal" class="modal" style="display:none;">
+        <div class="modal-content book-modal">
+            <span class="close" onclick="closeBookModal()">&times;</span>
+            <div class="book-modal-header">
+                <img id="modalBookCover" class="book-cover-large" src="" alt="Book Cover">
+                <div class="book-info">
+                    <h2 id="modalBookTitle"></h2>
+                    <p id="modalBookAuthor"></p>
+                    <p id="modalBookISBN"></p>
+                    <div class="book-rating">⭐⭐⭐⭐☆ (4.5/5)</div>
+                </div>
+            </div>
+
+            <!-- Image Slider for Book Preview -->
+            <div class="book-preview-slider" id="bookPreviewSlider" style="display:none;">
+                <h3>Preview</h3>
+                <div class="slider-container">
+                    <button class="slider-btn prev" onclick="prevBookPreview()">❮</button>
+                    <div class="slider-wrapper">
+                        <div class="slider-track" id="bookPreviewTrack"></div>
+                    </div>
+                    <button class="slider-btn next" onclick="nextBookPreview()">❯</button>
+                </div>
+            </div>
+
+            <div class="book-description">
+                <h3>About</h3>
+                <p id="modalBookDescription"></p>
+            </div>
+
+            <div class="book-actions">
+                <button id="downloadBtn" class="btn btn-primary" onclick="downloadBook()">Download</button>
+                <button id="readBtn" class="btn btn-secondary" style="display:none;" onclick="readBook()">Read
+                    Online</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="toast"></div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
