@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Saved Books — Bibliotheca LMS</title>
+    <meta name="description" content="View and manage all your saved books in one beautiful place.">
+    <meta name="author" content="Antigravity LMS">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        serif: ['"Playfair Display"', 'serif'],
+                    },
+                    colors: {
+                        brand: { 50:'#f5f3ff', 100:'#ede9fe', 500:'#6366f1', 600:'#4f46e5', 700:'#4338ca', 900:'#312e81' },
+                        accent: { 500:'#06b6d4', 600:'#0891b2' }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body class="bg-[#f8fafc] text-slate-900 font-sans min-h-screen flex flex-col antialiased selection:bg-brand-100 selection:text-brand-900">
+
+    <!-- HEADER -->
+    <header class="fixed top-0 left-0 w-full h-20 bg-white/80 backdrop-blur-xl border-b border-slate-200/80 z-50 transition-all duration-300">
+        <div class="max-w-7xl mx-auto h-full px-6 md:px-8 flex justify-between items-center">
+            <a href="#" onclick="navigateTo('home')" class="flex items-center gap-3 group">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-accent-500 flex items-center justify-center shadow-lg shadow-brand-500/20 group-hover:scale-105 transition-transform duration-300">
+                    <i data-lucide="library" class="w-5 h-5 text-white"></i>
+                </div>
+                <div class="flex flex-col">
+                    <span class="text-lg font-extrabold tracking-tight bg-gradient-to-r from-slate-950 to-slate-800 bg-clip-text text-transparent">BIBLIOTHECA</span>
+                    <span class="text-[10px] font-medium tracking-widest text-brand-600 uppercase">Intelligent LMS</span>
+                </div>
+            </a>
+            <nav class="hidden md:flex items-center gap-8">
+                <a href="#" data-section="home" onclick="navigateTo('home')" class="nav-link text-sm font-semibold text-slate-650 hover:text-slate-950 transition-colors duration-200 relative py-2">Home</a>
+                <a href="#" data-section="catalog" onclick="navigateTo('catalog')" class="nav-link text-sm font-semibold text-slate-650 hover:text-slate-950 transition-colors duration-200 relative py-2">Catalog</a>
+                <a href="#" data-section="saved" onclick="navigateTo('saved')" class="nav-link text-sm font-semibold text-brand-600 transition-colors duration-200 relative py-2 active">Saved Books</a>
+                <a href="#" id="dashboardLink" data-section="dashboard" onclick="navigateTo('dashboard')" class="nav-link text-sm font-semibold text-slate-650 hover:text-slate-950 transition-colors duration-200 relative py-2 hidden">My Library</a>
+                <a href="#" id="adminLink" data-section="admin" onclick="navigateTo('admin')" class="nav-link text-sm font-semibold text-slate-650 hover:text-slate-950 transition-colors duration-200 relative py-2 hidden">Admin Panel</a>
+            </nav>
+            <div class="flex items-center gap-4">
+                <button onclick="showLoginModal()" id="loginBtn" class="flex items-center justify-center gap-2 w-10 sm:w-auto h-10 px-0 sm:px-5 py-2.5 rounded-xl text-sm font-semibold bg-brand-600 text-white hover:bg-brand-500 hover:shadow-lg active:scale-95 transition-all duration-200">
+                    <i data-lucide="log-in" class="w-4 h-4"></i>
+                    <span class="hidden sm:inline">Portal Access</span>
+                </button>
+                <div id="navUser" class="hidden relative">
+                    <button onclick="toggleUserDropdown(event)" id="userDropdownBtn" class="flex items-center gap-2.5 bg-slate-100/80 hover:bg-slate-200/50 border border-slate-200/80 px-3 py-1.5 rounded-xl active:scale-95 transition-all duration-200 focus:outline-none select-none">
+                        <div id="userAvatar" class="w-8 h-8 rounded-lg bg-gradient-to-tr from-brand-600 to-accent-500 flex items-center justify-center text-xs font-bold text-white uppercase shrink-0">A</div>
+                        <div class="hidden lg:flex flex-col text-left">
+                            <span id="navUserName" class="text-xs font-bold text-slate-800 leading-tight">User</span>
+                            <span id="navUserRole" class="text-[9px] font-semibold text-accent-600 uppercase tracking-wider leading-none">READER</span>
+                        </div>
+                        <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-500 shrink-0 hidden lg:block" id="dropdownChevron"></i>
+                    </button>
+                    <div id="userDropdownMenu" class="absolute right-0 top-full mt-2 w-56 bg-white border border-slate-200/80 rounded-2xl shadow-xl py-2 hidden flex-col z-[70]">
+                        <div class="px-4 py-3 border-b border-slate-100 flex flex-col text-left">
+                            <span id="dropdownUserName" class="text-xs font-bold text-slate-800">User</span>
+                            <span id="dropdownUserRole" class="text-[10px] font-semibold text-brand-600 uppercase tracking-wider mt-0.5">READER</span>
+                        </div>
+                        <div class="py-1">
+                            <a href="#" onclick="navigateTo('saved'); return false;" id="dropdownSavedLink" class="flex items-center gap-3 px-4 py-2 text-xs font-bold text-slate-700 hover:text-slate-900 hover:bg-slate-50 transition-colors duration-150">
+                                <i data-lucide="bookmark" class="w-4 h-4 text-slate-400"></i>
+                                <span>Saved Books</span>
+                            </a>
+                            <a href="#" onclick="navigateTo('dashboard'); return false;" id="dropdownDashboardLink" class="flex items-center gap-3 px-4 py-2 text-xs font-bold text-slate-700 hover:text-slate-900 hover:bg-slate-50 transition-colors duration-150">
+                                <i data-lucide="layout-dashboard" class="w-4 h-4 text-slate-400"></i>
+                                <span>Reader Dashboard</span>
+                            </a>
+                            <a href="#" onclick="navigateTo('admin'); return false;" id="dropdownAdminLink" class="flex items-center gap-3 px-4 py-2 text-xs font-bold text-slate-700 hover:text-slate-900 hover:bg-slate-50 transition-colors duration-150 hidden">
+                                <i data-lucide="shield" class="w-4 h-4 text-slate-400"></i>
+                                <span>System Admin</span>
+                            </a>
+                        </div>
+                        <div class="border-t border-slate-100 pt-1 mt-1">
+                            <button onclick="logout()" class="w-full flex items-center gap-3 px-4 py-2.5 text-xs font-bold text-red-600 hover:bg-red-50 transition-colors duration-150 text-left">
+                                <i data-lucide="log-out" class="w-4 h-4"></i>
+                                <span>Portal Sign Out</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <button class="md:hidden flex items-center justify-center w-10 h-10 rounded-xl bg-slate-100 hover:bg-slate-200/80 text-slate-600 border border-slate-200/60 active:scale-95 transition-all duration-200" id="hamburger" onclick="toggleMobileMenu()">
+                    <i data-lucide="menu" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Mobile Drawer -->
+    <div id="mobileDrawer" class="fixed inset-0 bg-white/95 backdrop-blur-2xl z-40 hidden flex-col justify-center items-center gap-8 px-8">
+        <a href="#" data-section="home" onclick="navigateTo('home')" class="text-2xl font-bold text-slate-800 hover:text-slate-950">Home</a>
+        <a href="#" data-section="catalog" onclick="navigateTo('catalog')" class="text-2xl font-bold text-slate-800 hover:text-slate-950">Catalog</a>
+        <a href="#" data-section="saved" onclick="navigateTo('saved')" class="text-2xl font-bold text-brand-600">Saved Books</a>
+        <a href="#" id="mobileDashboardLink" data-section="dashboard" onclick="navigateTo('dashboard')" class="text-2xl font-bold text-slate-800 hover:text-slate-950 hidden">My Library</a>
+        <a href="#" id="mobileAdminLink" data-section="admin" onclick="navigateTo('admin')" class="text-2xl font-bold text-slate-800 hover:text-slate-950 hidden">Admin Panel</a>
+    </div>
+
+    <main class="flex-grow pt-20">
+        <section class="page-section active-section block opacity-1">
+            <div class="max-w-7xl mx-auto px-6 md:px-8 py-12">
+
+                <!-- Page Header -->
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10 border-b border-slate-200 pb-8">
+                    <div>
+                        <span class="text-xs font-extrabold tracking-widest text-brand-600 uppercase block mb-2">My Collection</span>
+                        <h1 class="text-3xl font-black text-slate-900 font-serif">Saved Books</h1>
+                        <p class="text-slate-500 text-sm mt-1">Your personal reading list, saved across sessions.</p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <!-- Stats pill -->
+                        <div class="flex items-center gap-2 bg-brand-50 border border-brand-100 text-brand-700 px-4 py-2 rounded-xl text-xs font-bold">
+                            <i data-lucide="bookmark-check" class="w-4 h-4"></i>
+                            <span id="savedCountBadge">0 saved</span>
+                        </div>
+                        <!-- Clear all button -->
+                        <button id="clearAllSavedBtn" onclick="clearAllSaved()" class="hidden items-center gap-2 px-4 py-2 rounded-xl bg-red-50 border border-red-100 text-red-600 text-xs font-bold hover:bg-red-100 active:scale-95 transition-all duration-200">
+                            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                            <span>Clear All</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Search + Sort bar -->
+                <div id="savedToolbar" class="hidden flex-col sm:flex-row gap-3 mb-8">
+                    <div class="relative flex-1">
+                        <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2"></i>
+                        <input type="text" id="savedSearchInput" oninput="renderSavedBooks()" placeholder="Search your saved books..."
+                            class="w-full pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-800 text-sm placeholder-slate-400 focus:outline-none focus:border-brand-500 transition-all duration-200 shadow-sm">
+                    </div>
+                    <!-- Hidden native select for value binding -->
+                    <select id="savedSortSelect" onchange="renderSavedBooks()" class="hidden">
+                        <option value="saved-order">Saved Order</option>
+                        <option value="title-asc">Title A → Z</option>
+                        <option value="title-desc">Title Z → A</option>
+                        <option value="rating-desc">Highest Rated</option>
+                        <option value="category">By Category</option>
+                    </select>
+                    <!-- Custom styled dropdown -->
+                    <div class="relative custom-select-container shrink-0 w-full sm:w-44" data-select-id="savedSortSelect">
+                        <button type="button"
+                            class="w-full px-3.5 py-3 bg-white border border-slate-200 rounded-xl text-slate-700 text-sm font-semibold focus:outline-none focus:border-brand-500 flex items-center justify-between gap-2 transition-all duration-200 cursor-pointer hover:bg-slate-50 shadow-sm">
+                            <span class="custom-select-label">Saved Order</span>
+                            <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 shrink-0 transition-transform duration-200 select-chevron"></i>
+                        </button>
+                        <div class="absolute right-0 w-full mt-1.5 bg-white border border-slate-200 rounded-xl shadow-xl py-1.5 z-[70] hidden select-options-menu origin-top">
+                            <div class="px-3.5 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 hover:text-brand-600 rounded-lg mx-1 cursor-pointer transition-colors duration-150" data-value="saved-order">Saved Order</div>
+                            <div class="px-3.5 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 hover:text-brand-600 rounded-lg mx-1 cursor-pointer transition-colors duration-150" data-value="title-asc">Title A → Z</div>
+                            <div class="px-3.5 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 hover:text-brand-600 rounded-lg mx-1 cursor-pointer transition-colors duration-150" data-value="title-desc">Title Z → A</div>
+                            <div class="px-3.5 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 hover:text-brand-600 rounded-lg mx-1 cursor-pointer transition-colors duration-150" data-value="rating-desc">Highest Rated</div>
+                            <div class="px-3.5 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 hover:text-brand-600 rounded-lg mx-1 cursor-pointer transition-colors duration-150" data-value="category">By Category</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Category filter chips -->
+                <div id="savedCategoryFilters" class="hidden flex-wrap gap-2 mb-6"></div>
+
+                <!-- Books grid -->
+                <div id="savedBooksGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5">
+                    <!-- Injected dynamically -->
+                </div>
+
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer (compact) -->
+    <footer class="bg-slate-950 border-t border-slate-800/80 py-8 mt-auto">
+        <div class="max-w-7xl mx-auto px-6 md:px-8 flex flex-col md:flex-row justify-between items-center gap-4">
+            <span class="text-[11px] font-bold text-slate-500">© 2026 Bibliotheca LMS. All Rights Reserved.</span>
+            <div class="flex gap-6 text-[11px] font-bold text-slate-500">
+                <a href="#" onclick="navigateTo('catalog')" class="hover:text-white transition-colors">Explore Catalog</a>
+                <a href="#" onclick="navigateTo('home')" class="hover:text-white transition-colors">Portal Home</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[60] hidden justify-center items-center p-6">
+        <div class="modal-card w-full max-w-md bg-white border border-slate-200 rounded-3xl p-8 relative shadow-2xl">
+            <button onclick="closeLoginModal()" class="absolute top-6 right-6 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 border border-slate-200/80 flex items-center justify-center transition-colors duration-200">
+                <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+            <div class="text-center mb-8">
+                <div class="w-12 h-12 rounded-xl bg-brand-500/10 text-brand-600 flex items-center justify-center mx-auto mb-4">
+                    <i data-lucide="shield-check" class="w-6 h-6"></i>
+                </div>
+                <h3 class="text-xl font-extrabold text-slate-800 mb-2">Select Access Workspace</h3>
+                <p class="text-slate-500 text-xs">Authenticate to access your saved books</p>
+            </div>
+            <div class="flex flex-col gap-4">
+                <button onclick="login('admin')" class="w-full p-5 bg-slate-50 border border-slate-200 hover:border-brand-500/40 rounded-2xl text-left group transition-all duration-300 flex items-center gap-4 shadow-sm">
+                    <div class="w-10 h-10 rounded-lg bg-brand-500/10 text-brand-600 flex items-center justify-center group-hover:scale-105 transition-transform shrink-0"><i data-lucide="user-cog" class="w-5 h-5"></i></div>
+                    <div><h4 class="font-bold text-slate-800 group-hover:text-brand-600 transition-colors">System Admin</h4><p class="text-slate-500 text-[11px] font-semibold">Full catalog control</p></div>
+                </button>
+                <button onclick="login('user')" class="w-full p-5 bg-slate-50 border border-slate-200 hover:border-accent-500/40 rounded-2xl text-left group transition-all duration-300 flex items-center gap-4 shadow-sm">
+                    <div class="w-10 h-10 rounded-lg bg-accent-500/10 text-accent-600 flex items-center justify-center group-hover:scale-105 transition-transform shrink-0"><i data-lucide="graduation-cap" class="w-5 h-5"></i></div>
+                    <div><h4 class="font-bold text-slate-800 group-hover:text-accent-600 transition-colors">Academic Reader</h4><p class="text-slate-500 text-[11px] font-semibold">Save & manage your books</p></div>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Book Details Modal -->
+    <div id="bookModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[60] hidden justify-center items-center p-6 overflow-y-auto">
+        <div class="modal-card w-full max-w-4xl bg-white border border-slate-200 rounded-3xl p-6 md:p-8 relative shadow-2xl flex flex-col gap-6 md:my-8">
+            <button onclick="closeBookModal()" class="absolute top-6 right-6 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 border border-slate-200 flex items-center justify-center transition-colors z-10">
+                <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
+                <div class="md:col-span-4 flex justify-center">
+                    <div class="w-full max-w-[240px] aspect-[3/4] bg-slate-50 rounded-2xl overflow-hidden shadow-lg border border-slate-200/80">
+                        <img id="modalBookCover" src="" alt="Book Cover" class="w-full h-full object-cover">
+                    </div>
+                </div>
+                <div class="md:col-span-8 flex flex-col justify-between text-left">
+                    <div>
+                        <span id="modalBookCategory" class="text-[10px] font-extrabold tracking-widest text-brand-600 bg-brand-50 px-2.5 py-1 border border-brand-100 rounded-md inline-block uppercase mb-4">CATEGORY</span>
+                        <h2 id="modalBookTitle" class="text-2xl md:text-3xl font-black text-slate-900 font-serif tracking-tight mb-2">Volume Title</h2>
+                        <p id="modalBookAuthor" class="text-sm font-bold text-slate-500 mb-1">by Author Name</p>
+                        <p id="modalBookISBN" class="text-xs text-slate-400 font-semibold mb-6">ISBN: 978-0000000000</p>
+                        <div class="flex items-center gap-2 mb-6 text-sm font-bold text-slate-700">
+                            <div class="flex gap-0.5 text-amber-500">
+                                <i data-lucide="star" class="w-4 h-4 fill-current"></i>
+                                <i data-lucide="star" class="w-4 h-4 fill-current"></i>
+                                <i data-lucide="star" class="w-4 h-4 fill-current"></i>
+                                <i data-lucide="star" class="w-4 h-4 fill-current"></i>
+                                <i data-lucide="star" class="w-4 h-4"></i>
+                            </div>
+                            <span>4.8 Rating Avg</span>
+                        </div>
+                        <div class="grid grid-cols-3 gap-4 border-t border-b border-slate-100 py-4 mb-6" id="modalBookMeta"></div>
+                        <p id="modalBookDescription" class="text-slate-600 text-sm leading-relaxed mb-6">Description loading...</p>
+                    </div>
+                    <div class="flex flex-wrap gap-3">
+                        <button onclick="downloadBook()" id="downloadBtn" class="flex items-center gap-2 px-6 py-3 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-bold text-sm active:scale-95 transition-all duration-200 shadow-md shadow-brand-500/10">
+                            <i data-lucide="bookmark" class="w-4 h-4"></i>
+                            <span>Save Book</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="fixed bottom-8 right-8 z-[100] px-5 py-4 rounded-2xl bg-white border border-slate-200/80 text-slate-800 text-sm shadow-2xl flex items-center gap-3 hidden transition-all duration-300">
+        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-600 flex items-center justify-center shrink-0" id="toastIcon">
+            <i data-lucide="check" class="w-4 h-4"></i>
+        </div>
+        <span id="toastMessage" class="font-bold text-xs leading-normal">Action Confirmed</span>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    <script src="../js/script.js"></script>
+</body>
+</html>
