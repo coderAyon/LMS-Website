@@ -1,0 +1,913 @@
+/* ==================== GLOBAL STYLES & PRESETS ==================== */
+html {
+    font-size: 16px;
+    background-color: #f8fafc;
+}
+
+/* Custom premium light-themed scrollbar styling */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* Premium Light-Mode Grid Pattern */
+.bg-radial-grid {
+    background-color: #f8fafc;
+    background-image:
+        radial-gradient(circle at 50% 50%, rgba(99, 102, 241, 0.05) 0%, transparent 80%),
+        linear-gradient(rgba(148, 163, 184, 0.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(148, 163, 184, 0.08) 1px, transparent 1px);
+    background-size: 100% 100%, 24px 24px, 24px 24px;
+}
+
+/* ==================== HERO FULL-PAGE STYLES ==================== */
+.hero-full {
+    min-height: calc(100vh - 80px);
+    height: auto;
+    background-color: #f8fafc;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    padding-top: 2.5rem;
+    padding-bottom: 2.5rem;
+}
+
+@media (min-width: 1024px) {
+    .hero-full {
+        height: calc(100vh - 80px);
+        padding-top: 0;
+        padding-bottom: 0;
+    }
+}
+
+
+/* Visible dot-grid background for hero */
+.bg-hero-grid {
+    background-color: #f8fafc;
+    background-image:
+        radial-gradient(circle at 25% 35%, rgba(99, 102, 241, 0.07) 0%, transparent 55%),
+        radial-gradient(circle at 75% 70%, rgba(6, 182, 212, 0.05) 0%, transparent 50%);
+}
+
+/* Crisp visible grid line overlay */
+.hero-grid-lines {
+    background-image:
+        linear-gradient(rgba(148, 163, 184, 0.14) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(148, 163, 184, 0.14) 1px, transparent 1px);
+    background-size: 40px 40px;
+    mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 100%);
+    -webkit-mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 100%);
+}
+
+
+/* ==================== PREMIUM LIGHT DASHBOARD CARDS ==================== */
+
+/* Top-pick strip */
+.dash-toppick {
+    background: white;
+    border: 1px solid rgba(99, 102, 241, 0.12);
+    border-radius: 16px;
+    padding: 12px 14px;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 2px 8px -2px rgba(99, 102, 241, 0.08);
+    transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.dash-toppick:hover {
+    box-shadow: 0 6px 20px -4px rgba(99, 102, 241, 0.15);
+    transform: translateY(-1px);
+}
+
+.dash-toppick::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent 55%, rgba(99, 102, 241, 0.03));
+    pointer-events: none;
+}
+
+/* Stat cards */
+.dash-stat {
+    background: white;
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    border-radius: 18px;
+    padding: 16px 14px 14px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 2px 8px -2px rgba(148, 163, 184, 0.12);
+    transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    cursor: default;
+}
+
+.dash-stat:hover {
+    transform: translateY(-3px) scale(1.015);
+    box-shadow: 0 12px 28px -6px rgba(99, 102, 241, 0.14);
+}
+
+.dash-stat-glow {
+    position: absolute;
+    bottom: -24px;
+    right: -24px;
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    filter: blur(24px);
+    opacity: 0.12;
+    pointer-events: none;
+    transition: opacity 0.3s;
+}
+
+.dash-stat:hover .dash-stat-glow {
+    opacity: 0.22;
+}
+
+/* Sparkline mini bars */
+.spark-bar {
+    display: flex;
+    align-items: flex-end;
+    gap: 2.5px;
+    height: 22px;
+    margin-top: 8px;
+}
+
+.spark-bar span {
+    flex: 1;
+    border-radius: 3px 3px 0 0;
+    opacity: 0.35;
+    transition: opacity 0.2s;
+}
+
+.dash-stat:hover .spark-bar span {
+    opacity: 0.75;
+}
+
+/* Bottom status pills */
+.dash-pill {
+    background: white;
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    border-radius: 14px;
+    padding: 10px 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 2px 6px -2px rgba(148, 163, 184, 0.1);
+    transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.dash-pill:hover {
+    box-shadow: 0 8px 20px -4px rgba(99, 102, 241, 0.12);
+    transform: translateY(-2px);
+}
+
+/* Float interactions */
+.float-el,
+.float-el-slow,
+.float-el-reverse {
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+
+/* ==================== ACTIVE PAGE TRANSITION SECTIONS ==================== */
+.page-section {
+    min-height: calc(100vh - 80px);
+}
+
+/* ==================== LINE CLAMP UTILITY ==================== */
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    line-clamp: 2;
+    /* Standard property for forward compatibility */
+    overflow: hidden;
+}
+
+/* ==================== ADMINISTRATIVE CONSOLE GRID OVERRIDES ==================== */
+.admin-tab.active {
+    background-color: rgba(99, 102, 241, 0.08);
+    border: 1px solid rgba(99, 102, 241, 0.2);
+}
+
+.dash-tab.active {
+    background-color: rgba(99, 102, 241, 0.08);
+    border: 1px solid rgba(99, 102, 241, 0.2);
+}
+
+/* Clean abstract glowing gradient spots */
+.shape {
+    will-change: transform, opacity;
+}
+
+/* ==================== MASTERWORKS COVERFLOW CAROUSEL ==================== */
+.masterworks-section {
+    overflow: hidden;
+}
+
+.coverflow-container {
+    padding: 20px 0 10px;
+    overflow: hidden;
+    /* Confines horizontal scrollbars of offscreen cards */
+}
+
+/* Dark gradient overlay on cards */
+.mw-card-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom,
+            rgba(0, 0, 0, 0.05) 0%,
+            rgba(0, 0, 0, 0.25) 40%,
+            rgba(0, 0, 0, 0.85) 100%);
+    z-index: 1;
+    border-radius: 12px;
+}
+
+/* Premium dynamic meta header row inside coverflow cards */
+.mw-card-meta-row {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    right: 12px;
+    z-index: 10;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 6px;
+    pointer-events: none;
+}
+
+/* Category badge */
+.mw-card-badge {
+    background: rgba(99, 102, 241, 0.88);
+    backdrop-filter: blur(6px);
+    color: #fff;
+    font-size: 8px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 60%;
+    transition: all 0.3s ease;
+}
+
+/* Rating pill */
+.mw-card-rating {
+    background: rgba(15, 23, 42, 0.65);
+    backdrop-filter: blur(6px);
+    color: #fbbf24;
+    font-size: 9px;
+    font-weight: 750;
+    padding: 3px 7px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    flex-shrink: 0;
+    transition: all 0.3s ease;
+}
+
+/* Hide category badge on peripheral (non-active) coverflow cards to keep them perfectly clean and responsive */
+.coverflow-book:not(.active) .mw-card-badge {
+    display: none !important;
+}
+
+/* Center ratings for non-active cards */
+.coverflow-book:not(.active) .mw-card-meta-row {
+    justify-content: flex-end !important;
+}
+
+/* High-fidelity responsiveness for meta overlays */
+@media (max-width: 992px) {
+    .mw-card-meta-row {
+        top: 8px;
+        left: 8px;
+        right: 8px;
+        gap: 4px;
+    }
+    .mw-card-badge {
+        font-size: 7.5px;
+        padding: 2px 6px;
+    }
+    .mw-card-rating {
+        font-size: 8px;
+        padding: 2px 5px;
+    }
+}
+
+@media (max-width: 640px) {
+    /* Hide badge completely on small mobile screens to keep cards uncluttered */
+    .coverflow-book.active .mw-card-badge {
+        display: none !important;
+    }
+    .mw-card-meta-row {
+        justify-content: center !important;
+    }
+}
+
+
+.coverflow-carousel {
+    position: relative;
+    height: 420px;
+    perspective: 1500px;
+    overflow: visible;
+    /* Allows premium 3D shadows to bleed beautifully without clipping */
+    transform-style: preserve-3d;
+}
+
+.coverflow-stage {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform-style: preserve-3d;
+}
+
+.coverflow-books {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    overflow: visible;
+}
+
+.coverflow-book {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 200px;
+    height: 300px;
+    margin-left: -100px;
+    margin-top: -150px;
+    transform-style: preserve-3d;
+    transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    cursor: pointer;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+}
+
+.coverflow-book-cover {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    border-radius: 12px;
+    position: relative;
+    transform-style: preserve-3d;
+    background: #e2e8f0;
+}
+
+.coverflow-book-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 12px;
+    transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    filter: brightness(1.05) contrast(1.05);
+}
+
+.coverflow-book-info {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 2;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.88));
+    color: #fff;
+    padding: 28px 12px 12px;
+    text-align: center;
+    border-radius: 0 0 12px 12px;
+    transition: all 0.4s ease;
+}
+
+.coverflow-book-title {
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 3px;
+    color: #fff;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+}
+
+.coverflow-book-author {
+    font-size: 11px;
+    color: #cbd5e1;
+    font-style: italic;
+    margin-top: 2px;
+}
+
+/* Position states */
+.coverflow-book.active {
+    z-index: 15;
+    transform: translateX(0) translateZ(50px) rotateY(0deg) scale(1.15);
+    filter: brightness(1.1) contrast(1.08);
+    box-shadow: 0 20px 50px rgba(99, 102, 241, 0.25), 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.coverflow-book.prev {
+    z-index: 8;
+    transform: translateX(-200px) translateZ(-120px) rotateY(28deg) scale(0.95);
+    opacity: 1;
+}
+
+.coverflow-book.next {
+    z-index: 8;
+    transform: translateX(200px) translateZ(-120px) rotateY(-28deg) scale(0.95);
+    opacity: 1;
+}
+
+.coverflow-book.far-prev {
+    z-index: 4;
+    transform: translateX(-360px) translateZ(-240px) rotateY(38deg) scale(0.75);
+    opacity: 0.9;
+}
+
+.coverflow-book.far-next {
+    z-index: 4;
+    transform: translateX(360px) translateZ(-240px) rotateY(-38deg) scale(0.75);
+    opacity: 0.9;
+}
+
+.coverflow-book.hidden {
+    z-index: 2;
+    transform: translateX(0) translateZ(-350px) rotateY(45deg) scale(0.65);
+    opacity: 0.6;
+}
+
+/* Controls */
+.coverflow-controls {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    max-width: 1040px; /* Widened slightly so buttons sit elegantly just outside the card deck boundaries */
+    display: flex;
+    justify-content: space-between;
+    padding: 0 32px; /* Smooth padding on tablets and smaller screens */
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: 20;
+}
+
+.coverflow-btn {
+    background: #fff;
+    color: #475569;
+    border: 1.5px solid #cbd5e1;
+    /* Clearer, highly visible border */
+    width: 46px;
+    height: 46px;
+    border-radius: 14px;
+    cursor: pointer;
+    font-size: 18px;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: all;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
+}
+
+.coverflow-btn:hover {
+    background: #fff;
+    border-color: #6366f1;
+    /* Dynamic brand highlight */
+    color: #6366f1;
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.14);
+    /* Brand glow */
+    transform: scale(1.08);
+}
+
+.coverflow-btn:active {
+    transform: scale(0.95);
+}
+
+/* Indicators */
+.coverflow-indicators {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 18px;
+    padding-bottom: 4px;
+}
+
+.coverflow-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #cbd5e1;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.coverflow-indicator.active {
+    background: #6366f1;
+    transform: scale(1.4);
+}
+
+@media (max-width: 1200px) {
+    .coverflow-carousel {
+        height: 380px;
+        perspective: 1200px;
+    }
+
+    .coverflow-book {
+        width: 180px;
+        height: 270px;
+        margin-left: -90px;
+        margin-top: -135px;
+    }
+}
+
+@media (max-width: 992px) {
+    .coverflow-carousel {
+        height: 330px;
+        perspective: 1000px;
+    }
+
+    .coverflow-book {
+        width: 160px;
+        height: 240px;
+        margin-left: -80px;
+        margin-top: -120px;
+    }
+}
+
+@media (max-width: 768px) {
+    .coverflow-carousel {
+        height: 290px;
+        perspective: 800px;
+    }
+
+    .coverflow-book {
+        width: 140px;
+        height: 210px;
+        margin-left: -70px;
+        margin-top: -105px;
+    }
+
+    .coverflow-book.active {
+        transform: translateX(0) translateZ(0) rotateY(0deg) scale(1.15);
+    }
+
+    .coverflow-book.prev {
+        transform: translateX(-120px) translateZ(-70px) rotateY(25deg) scale(0.85);
+    }
+
+    .coverflow-book.next {
+        transform: translateX(120px) translateZ(-70px) rotateY(-25deg) scale(0.85);
+    }
+
+    .coverflow-book.far-prev {
+        transform: translateX(-200px) translateZ(-140px) rotateY(35deg) scale(0.75);
+    }
+
+    .coverflow-book.far-next {
+        transform: translateX(200px) translateZ(-140px) rotateY(-35deg) scale(0.75);
+    }
+
+    .coverflow-controls {
+        padding: 0 10px;
+    }
+
+    .coverflow-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 15px;
+    }
+}
+
+@media (max-width: 576px) {
+    .coverflow-carousel {
+        height: 260px;
+        perspective: 700px;
+    }
+
+    .coverflow-book {
+        width: 120px;
+        height: 180px;
+        margin-left: -60px;
+        margin-top: -90px;
+    }
+
+    .coverflow-book.active {
+        transform: translateX(0) translateZ(0) rotateY(0deg) scale(1.2);
+    }
+
+    .coverflow-book.prev {
+        transform: translateX(-100px) translateZ(-60px) rotateY(20deg) scale(0.8);
+    }
+
+    .coverflow-book.next {
+        transform: translateX(100px) translateZ(-60px) rotateY(-20deg) scale(0.8);
+    }
+
+    .coverflow-btn {
+        width: 36px;
+        height: 36px;
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 480px) {
+    .coverflow-carousel {
+        height: 230px;
+        perspective: 600px;
+    }
+
+    .coverflow-book {
+        width: 100px;
+        height: 150px;
+        margin-left: -50px;
+        margin-top: -75px;
+    }
+
+    .coverflow-book.active {
+        transform: translateX(0) translateZ(0) rotateY(0deg) scale(1.2);
+    }
+
+    .coverflow-book.prev {
+        transform: translateX(-80px) translateZ(-50px) rotateY(20deg) scale(0.8);
+    }
+
+    .coverflow-book.next {
+        transform: translateX(80px) translateZ(-50px) rotateY(-20deg) scale(0.8);
+    }
+
+    .coverflow-btn {
+        width: 32px;
+        height: 32px;
+        font-size: 12px;
+    }
+}
+
+/* ==================== ULTRA-PREMIUM BOOK DETAIL MODAL ==================== */
+#bookModal {
+    background: rgba(15, 23, 42, 0.45) !important;
+    backdrop-filter: blur(16px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
+}
+
+#bookModal .modal-card {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(253, 254, 255, 0.96) 100%) !important;
+    border: 1px solid rgba(226, 232, 240, 0.8) !important;
+    box-shadow: 
+        0 4px 6px -1px rgba(0, 0, 0, 0.01),
+        0 20px 40px -15px rgba(15, 23, 42, 0.12),
+        0 0 50px rgba(99, 102, 241, 0.03),
+        inset 0 1px 0 rgba(255, 255, 255, 0.8) !important;
+    border-radius: 28px !important;
+    padding: 20px 32px 20px 24px !important; /* Reduced top/bottom padding to make layout snug */
+    z-index: 1;
+}
+
+/* Snug desktop cover alignment against left border margin */
+@media (min-width: 768px) {
+    #bookModal .md\:col-span-4 {
+        justify-content: flex-start !important;
+    }
+}
+
+/* Beautiful Category-Aware Spotlight Glow */
+#bookModal .modal-card::before {
+    content: '';
+    position: absolute;
+    top: -150px;
+    right: -150px;
+    width: 320px;
+    height: 320px;
+    background: radial-gradient(circle, rgba(99, 102, 241, 0.08) 0%, rgba(255, 255, 255, 0) 70%);
+    z-index: -1;
+    pointer-events: none;
+}
+
+/* Floating Glassmorphic Close Button */
+#bookModal .modal-card button[onclick="closeBookModal()"] {
+    position: absolute;
+    top: 18px; /* Adjusted slightly downward to align with reduced padding */
+    right: 20px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50% !important;
+    background: rgba(241, 245, 249, 0.8) !important;
+    border: 1px solid rgba(226, 232, 240, 0.8) !important;
+    backdrop-filter: blur(4px) !important;
+    color: #64748b !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04) !important;
+    cursor: pointer;
+    z-index: 10;
+}
+
+#bookModal .modal-card button[onclick="closeBookModal()"]:hover {
+    background: #fff !important;
+    border-color: #6366f1 !important;
+    color: #6366f1 !important;
+    transform: rotate(90deg) scale(1.05) !important;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.12) !important;
+}
+
+/* Book Cover Styling */
+#modalBookCover {
+    border-radius: 16px !important;
+    transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1) !important;
+}
+
+#modalBookCover:hover {
+    transform: scale(1.03) translateY(-2px);
+}
+
+/* Subtitle and ISBN identifiers styling */
+#modalBookISBN {
+    letter-spacing: 0.2px;
+    font-family: inherit;
+    font-weight: 500;
+    margin-bottom: 12px !important; /* Tightened ISBN bottom margin */
+}
+
+/* Core Rating Block alignment */
+#bookModal .text-slate-650 {
+    margin-bottom: 12px !important; /* Tightened rating block bottom margin */
+}
+
+/* Category Badge Enhancement */
+#modalBookCategory {
+    font-size: 9px !important;
+    font-weight: 800 !important;
+    letter-spacing: 1.5px !important;
+    text-transform: uppercase !important;
+    padding: 6px 14px !important;
+    border-radius: 9999px !important;
+    border: 1px solid rgba(99, 102, 241, 0.15) !important;
+    background: rgba(99, 102, 241, 0.06) !important;
+    color: #4f46e5 !important;
+    box-shadow: 0 2px 6px rgba(99, 102, 241, 0.04) !important;
+    margin-bottom: 12px !important; /* Tightened category badge bottom margin */
+}
+
+/* Dynamic specs block metadata cards styling */
+#modalBookMeta {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 16px !important;
+    border: none !important;
+    padding: 0 !important;
+    margin-top: 10px !important;
+    margin-bottom: 16px !important; /* Reduced bottom margin for specs block */
+}
+
+#modalBookMeta > div {
+    background: rgba(248, 250, 252, 0.8) !important;
+    border: 1px solid rgba(226, 232, 240, 0.6) !important;
+    border-radius: 16px !important;
+    padding: 12px 16px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    transition: all 0.25s ease !important;
+}
+
+#modalBookMeta > div:hover {
+    background: #fff !important;
+    border-color: rgba(99, 102, 241, 0.25) !important;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.03) !important;
+    transform: translateY(-1px);
+}
+
+#modalBookMeta .meta-icon-box {
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+    background: rgba(99, 102, 241, 0.06);
+    border: 1px solid rgba(99, 102, 241, 0.1);
+    color: #6366f1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+#modalBookDescription {
+    color: #475569 !important;
+    font-size: 14px !important;
+    line-height: 1.625 !important;
+    margin-bottom: 16px !important; /* Tightened description bottom margin */
+}
+
+/* Mobile responsive fixes for specs list */
+@media (max-width: 768px) {
+    #bookModal .modal-card {
+        padding: 14px 16px !important; /* Reduced mobile modal card padding */
+        margin: 12px !important;
+        max-height: calc(100vh - 24px);
+        overflow-y: auto;
+    }
+    
+    #modalBookMeta {
+        grid-template-columns: 1fr !important;
+        gap: 10px !important;
+    }
+
+    #bookModal .modal-card button[onclick="closeBookModal()"] {
+        top: 10px;
+        right: 12px;
+    }
+}
+
+/* Sleek, responsive horizontal table scrollbar for touch devices */
+.scrollbar-thin::-webkit-scrollbar {
+    height: 5px; /* Extremely thin horizontal scroll bar */
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent; /* Seamless blend */
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+    background: #cbd5e1; /* Smooth grey thumb */
+    border-radius: 9999px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* ==================== ROOM BOOKING DATE/TIME PICKER MODAL ==================== */
+
+/* Tint the native date-picker calendar icon to brand colour */
+#roomBookDate::-webkit-calendar-picker-indicator {
+    opacity: 0;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+/* Time slot active state (applied via JS) */
+.time-slot-btn {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.time-slot-btn:active {
+    transform: scale(0.96);
+}
+
+/* Booking summary slide-down animation */
+#bookingSummary {
+    animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Analytics cards — stronger solid look on the velocity card */
+.velocity-card-sparkbar {
+    display: flex;
+    align-items: flex-end;
+    gap: 4px;
+    height: 40px;
+}
+
+.velocity-card-sparkbar > div {
+    flex: 1;
+    border-radius: 4px 4px 0 0;
+    transition: opacity 0.25s;
+    opacity: 0.7;
+}
+
+.velocity-card-sparkbar:hover > div {
+    opacity: 1;
+}
