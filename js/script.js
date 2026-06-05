@@ -7,6 +7,25 @@ let currentSection = 'home';
 let featuredStartIndex = 0;
 let selectedBookForModal = null;
 
+// ==================== THEME (DARK / LIGHT MODE) ====================
+// The saved theme is applied before paint by an inline <head> script on each
+// page; these helpers handle runtime toggling and persistence. Icon swapping
+// between sun/moon is driven purely by CSS based on the `dark` class.
+function applyTheme(theme) {
+    const root = document.documentElement;
+    if (theme === 'dark') {
+        root.classList.add('dark');
+    } else {
+        root.classList.remove('dark');
+    }
+    try { localStorage.setItem('theme', theme); } catch (e) { }
+}
+
+function toggleTheme() {
+    const isDark = document.documentElement.classList.contains('dark');
+    applyTheme(isDark ? 'light' : 'dark');
+}
+
 // ==================== PAGINATION STATE ====================
 let catalogCurrentPage = 1;
 const CATALOG_PER_PAGE = 12;
