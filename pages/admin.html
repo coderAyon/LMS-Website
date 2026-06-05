@@ -19,6 +19,17 @@
         rel="stylesheet">
 
     <!-- Tailwind CSS Play CDN -->
+    <!-- Apply saved theme before paint to avoid flash of incorrect theme -->
+    <script>
+        (function () {
+            try {
+                var t = localStorage.getItem('theme');
+                if (t === 'dark' || (!t && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                    document.documentElement.classList.add('dark');
+                }
+            } catch (e) { }
+        })();
+    </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -94,6 +105,12 @@
 
             <!-- User Auth Controls -->
             <div class="flex items-center gap-4">
+                <!-- Theme Toggle -->
+                <button onclick="toggleTheme()" id="themeToggle" type="button" aria-label="Toggle dark mode" title="Toggle theme"
+                    class="theme-toggle relative flex items-center justify-center w-10 h-10 rounded-xl border border-slate-200/80 bg-white/70 text-slate-600 hover:text-brand-600 hover:border-brand-300 active:scale-95 transition-all duration-200">
+                    <i data-lucide="sun" class="theme-icon theme-icon-sun w-[18px] h-[18px]"></i>
+                    <i data-lucide="moon" class="theme-icon theme-icon-moon w-[18px] h-[18px]"></i>
+                </button>
                 <button onclick="showLoginModal()" id="loginBtn"
                     class="flex items-center justify-center gap-2 w-10 sm:w-auto h-10 px-0 sm:px-5 py-2.5 rounded-xl text-sm font-semibold bg-brand-600 text-white hover:bg-brand-500 hover:shadow-lg hover:shadow-brand-500/10 active:scale-95 transition-all duration-200">
                     <i data-lucide="log-in" class="w-4 h-4"></i>

@@ -18,6 +18,18 @@
         href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&display=swap"
         rel="stylesheet">
 
+    <!-- Apply saved theme before paint to avoid flash of incorrect theme -->
+    <script>
+        (function () {
+            try {
+                var t = localStorage.getItem('theme');
+                if (t === 'dark' || (!t && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                    document.documentElement.classList.add('dark');
+                }
+            } catch (e) { }
+        })();
+    </script>
+
     <!-- Tailwind CSS Play CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -128,6 +140,12 @@
 
             <!-- User Auth Controls -->
             <div class="flex items-center gap-4">
+                <!-- Theme Toggle -->
+                <button onclick="toggleTheme()" id="themeToggle" type="button" aria-label="Toggle dark mode" title="Toggle theme"
+                    class="theme-toggle relative flex items-center justify-center w-10 h-10 rounded-xl border border-slate-200/80 bg-white/70 text-slate-600 hover:text-brand-600 hover:border-brand-300 active:scale-95 transition-all duration-200">
+                    <i data-lucide="sun" class="theme-icon theme-icon-sun w-[18px] h-[18px]"></i>
+                    <i data-lucide="moon" class="theme-icon theme-icon-moon w-[18px] h-[18px]"></i>
+                </button>
                 <button onclick="showLoginModal()" id="loginBtn"
                     class="flex items-center justify-center gap-2 w-10 sm:w-auto h-10 px-0 sm:px-5 py-2.5 rounded-xl text-sm font-semibold bg-brand-600 text-white hover:bg-brand-500 hover:shadow-lg hover:shadow-brand-500/10 active:scale-95 transition-all duration-200">
                     <i data-lucide="log-in" class="w-4 h-4"></i>
@@ -533,81 +551,6 @@
                     </div>
                 </div>
                 <div id="knowledgeAreasGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5" data-animate="stagger-cards"></div>
-            </div>
-
-            <!-- Workflow steps guides -->
-            <div class="py-20 max-w-7xl mx-auto px-6 md:px-8 border-b border-slate-200/80">
-                <div class="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-6 mb-14">
-                    <div class="text-left">
-                        <span class="text-xs font-extrabold tracking-widest text-brand-600 uppercase block mb-2">Onboarding
-                            Workflow</span>
-                        <h2 class="text-2xl md:text-3xl font-black text-slate-900 font-serif">Seamless Academic Deployment</h2>
-                        <p class="text-sm text-slate-500 mt-2 max-w-md font-medium">Three simple steps to unlock the full
-                            power of the knowledge management platform.</p>
-                    </div>
-                    <div
-                        class="px-4 py-2.5 bg-white rounded-2xl border border-slate-200 text-xs font-bold text-slate-600 flex items-center gap-2 shadow-sm shrink-0">
-                        <i data-lucide="zap" class="w-4 h-4 text-amber-500"></i>
-                        <span>Avg. Setup: Under 2 min</span>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-
-                    <!-- Step 1 -->
-                    <div class="group bg-white border border-slate-200 rounded-2xl overflow-hidden hover:border-brand-300 transition-all duration-300">
-                        <!-- Header zone -->
-                        <div class="bg-gradient-to-br from-brand-50 via-indigo-50 to-white px-6 pt-7 pb-5 flex items-center justify-between border-b border-slate-100">
-                            <div class="w-12 h-12 rounded-xl bg-white border border-brand-200/60 text-brand-600 flex items-center justify-center shadow-sm transition-transform duration-300 group-hover:rotate-12">
-                                <i data-lucide="user-plus" class="w-5 h-5"></i>
-                            </div>
-                            <span class="text-5xl font-black text-brand-500/10 select-none leading-none">01</span>
-                        </div>
-                        <!-- Content -->
-                        <div class="p-6">
-                            <div class="flex items-center gap-2.5 mb-3">
-                                <h4 class="text-base font-extrabold text-slate-900">Access Credentials</h4>
-                                <span class="px-2 py-0.5 bg-brand-50 text-brand-600 border border-brand-100 text-[8px] font-black uppercase tracking-widest rounded-md">Auth</span>
-                            </div>
-                            <p class="text-[13px] text-slate-500 leading-relaxed font-medium">Choose your structural credentials context to access reader-exclusive downloading, dashboard telemetry, or admin database tools.</p>
-                        </div>
-                    </div>
-
-                    <!-- Step 2 -->
-                    <div class="group bg-white border border-slate-200 rounded-2xl overflow-hidden hover:border-violet-300 transition-all duration-300">
-                        <div class="bg-gradient-to-br from-violet-50 via-purple-50 to-white px-6 pt-7 pb-5 flex items-center justify-between border-b border-slate-100">
-                            <div class="w-12 h-12 rounded-xl bg-white border border-violet-200/60 text-violet-600 flex items-center justify-center shadow-sm transition-transform duration-300 group-hover:rotate-12">
-                                <i data-lucide="search" class="w-5 h-5"></i>
-                            </div>
-                            <span class="text-5xl font-black text-violet-500/10 select-none leading-none">02</span>
-                        </div>
-                        <div class="p-6">
-                            <div class="flex items-center gap-2.5 mb-3">
-                                <h4 class="text-base font-extrabold text-slate-900">Discovery Catalog</h4>
-                                <span class="px-2 py-0.5 bg-violet-50 text-violet-600 border border-violet-100 text-[8px] font-black uppercase tracking-widest rounded-md">Search</span>
-                            </div>
-                            <p class="text-[13px] text-slate-500 leading-relaxed font-medium">Filter across robust categories with vectorized sub-category listings, matching publishers, publication years, and unique ISBN identifiers.</p>
-                        </div>
-                    </div>
-
-                    <!-- Step 3 -->
-                    <div class="group bg-white border border-slate-200 rounded-2xl overflow-hidden hover:border-emerald-300 transition-all duration-300">
-                        <div class="bg-gradient-to-br from-emerald-50 via-teal-50 to-white px-6 pt-7 pb-5 flex items-center justify-between border-b border-slate-100">
-                            <div class="w-12 h-12 rounded-xl bg-white border border-emerald-200/60 text-emerald-600 flex items-center justify-center shadow-sm transition-transform duration-300 group-hover:rotate-12">
-                                <i data-lucide="hard-drive-download" class="w-5 h-5"></i>
-                            </div>
-                            <span class="text-5xl font-black text-emerald-500/10 select-none leading-none">03</span>
-                        </div>
-                        <div class="p-6">
-                            <div class="flex items-center gap-2.5 mb-3">
-                                <h4 class="text-base font-extrabold text-slate-900">Dynamic Caching</h4>
-                                <span class="px-2 py-0.5 bg-emerald-50 text-emerald-600 border border-emerald-100 text-[8px] font-black uppercase tracking-widest rounded-md">Sync</span>
-                            </div>
-                            <p class="text-[13px] text-slate-500 leading-relaxed font-medium">Instantly buffer files to local storage caching profiles. Download metadata directly to your account portfolio and build personalized recommendations.</p>
-                        </div>
-                    </div>
-
-                </div>
             </div>
 
             <!-- ==================== SECTION: READING ACTIVITY ANALYTICS ==================== -->

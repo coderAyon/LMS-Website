@@ -911,3 +911,346 @@ html {
 .velocity-card-sparkbar:hover > div {
     opacity: 1;
 }
+
+/* =================================================================
+   THEME TOGGLE BUTTON (sun / moon swap)
+   ================================================================= */
+.theme-toggle {
+    overflow: hidden;
+}
+
+.theme-toggle .theme-icon {
+    position: absolute;
+    transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
+}
+
+/* Light mode: show moon (click to go dark) */
+.theme-icon-sun {
+    opacity: 0;
+    transform: translateY(140%) rotate(-90deg);
+}
+
+.theme-icon-moon {
+    opacity: 1;
+    transform: translateY(0) rotate(0deg);
+}
+
+/* Dark mode: show sun (click to go light) */
+html.dark .theme-icon-sun {
+    opacity: 1;
+    transform: translateY(0) rotate(0deg);
+}
+
+html.dark .theme-icon-moon {
+    opacity: 0;
+    transform: translateY(-140%) rotate(90deg);
+}
+
+/* =================================================================
+   SMOOTH THEME TRANSITIONS
+   ================================================================= */
+body,
+header,
+footer,
+.bg-white,
+.bg-white\/80,
+.bg-white\/90,
+.bg-white\/70,
+.bg-slate-50,
+.bg-slate-100,
+.dash-stat,
+.dash-toppick,
+.dash-pill,
+.theme-toggle {
+    transition: background-color 0.4s ease, border-color 0.4s ease, color 0.4s ease, box-shadow 0.4s ease;
+}
+
+/* =================================================================
+   COOL / DETAILED POLISH (applies to both themes)
+   ================================================================= */
+
+/* Animated aurora glow behind the hero */
+.hero-full {
+    position: relative;
+}
+
+.hero-full::before {
+    content: "";
+    position: absolute;
+    inset: -20% -10% auto -10%;
+    height: 70%;
+    background:
+        radial-gradient(40% 55% at 20% 30%, rgba(99, 102, 241, 0.18), transparent 70%),
+        radial-gradient(35% 50% at 80% 25%, rgba(6, 182, 212, 0.16), transparent 70%),
+        radial-gradient(45% 60% at 55% 75%, rgba(168, 85, 247, 0.12), transparent 70%);
+    filter: blur(8px);
+    pointer-events: none;
+    z-index: 0;
+    animation: auroraDrift 16s ease-in-out infinite alternate;
+}
+
+.hero-full > * {
+    position: relative;
+    z-index: 1;
+}
+
+@keyframes auroraDrift {
+    0%   { transform: translate3d(-3%, -2%, 0) scale(1); opacity: 0.9; }
+    50%  { transform: translate3d(2%, 2%, 0) scale(1.08); opacity: 1; }
+    100% { transform: translate3d(4%, -1%, 0) scale(1.04); opacity: 0.85; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .hero-full::before { animation: none; }
+}
+
+/* Subject / knowledge-area tiles — lift + glow on hover */
+#knowledgeAreasGrid > div {
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+                border-color 0.3s ease;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+#knowledgeAreasGrid > div:hover {
+    transform: translateY(-6px);
+    border-color: rgba(99, 102, 241, 0.45);
+    box-shadow: 0 18px 40px -16px rgba(99, 102, 241, 0.35);
+}
+
+/* Primary CTA shimmer sweep on hover */
+#loginBtn {
+    position: relative;
+    overflow: hidden;
+}
+
+#loginBtn::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -120%;
+    width: 80%;
+    height: 100%;
+    background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+    transform: skewX(-20deg);
+    transition: left 0.6s ease;
+    pointer-events: none;
+}
+
+#loginBtn:hover::after {
+    left: 130%;
+}
+
+/* Brand-tinted focus ring for keyboard users */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+    outline: 2px solid rgba(99, 102, 241, 0.6);
+    outline-offset: 2px;
+    border-radius: 8px;
+}
+
+/* =================================================================
+   DARK MODE
+   ================================================================= */
+html.dark {
+    color-scheme: dark;
+    background-color: #0a0e17;
+}
+
+html.dark body {
+    background-color: #0a0e17 !important;
+    color: #cbd5e1;
+}
+
+/* Surfaces */
+html.dark .bg-white,
+html.dark .bg-white\/90,
+html.dark .bg-white\/70,
+html.dark .bg-white\/60,
+html.dark .bg-white\/50,
+html.dark .bg-\[\#f8fafc\] {
+    background-color: #131a2a;
+}
+
+/* Glass header / sticky surfaces keep translucency */
+html.dark .bg-white\/80 {
+    background-color: rgba(14, 19, 32, 0.82);
+}
+
+html.dark .bg-slate-50,
+html.dark .bg-slate-50\/50 {
+    background-color: #0f1521;
+}
+
+html.dark .bg-slate-100,
+html.dark .bg-slate-100\/80,
+html.dark .bg-slate-100\/50,
+html.dark .bg-slate-200\/50,
+html.dark .hover\:bg-slate-200\/50:hover,
+html.dark .hover\:bg-slate-100\/50:hover,
+html.dark .hover\:bg-slate-50:hover {
+    background-color: #1b2334;
+}
+
+/* Borders */
+html.dark .border-slate-200,
+html.dark .border-slate-200\/80,
+html.dark .border-slate-200\/60,
+html.dark .border-slate-100,
+html.dark .border-slate-150,
+html.dark .border-slate-100\/80,
+html.dark .divide-slate-100 > :not([hidden]) ~ :not([hidden]),
+html.dark .divide-slate-200 > :not([hidden]) ~ :not([hidden]) {
+    border-color: rgba(148, 163, 184, 0.16);
+}
+
+/* Text */
+html.dark .text-slate-950,
+html.dark .text-slate-900,
+html.dark .text-slate-850,
+html.dark .text-slate-800 {
+    color: #e8edf5;
+}
+
+html.dark .text-slate-700,
+html.dark .text-slate-600 {
+    color: #c3ccda;
+}
+
+html.dark .text-slate-500,
+html.dark .text-slate-400 {
+    color: #94a3b8;
+}
+
+html.dark .text-slate-300 {
+    color: #7c899c;
+}
+
+html.dark .hover\:text-slate-950:hover,
+html.dark .hover\:text-slate-900:hover {
+    color: #f1f5f9;
+}
+
+/* Logo + heading gradient text → light gradient on dark */
+html.dark .from-slate-950 {
+    --tw-gradient-from: #f8fafc var(--tw-gradient-from-position);
+    --tw-gradient-to: rgb(248 250 252 / 0) var(--tw-gradient-to-position);
+    --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+}
+
+html.dark .from-slate-900 {
+    --tw-gradient-from: #e2e8f0 var(--tw-gradient-from-position);
+    --tw-gradient-to: rgb(226 232 240 / 0) var(--tw-gradient-to-position);
+    --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+}
+
+html.dark .to-slate-800 {
+    --tw-gradient-to: #cbd5e1 var(--tw-gradient-to-position);
+}
+
+/* Light gradient washes used as card headers → dark */
+html.dark .to-white {
+    --tw-gradient-to: #131a2a var(--tw-gradient-to-position);
+}
+
+html.dark .from-white {
+    --tw-gradient-from: #131a2a var(--tw-gradient-from-position);
+    --tw-gradient-to: rgb(19 26 42 / 0) var(--tw-gradient-to-position);
+    --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+}
+
+html.dark .from-brand-50 { --tw-gradient-from: rgba(99, 102, 241, 0.12) var(--tw-gradient-from-position); --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to); }
+html.dark .via-indigo-50 { --tw-gradient-stops: var(--tw-gradient-from), rgba(99, 102, 241, 0.08), var(--tw-gradient-to); }
+html.dark .from-violet-50 { --tw-gradient-from: rgba(168, 85, 247, 0.12) var(--tw-gradient-from-position); --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to); }
+html.dark .via-purple-50 { --tw-gradient-stops: var(--tw-gradient-from), rgba(168, 85, 247, 0.08), var(--tw-gradient-to); }
+html.dark .from-emerald-50 { --tw-gradient-from: rgba(16, 185, 129, 0.12) var(--tw-gradient-from-position); --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to); }
+html.dark .via-teal-50 { --tw-gradient-stops: var(--tw-gradient-from), rgba(16, 185, 129, 0.08), var(--tw-gradient-to); }
+
+/* Tinted soft chips keep readable text in dark */
+html.dark .bg-brand-50 { background-color: rgba(99, 102, 241, 0.16); }
+html.dark .bg-violet-50 { background-color: rgba(168, 85, 247, 0.16); }
+html.dark .bg-emerald-50 { background-color: rgba(16, 185, 129, 0.16); }
+html.dark .bg-amber-50 { background-color: rgba(245, 158, 11, 0.16); }
+html.dark .bg-rose-50 { background-color: rgba(244, 63, 94, 0.16); }
+html.dark .bg-slate-300 { background-color: #334155; }
+
+/* Hero backgrounds */
+html.dark .hero-full,
+html.dark .bg-hero-grid,
+html.dark .bg-radial-grid {
+    background-color: #0a0e17;
+}
+
+html.dark .bg-radial-grid {
+    background-image:
+        radial-gradient(circle at 50% 50%, rgba(99, 102, 241, 0.10) 0%, transparent 80%),
+        linear-gradient(rgba(148, 163, 184, 0.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(148, 163, 184, 0.06) 1px, transparent 1px);
+}
+
+html.dark .hero-grid-lines {
+    background-image:
+        linear-gradient(rgba(148, 163, 184, 0.10) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(148, 163, 184, 0.10) 1px, transparent 1px);
+}
+
+html.dark .hero-full::before {
+    background:
+        radial-gradient(40% 55% at 20% 30%, rgba(99, 102, 241, 0.30), transparent 70%),
+        radial-gradient(35% 50% at 80% 25%, rgba(6, 182, 212, 0.24), transparent 70%),
+        radial-gradient(45% 60% at 55% 75%, rgba(168, 85, 247, 0.22), transparent 70%);
+}
+
+/* Custom dashboard components */
+html.dark .dash-toppick,
+html.dark .dash-stat,
+html.dark .dash-pill {
+    background: #131a2a;
+    border-color: rgba(148, 163, 184, 0.16);
+}
+
+html.dark .dash-toppick { box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.4); }
+html.dark .dash-stat { box-shadow: 0 2px 10px -2px rgba(0, 0, 0, 0.45); }
+html.dark .dash-pill { box-shadow: 0 2px 6px -2px rgba(0, 0, 0, 0.4); }
+
+html.dark #knowledgeAreasGrid > div:hover {
+    border-color: rgba(99, 102, 241, 0.6);
+    box-shadow: 0 18px 44px -16px rgba(99, 102, 241, 0.5);
+}
+
+/* Inputs */
+html.dark input,
+html.dark textarea,
+html.dark select {
+    color: #e2e8f0;
+}
+
+html.dark input::placeholder,
+html.dark textarea::placeholder,
+html.dark .placeholder-slate-400::placeholder {
+    color: #64748b;
+}
+
+/* Scrollbar */
+html.dark ::-webkit-scrollbar-track {
+    background: #0f1521;
+}
+
+html.dark ::-webkit-scrollbar-thumb {
+    background: #334155;
+}
+
+html.dark ::-webkit-scrollbar-thumb:hover {
+    background: #475569;
+}
+
+html.dark .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: #334155;
+}
+
+html.dark .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: #475569;
+}
