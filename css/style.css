@@ -27,7 +27,7 @@ html {
 .bg-radial-grid {
     background-color: #f8fafc;
     background-image:
-        radial-gradient(circle at 50% 50%, rgba(99, 102, 241, 0.05) 0%, transparent 80%),
+        radial-gradient(circle at 50% 50%, rgba(29, 78, 216, 0.05) 0%, transparent 80%),
         linear-gradient(rgba(148, 163, 184, 0.08) 1px, transparent 1px),
         linear-gradient(90deg, rgba(148, 163, 184, 0.08) 1px, transparent 1px);
     background-size: 100% 100%, 24px 24px, 24px 24px;
@@ -58,7 +58,7 @@ html {
 .bg-hero-grid {
     background-color: #f8fafc;
     background-image:
-        radial-gradient(circle at 25% 35%, rgba(99, 102, 241, 0.07) 0%, transparent 55%),
+        radial-gradient(circle at 25% 35%, rgba(29, 78, 216, 0.07) 0%, transparent 55%),
         radial-gradient(circle at 75% 70%, rgba(6, 182, 212, 0.05) 0%, transparent 50%);
 }
 
@@ -78,7 +78,7 @@ html {
 /* Top-pick strip */
 .dash-toppick {
     background: white;
-    border: 1px solid rgba(99, 102, 241, 0.12);
+    border: 1px solid rgba(29, 78, 216, 0.12);
     border-radius: 16px;
     padding: 12px 14px;
     margin-bottom: 14px;
@@ -87,12 +87,12 @@ html {
     gap: 12px;
     position: relative;
     overflow: hidden;
-    box-shadow: 0 2px 8px -2px rgba(99, 102, 241, 0.08);
+    box-shadow: 0 2px 8px -2px rgba(29, 78, 216, 0.08);
     transition: box-shadow 0.2s, transform 0.2s;
 }
 
 .dash-toppick:hover {
-    box-shadow: 0 6px 20px -4px rgba(99, 102, 241, 0.15);
+    box-shadow: 0 6px 20px -4px rgba(29, 78, 216, 0.15);
     transform: translateY(-1px);
 }
 
@@ -100,7 +100,7 @@ html {
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(90deg, transparent 55%, rgba(99, 102, 241, 0.03));
+    background: linear-gradient(90deg, transparent 55%, rgba(29, 78, 216, 0.03));
     pointer-events: none;
 }
 
@@ -119,7 +119,7 @@ html {
 
 .dash-stat:hover {
     transform: translateY(-3px) scale(1.015);
-    box-shadow: 0 12px 28px -6px rgba(99, 102, 241, 0.14);
+    box-shadow: 0 12px 28px -6px rgba(29, 78, 216, 0.14);
 }
 
 .dash-stat-glow {
@@ -173,7 +173,7 @@ html {
 }
 
 .dash-pill:hover {
-    box-shadow: 0 8px 20px -4px rgba(99, 102, 241, 0.12);
+    box-shadow: 0 8px 20px -4px rgba(29, 78, 216, 0.12);
     transform: translateY(-2px);
 }
 
@@ -202,13 +202,13 @@ html {
 
 /* ==================== ADMINISTRATIVE CONSOLE GRID OVERRIDES ==================== */
 .admin-tab.active {
-    background-color: rgba(99, 102, 241, 0.08);
-    border: 1px solid rgba(99, 102, 241, 0.2);
+    background-color: rgba(29, 78, 216, 0.08);
+    border: 1px solid rgba(29, 78, 216, 0.2);
 }
 
 .dash-tab.active {
-    background-color: rgba(99, 102, 241, 0.08);
-    border: 1px solid rgba(99, 102, 241, 0.2);
+    background-color: rgba(29, 78, 216, 0.08);
+    border: 1px solid rgba(29, 78, 216, 0.2);
 }
 
 /* Clean abstract glowing gradient spots */
@@ -237,6 +237,12 @@ html {
             rgba(0, 0, 0, 0.85) 100%);
     z-index: 1;
     border-radius: 12px;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+
+.coverflow-book.active .mw-card-overlay {
+    opacity: 1;
 }
 
 /* Premium dynamic meta header row inside coverflow cards */
@@ -251,11 +257,19 @@ html {
     align-items: center;
     gap: 6px;
     pointer-events: none;
+    opacity: 0;
+    transform: translateY(-6px);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.coverflow-book.active .mw-card-meta-row {
+    opacity: 1;
+    transform: translateY(0);
 }
 
 /* Category badge */
 .mw-card-badge {
-    background: rgba(99, 102, 241, 0.88);
+    background: rgba(29, 78, 216, 0.88);
     backdrop-filter: blur(6px);
     color: #fff;
     font-size: 8px;
@@ -286,16 +300,6 @@ html {
     gap: 3px;
     flex-shrink: 0;
     transition: all 0.3s ease;
-}
-
-/* Hide category badge on peripheral (non-active) coverflow cards to keep them perfectly clean and responsive */
-.coverflow-book:not(.active) .mw-card-badge {
-    display: none !important;
-}
-
-/* Center ratings for non-active cards */
-.coverflow-book:not(.active) .mw-card-meta-row {
-    justify-content: flex-end !important;
 }
 
 /* High-fidelity responsiveness for meta overlays */
@@ -400,7 +404,14 @@ html {
     padding: 28px 12px 12px;
     text-align: center;
     border-radius: 0 0 12px 12px;
-    transition: all 0.4s ease;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.coverflow-book.active .coverflow-book-info {
+    opacity: 1;
+    transform: translateY(0);
 }
 
 .coverflow-book-title {
@@ -410,13 +421,19 @@ html {
     color: #fff;
     letter-spacing: 0.4px;
     text-transform: uppercase;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .coverflow-book-author {
-    font-size: 11px;
+    font-size: 10px;
     color: #cbd5e1;
     font-style: italic;
     margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 /* Position states */
@@ -424,7 +441,7 @@ html {
     z-index: 15;
     transform: translateX(0) translateZ(50px) rotateY(0deg) scale(1.15);
     filter: brightness(1.1) contrast(1.08);
-    box-shadow: 0 20px 50px rgba(99, 102, 241, 0.25), 0 8px 24px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 20px 50px rgba(29, 78, 216, 0.25), 0 8px 24px rgba(0, 0, 0, 0.2);
 }
 
 .coverflow-book.prev {
@@ -492,10 +509,10 @@ html {
 
 .coverflow-btn:hover {
     background: #fff;
-    border-color: #6366f1;
+    border-color: #2563eb;
     /* Dynamic brand highlight */
-    color: #6366f1;
-    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.14);
+    color: #2563eb;
+    box-shadow: 0 6px 20px rgba(29, 78, 216, 0.14);
     /* Brand glow */
     transform: scale(1.08);
 }
@@ -523,7 +540,7 @@ html {
 }
 
 .coverflow-indicator.active {
-    background: #6366f1;
+    background: #2563eb;
     transform: scale(1.4);
 }
 
@@ -539,6 +556,24 @@ html {
         margin-left: -90px;
         margin-top: -135px;
     }
+
+    .coverflow-book.prev {
+        transform: translateX(-170px) translateZ(-100px) rotateY(26deg) scale(0.93);
+    }
+
+    .coverflow-book.next {
+        transform: translateX(170px) translateZ(-100px) rotateY(-26deg) scale(0.93);
+    }
+
+    .coverflow-book.far-prev {
+        transform: translateX(-310px) translateZ(-200px) rotateY(35deg) scale(0.75);
+        opacity: 0.75;
+    }
+
+    .coverflow-book.far-next {
+        transform: translateX(310px) translateZ(-200px) rotateY(-35deg) scale(0.75);
+        opacity: 0.75;
+    }
 }
 
 @media (max-width: 992px) {
@@ -553,6 +588,26 @@ html {
         margin-left: -80px;
         margin-top: -120px;
     }
+
+    .coverflow-book.prev {
+        transform: translateX(-135px) translateZ(-80px) rotateY(24deg) scale(0.9);
+    }
+
+    .coverflow-book.next {
+        transform: translateX(135px) translateZ(-80px) rotateY(-24deg) scale(0.9);
+    }
+
+    .coverflow-book.far-prev {
+        transform: translateX(-240px) translateZ(-180px) rotateY(32deg) scale(0.7);
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .coverflow-book.far-next {
+        transform: translateX(240px) translateZ(-180px) rotateY(-32deg) scale(0.7);
+        opacity: 0;
+        pointer-events: none;
+    }
 }
 
 @media (max-width: 768px) {
@@ -562,40 +617,53 @@ html {
     }
 
     .coverflow-book {
-        width: 140px;
-        height: 210px;
-        margin-left: -70px;
-        margin-top: -105px;
+        width: 135px;
+        height: 202px;
+        margin-left: -67.5px;
+        margin-top: -101px;
     }
 
     .coverflow-book.active {
-        transform: translateX(0) translateZ(0) rotateY(0deg) scale(1.15);
+        transform: translateX(0) translateZ(30px) rotateY(0deg) scale(1.15);
     }
 
     .coverflow-book.prev {
-        transform: translateX(-120px) translateZ(-70px) rotateY(25deg) scale(0.85);
+        transform: translateX(-100px) translateZ(-60px) rotateY(20deg) scale(0.88);
     }
 
     .coverflow-book.next {
-        transform: translateX(120px) translateZ(-70px) rotateY(-25deg) scale(0.85);
+        transform: translateX(100px) translateZ(-60px) rotateY(-20deg) scale(0.88);
     }
 
     .coverflow-book.far-prev {
-        transform: translateX(-200px) translateZ(-140px) rotateY(35deg) scale(0.75);
+        transform: translateX(-170px) translateZ(-120px) rotateY(30deg) scale(0.7);
+        opacity: 0;
+        pointer-events: none;
     }
 
     .coverflow-book.far-next {
-        transform: translateX(200px) translateZ(-140px) rotateY(-35deg) scale(0.75);
+        transform: translateX(170px) translateZ(-120px) rotateY(-30deg) scale(0.7);
+        opacity: 0;
+        pointer-events: none;
     }
 
     .coverflow-controls {
-        padding: 0 10px;
+        padding: 0 16px;
     }
 
     .coverflow-btn {
-        width: 40px;
-        height: 40px;
-        font-size: 15px;
+        width: 38px;
+        height: 38px;
+        font-size: 14px;
+        border-radius: 12px;
+    }
+
+    .coverflow-book-title {
+        font-size: 11px;
+    }
+
+    .coverflow-book-author {
+        font-size: 9px;
     }
 }
 
@@ -606,60 +674,88 @@ html {
     }
 
     .coverflow-book {
-        width: 120px;
-        height: 180px;
-        margin-left: -60px;
-        margin-top: -90px;
+        width: 115px;
+        height: 172px;
+        margin-left: -57.5px;
+        margin-top: -86px;
     }
 
     .coverflow-book.active {
-        transform: translateX(0) translateZ(0) rotateY(0deg) scale(1.2);
+        transform: translateX(0) translateZ(25px) rotateY(0deg) scale(1.15);
     }
 
     .coverflow-book.prev {
-        transform: translateX(-100px) translateZ(-60px) rotateY(20deg) scale(0.8);
+        transform: translateX(-80px) translateZ(-50px) rotateY(18deg) scale(0.85);
     }
 
     .coverflow-book.next {
-        transform: translateX(100px) translateZ(-60px) rotateY(-20deg) scale(0.8);
+        transform: translateX(80px) translateZ(-50px) rotateY(-18deg) scale(0.85);
+    }
+
+    .coverflow-book.far-prev,
+    .coverflow-book.far-next {
+        opacity: 0;
+        pointer-events: none;
     }
 
     .coverflow-btn {
-        width: 36px;
-        height: 36px;
+        width: 34px;
+        height: 34px;
         font-size: 13px;
+        border-radius: 10px;
+    }
+
+    .coverflow-book-title {
+        font-size: 10px;
+    }
+
+    .coverflow-book-author {
+        font-size: 8px;
     }
 }
 
 @media (max-width: 480px) {
     .coverflow-carousel {
-        height: 230px;
+        height: 220px;
         perspective: 600px;
     }
 
     .coverflow-book {
-        width: 100px;
-        height: 150px;
-        margin-left: -50px;
-        margin-top: -75px;
+        width: 95px;
+        height: 142px;
+        margin-left: -47.5px;
+        margin-top: -71px;
     }
 
     .coverflow-book.active {
-        transform: translateX(0) translateZ(0) rotateY(0deg) scale(1.2);
+        transform: translateX(0) translateZ(20px) rotateY(0deg) scale(1.15);
     }
 
     .coverflow-book.prev {
-        transform: translateX(-80px) translateZ(-50px) rotateY(20deg) scale(0.8);
+        transform: translateX(-62px) translateZ(-40px) rotateY(16deg) scale(0.85);
     }
 
     .coverflow-book.next {
-        transform: translateX(80px) translateZ(-50px) rotateY(-20deg) scale(0.8);
+        transform: translateX(62px) translateZ(-40px) rotateY(-16deg) scale(0.85);
     }
 
     .coverflow-btn {
-        width: 32px;
-        height: 32px;
-        font-size: 12px;
+        width: 30px;
+        height: 30px;
+        font-size: 11px;
+        border-radius: 8px;
+    }
+
+    .coverflow-book-title {
+        font-size: 9px;
+    }
+
+    .coverflow-book-author {
+        font-size: 7.5px;
+    }
+
+    .coverflow-controls {
+        padding: 0 8px;
     }
 }
 
@@ -678,7 +774,7 @@ html {
     box-shadow: 
         0 4px 6px -1px rgba(0, 0, 0, 0.01),
         0 20px 40px -15px rgba(15, 23, 42, 0.12),
-        0 0 50px rgba(99, 102, 241, 0.03),
+        0 0 50px rgba(29, 78, 216, 0.03),
         inset 0 1px 0 rgba(255, 255, 255, 0.8) !important;
     border-radius: 28px !important;
     padding: 20px 32px 20px 24px !important; /* Reduced top/bottom padding to make layout snug */
@@ -700,7 +796,7 @@ html {
     right: -150px;
     width: 320px;
     height: 320px;
-    background: radial-gradient(circle, rgba(99, 102, 241, 0.08) 0%, rgba(255, 255, 255, 0) 70%);
+    background: radial-gradient(circle, rgba(29, 78, 216, 0.08) 0%, rgba(255, 255, 255, 0) 70%);
     z-index: -1;
     pointer-events: none;
 }
@@ -728,10 +824,10 @@ html {
 
 #bookModal .modal-card button[onclick="closeBookModal()"]:hover {
     background: #fff !important;
-    border-color: #6366f1 !important;
-    color: #6366f1 !important;
+    border-color: #2563eb !important;
+    color: #2563eb !important;
     transform: rotate(90deg) scale(1.05) !important;
-    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.12) !important;
+    box-shadow: 0 4px 12px rgba(29, 78, 216, 0.12) !important;
 }
 
 /* Book Cover Styling */
@@ -765,10 +861,10 @@ html {
     text-transform: uppercase !important;
     padding: 6px 14px !important;
     border-radius: 9999px !important;
-    border: 1px solid rgba(99, 102, 241, 0.15) !important;
-    background: rgba(99, 102, 241, 0.06) !important;
-    color: #4f46e5 !important;
-    box-shadow: 0 2px 6px rgba(99, 102, 241, 0.04) !important;
+    border: 1px solid rgba(29, 78, 216, 0.15) !important;
+    background: rgba(29, 78, 216, 0.06) !important;
+    color: #1d4ed8 !important;
+    box-shadow: 0 2px 6px rgba(29, 78, 216, 0.04) !important;
     margin-bottom: 12px !important; /* Tightened category badge bottom margin */
 }
 
@@ -796,7 +892,7 @@ html {
 
 #modalBookMeta > div:hover {
     background: #fff !important;
-    border-color: rgba(99, 102, 241, 0.25) !important;
+    border-color: rgba(29, 78, 216, 0.25) !important;
     box-shadow: 0 4px 12px rgba(15, 23, 42, 0.03) !important;
     transform: translateY(-1px);
 }
@@ -805,9 +901,9 @@ html {
     width: 38px;
     height: 38px;
     border-radius: 12px;
-    background: rgba(99, 102, 241, 0.06);
-    border: 1px solid rgba(99, 102, 241, 0.1);
-    color: #6366f1;
+    background: rgba(29, 78, 216, 0.06);
+    border: 1px solid rgba(29, 78, 216, 0.1);
+    color: #2563eb;
     display: flex;
     align-items: center;
     justify-content: center;

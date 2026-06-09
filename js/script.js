@@ -2425,6 +2425,7 @@ function registerEvent(eventIndex) {
 function toggleFAQ(faqIndex) {
     const content = document.getElementById(`faqContent${faqIndex}`);
     const icon = document.getElementById(`faqIcon${faqIndex}`);
+    const card = document.getElementById(`faqCard${faqIndex}`);
 
     if (!content || !icon) return;
 
@@ -2445,6 +2446,17 @@ function toggleFAQ(faqIndex) {
         content.style.opacity = '1';
 
         gsap.to(icon, { rotate: 180, duration: 0.22 });
+        if (card) {
+            card.classList.add('border-brand-500/35', 'bg-brand-50/5', 'shadow-md');
+            card.classList.remove('hover:bg-slate-50/30');
+            const iconBox = card.querySelector('.faq-icon-box');
+            if (iconBox) {
+                const expandedBg = iconBox.dataset.expandedBg || 'bg-brand-50';
+                const expandedText = iconBox.dataset.expandedText || 'text-brand-600';
+                iconBox.classList.remove('bg-brand-600', 'bg-cyan-600', 'bg-violet-600', 'bg-emerald-600', 'bg-amber-600', 'bg-rose-600', 'text-white');
+                iconBox.classList.add(expandedBg, expandedText);
+            }
+        }
     } else {
         const fullHeight = content.scrollHeight;
         content.style.maxHeight = fullHeight + 'px';
@@ -2456,6 +2468,16 @@ function toggleFAQ(faqIndex) {
         content.style.opacity = '0';
 
         gsap.to(icon, { rotate: 0, duration: 0.2 });
+        if (card) {
+            card.classList.remove('border-brand-500/35', 'bg-brand-50/5', 'shadow-md');
+            card.classList.add('hover:bg-slate-50/30');
+            const iconBox = card.querySelector('.faq-icon-box');
+            if (iconBox) {
+                iconBox.classList.remove('bg-brand-50', 'text-brand-600', 'bg-cyan-50', 'text-cyan-600', 'bg-violet-50', 'text-violet-600', 'bg-emerald-50', 'text-emerald-600', 'bg-amber-50', 'text-amber-600', 'bg-rose-50', 'text-rose-600');
+                const originalBg = iconBox.dataset.originalBg || 'bg-brand-600';
+                iconBox.classList.add(originalBg, 'text-white');
+            }
+        }
 
         content.addEventListener('transitionend', function handler() {
             content.classList.add('hidden');
