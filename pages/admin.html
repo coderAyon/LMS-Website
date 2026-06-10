@@ -4,12 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Administrative Console — Bibliotheca LMS</title>
+    <title>Administrative Console — GBLMS</title>
 
     <!-- Meta SEO -->
     <meta name="description"
         content="Manage structural metadata indexes, upload volume records, modify publication details, and control database schemas.">
-    <meta name="author" content="Antigravity LMS">
+    <meta name="author" content="GBLMS">
 
     <!-- Google Fonts: Plus Jakarta Sans & Playfair Display -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -31,16 +31,17 @@
                     },
                     colors: {
                         brand: {
-                            50: '#f5f3ff',
-                            100: '#ede9fe',
-                            500: '#6366f1',
-                            600: '#4f46e5',
-                            700: '#4338ca',
-                            900: '#312e81',
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#2563eb',
+                            600: '#1d4ed8',
+                            700: '#1e40af',
+                            900: '#1e3a8a',
                         },
                         accent: {
-                            500: '#06b6d4',
-                            600: '#0891b2',
+                            50: '#fef2f2',
+                            500: '#dc2626',
+                            600: '#b91c1c',
                         }
                     }
                 }
@@ -65,15 +66,50 @@
 
             <!-- Logo Section -->
             <a href="#" onclick="navigateTo('home')" class="flex items-center gap-3 group">
-                <div
-                    class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-accent-500 flex items-center justify-center shadow-lg shadow-brand-500/20 group-hover:scale-105 transition-transform duration-300">
-                    <i data-lucide="library" class="w-5 h-5 text-white"></i>
+                <div class="w-12 h-14 shrink-0 transition-transform duration-300 group-hover:scale-105">
+                    <svg viewBox="0 0 100 120" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Sun Rays (Red) -->
+                        <path d="M 50 15 L 50 2" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round"/>
+                        <path d="M 38 18 L 26 8" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round"/>
+                        <path d="M 62 18 L 74 8" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round"/>
+                        <path d="M 29 26 L 15 19" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round"/>
+                        <path d="M 71 26 L 85 19" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round"/>
+                        <!-- Rising Sun (Red) -->
+                        <path d="M 32 28 A 18 18 0 0 1 68 28 Z" fill="#dc2626" />
+                        <!-- Shield Outline & Background (Royal Blue with Gold border) -->
+                        <path d="M 15 28 L 85 28 L 85 75 Q 85 98 50 108 Q 15 98 15 75 Z" fill="#1e3a8a" stroke="#d97706" stroke-width="3" stroke-linejoin="round"/>
+                        <!-- Hexagon grid lines (Gold) -->
+                        <line x1="15" y1="36" x2="35" y2="46" stroke="#d97706" stroke-width="1.5" opacity="0.8"/>
+                        <line x1="85" y1="36" x2="65" y2="46" stroke="#d97706" stroke-width="1.5" opacity="0.8"/>
+                        <line x1="15" y1="68" x2="35" y2="58" stroke="#d97706" stroke-width="1.5" opacity="0.8"/>
+                        <line x1="85" y1="68" x2="65" y2="58" stroke="#d97706" stroke-width="1.5" opacity="0.8"/>
+                        <!-- Central Hexagon (White with Gold border) -->
+                        <polygon points="50,34 65,42.5 65,60 50,68.5 35,60 35,42.5" fill="#ffffff" stroke="#d97706" stroke-width="2"/>
+                        <!-- Water Lily & Book combo inside Hexagon (Red shapla sitting on a red open book) -->
+                        <path d="M 40 58 Q 45 56 50 59 Q 55 56 60 58 L 60 54 Q 55 52 50 55 Q 45 52 40 54 Z" fill="#dc2626"/>
+                        <line x1="50" y1="55" x2="50" y2="59" stroke="#ffffff" stroke-width="1"/>
+                        <path d="M 50 38 Q 47 46 50 53 Q 53 46 50 38 Z" fill="#dc2626"/>
+                        <path d="M 50 53 Q 41 45 42 42 Q 47 43 50 51 Z" fill="#dc2626"/>
+                        <path d="M 50 53 Q 36 51 38 48 Q 43 47 50 52 Z" fill="#dc2626"/>
+                        <path d="M 50 53 Q 59 45 58 42 Q 53 43 50 51 Z" fill="#dc2626"/>
+                        <path d="M 50 53 Q 64 51 62 48 Q 57 47 50 52 Z" fill="#dc2626"/>
+                        <!-- Eyeball Shape at the bottom (White) -->
+                        <path d="M 28 80 Q 50 67 72 80 Q 50 93 28 80 Z" fill="#ffffff"/>
+                        <!-- Globe pupil -->
+                        <circle cx="50" cy="80" r="7" fill="#1e3a8a" />
+                        <circle cx="50" cy="80" r="7" fill="none" stroke="#ffffff" stroke-width="0.8"/>
+                        <ellipse cx="50" cy="80" rx="3" ry="7" fill="none" stroke="#ffffff" stroke-width="0.8"/>
+                        <line x1="43" y1="80" x2="57" y2="80" stroke="#ffffff" stroke-width="0.8"/>
+                        <!-- Golden Banner Ribbon at bottom -->
+                        <path d="M 8 102 L 20 95 L 80 95 L 92 102 L 86 112 L 50 114 L 14 112 Z" fill="#d97706" stroke="#b45309" stroke-width="1"/>
+                        <path d="M 8 102 L 14 112 L 14 100 Z" fill="#92400e"/>
+                        <path d="M 92 102 L 86 112 L 86 100 Z" fill="#92400e"/>
+                        <text x="50" y="108" font-family="'Plus Jakarta Sans', sans-serif" font-weight="900" font-size="8" fill="#dc2626" text-anchor="middle" letter-spacing="1">GBLMS</text>
+                    </svg>
                 </div>
                 <div class="flex flex-col">
-                    <span
-                        class="text-lg font-extrabold tracking-tight bg-gradient-to-r from-slate-950 to-slate-800 bg-clip-text text-transparent">BIBLIOTHECA</span>
-                    <span class="text-[10px] font-medium tracking-widest text-brand-600 uppercase">Intelligent
-                        LMS</span>
+                    <span class="text-xl font-extrabold tracking-tight text-slate-900 leading-none">GBLMS</span>
+                    <span class="text-[9px] font-bold tracking-widest text-brand-600 uppercase mt-0.5">GB Library Portal</span>
                 </div>
             </a>
 
@@ -105,7 +141,7 @@
                     <button onclick="toggleUserDropdown(event)" id="userDropdownBtn"
                         class="flex items-center gap-2.5 bg-slate-100/80 hover:bg-slate-200/50 border border-slate-200/80 px-3 py-1.5 rounded-xl active:scale-95 transition-all duration-200 focus:outline-none select-none">
                         <div id="userAvatar"
-                            class="w-8 h-8 rounded-lg bg-gradient-to-tr from-brand-600 to-accent-500 flex items-center justify-center text-xs font-bold text-white uppercase shrink-0">
+                            class="w-8 h-8 rounded-lg bg-brand-600 flex items-center justify-center text-xs font-bold text-white uppercase shrink-0">
                             A
                         </div>
                         <div class="hidden lg:flex flex-col text-left">
@@ -412,10 +448,48 @@
                 <!-- Brand block column -->
                 <div class="col-span-1 md:col-span-4 flex flex-col gap-5">
                     <div class="flex items-center gap-3">
-                        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-600 to-accent-500 flex items-center justify-center shadow-lg shadow-brand-500/20">
-                            <i data-lucide="library" class="w-4 h-4 text-white"></i>
+                        <div class="w-9 h-10 shrink-0">
+                            <svg viewBox="0 0 100 120" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+                                <!-- Sun Rays (Red) -->
+                                <path d="M 50 15 L 50 2" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round"/>
+                                <path d="M 38 18 L 26 8" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round"/>
+                                <path d="M 62 18 L 74 8" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round"/>
+                                <path d="M 29 26 L 15 19" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round"/>
+                                <path d="M 71 26 L 85 19" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round"/>
+                                <!-- Rising Sun (Red) -->
+                                <path d="M 32 28 A 18 18 0 0 1 68 28 Z" fill="#dc2626" />
+                                <!-- Shield Outline & Background (Royal Blue with Gold border) -->
+                                <path d="M 15 28 L 85 28 L 85 75 Q 85 98 50 108 Q 15 98 15 75 Z" fill="#1e3a8a" stroke="#d97706" stroke-width="3" stroke-linejoin="round"/>
+                                <!-- Hexagon grid lines (Gold) -->
+                                <line x1="15" y1="36" x2="35" y2="46" stroke="#d97706" stroke-width="1.5" opacity="0.8"/>
+                                <line x1="85" y1="36" x2="65" y2="46" stroke="#d97706" stroke-width="1.5" opacity="0.8"/>
+                                <line x1="15" y1="68" x2="35" y2="58" stroke="#d97706" stroke-width="1.5" opacity="0.8"/>
+                                <line x1="85" y1="68" x2="65" y2="58" stroke="#d97706" stroke-width="1.5" opacity="0.8"/>
+                                <!-- Central Hexagon (White with Gold border) -->
+                                <polygon points="50,34 65,42.5 65,60 50,68.5 35,60 35,42.5" fill="#ffffff" stroke="#d97706" stroke-width="2"/>
+                                <!-- Water Lily & Book combo inside Hexagon (Red shapla sitting on a red open book) -->
+                                <path d="M 40 58 Q 45 56 50 59 Q 55 56 60 58 L 60 54 Q 55 52 50 55 Q 45 52 40 54 Z" fill="#dc2626"/>
+                                <line x1="50" y1="55" x2="50" y2="59" stroke="#ffffff" stroke-width="1"/>
+                                <path d="M 50 38 Q 47 46 50 53 Q 53 46 50 38 Z" fill="#dc2626"/>
+                                <path d="M 50 53 Q 41 45 42 42 Q 47 43 50 51 Z" fill="#dc2626"/>
+                                <path d="M 50 53 Q 36 51 38 48 Q 43 47 50 52 Z" fill="#dc2626"/>
+                                <path d="M 50 53 Q 59 45 58 42 Q 53 43 50 51 Z" fill="#dc2626"/>
+                                <path d="M 50 53 Q 64 51 62 48 Q 57 47 50 52 Z" fill="#dc2626"/>
+                                <!-- Eyeball Shape at the bottom (White) -->
+                                <path d="M 28 80 Q 50 67 72 80 Q 50 93 28 80 Z" fill="#ffffff"/>
+                                <!-- Globe pupil -->
+                                <circle cx="50" cy="80" r="7" fill="#1e3a8a" />
+                                <circle cx="50" cy="80" r="7" fill="none" stroke="#ffffff" stroke-width="0.8"/>
+                                <ellipse cx="50" cy="80" rx="3" ry="7" fill="none" stroke="#ffffff" stroke-width="0.8"/>
+                                <line x1="43" y1="80" x2="57" y2="80" stroke="#ffffff" stroke-width="0.8"/>
+                                <!-- Golden Banner Ribbon at bottom -->
+                                <path d="M 8 102 L 20 95 L 80 95 L 92 102 L 86 112 L 50 114 L 14 112 Z" fill="#d97706" stroke="#b45309" stroke-width="1"/>
+                                <path d="M 8 102 L 14 112 L 14 100 Z" fill="#92400e"/>
+                                <path d="M 92 102 L 86 112 L 86 100 Z" fill="#92400e"/>
+                                <text x="50" y="108" font-family="'Plus Jakarta Sans', sans-serif" font-weight="900" font-size="8" fill="#dc2626" text-anchor="middle" letter-spacing="1">GBLMS</text>
+                            </svg>
                         </div>
-                        <span class="text-lg font-black tracking-tight text-white">BIBLIOTHECA</span>
+                        <span class="text-lg font-black tracking-tight text-white">GBLMS</span>
                     </div>
                     <p class="text-slate-400 text-xs leading-relaxed max-w-sm">
                         Enterprise library metadata systems and catalog distribution services. Engineered with ultra-high performance asynchronous cores and compliant semantic frameworks.
@@ -494,7 +568,7 @@
 
             <!-- Bottom Copyright & Actions Bar -->
             <div class="border-t border-slate-800/60 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-                <span class="text-[11px] font-bold text-slate-500">Copyright © 2026 Bibliotheca LMS Corporation. All Rights Reserved.</span>
+                <span class="text-[11px] font-bold text-slate-500">Copyright © 2026 GBLMS. All Rights Reserved.</span>
                 <div class="flex gap-6 text-[11px] font-bold text-slate-500">
                     <a href="#" class="hover:text-white transition-colors duration-200">Security Specs</a>
                     <a href="#" class="hover:text-white transition-colors duration-200">Privacy Policy</a>

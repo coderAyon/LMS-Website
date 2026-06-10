@@ -5,19 +5,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GBLMS — Gono Bishwabidyalay Library Portal</title>
- 
+
     <!-- Meta SEO -->
     <meta name="description"
         content="A premium corporate Library Management System configured with smart analytics, role management, catalog discovery, and offline data syncing.">
     <meta name="author" content="GBLMS">
- 
+
     <!-- Google Fonts: Plus Jakarta Sans & Playfair Display -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
         href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&display=swap"
         rel="stylesheet">
- 
+
     <!-- Tailwind CSS Play CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -53,12 +53,13 @@
 
     <!-- Native CSS Stylesheet override for customizations -->
     <link rel="stylesheet" href="css/style.css">
-    
+
     <style>
         /* 3D Book Animation */
         .book-perspective {
             perspective: 1200px;
         }
+
         .book-floater {
             position: relative;
             width: 260px;
@@ -66,6 +67,7 @@
             animation: floatBook 4.5s ease-in-out infinite;
             transform-style: preserve-3d;
         }
+
         .book-container {
             width: 260px;
             height: 385px;
@@ -74,9 +76,11 @@
             transform: rotateY(-22deg) rotateX(10deg);
             transition: transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
+
         .book-floater:hover .book-container {
             transform: rotateY(-4deg) rotateX(4deg) scale(1.06);
         }
+
         .book-back {
             position: absolute;
             width: 100%;
@@ -87,6 +91,7 @@
             transform: translateZ(-12px);
             z-index: 1;
         }
+
         .book-spine {
             position: absolute;
             width: 24px;
@@ -97,6 +102,7 @@
             border-radius: 3px 0 0 3px;
             z-index: 2;
         }
+
         .book-page {
             position: absolute;
             width: 252px;
@@ -105,33 +111,39 @@
             top: 5px;
             right: 2px;
             border-radius: 0 6px 6px 0;
-            box-shadow: inset -3px 0 6px rgba(0,0,0,0.05), -2px 0 5px rgba(0,0,0,0.08);
+            box-shadow: inset -3px 0 6px rgba(0, 0, 0, 0.05), -2px 0 5px rgba(0, 0, 0, 0.08);
             transform-origin: left center;
             transition: transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
+
         .book-page-1 {
             transform: translateZ(9px);
             z-index: 4;
         }
+
         .book-page-2 {
             transform: translateZ(6px);
             z-index: 3;
         }
+
         .book-page-3 {
             transform: translateZ(3px);
             z-index: 2;
         }
+
         /* Fan pages on hover */
         .book-floater:hover .book-page-1 {
             transform: rotateY(-24deg) translateZ(9px);
         }
+
         .book-floater:hover .book-page-2 {
             transform: rotateY(-15deg) translateZ(6px);
         }
+
         .book-floater:hover .book-page-3 {
             transform: rotateY(-6deg) translateZ(3px);
         }
-        
+
         .book-front {
             position: absolute;
             width: 100%;
@@ -145,9 +157,11 @@
             overflow: hidden;
             z-index: 5;
         }
+
         .book-floater:hover .book-front {
             transform: rotateY(-36deg) translateZ(12px);
         }
+
         .book-shadow {
             position: absolute;
             bottom: -35px;
@@ -161,18 +175,25 @@
         }
 
         @keyframes floatBook {
-            0%, 100% {
+
+            0%,
+            100% {
                 transform: translateY(0px);
             }
+
             50% {
                 transform: translateY(-16px);
             }
         }
+
         @keyframes floatShadow {
-            0%, 100% {
+
+            0%,
+            100% {
                 transform: translateX(-50%) rotateX(85deg) scale(1);
                 opacity: 1;
             }
+
             50% {
                 transform: translateX(-50%) rotateX(85deg) scale(0.82);
                 opacity: 0.45;
@@ -195,47 +216,53 @@
                 <div class="w-12 h-14 shrink-0 transition-transform duration-300 group-hover:scale-105">
                     <svg viewBox="0 0 100 120" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
                         <!-- Sun Rays (Red) -->
-                        <path d="M 50 15 L 50 2" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round"/>
-                        <path d="M 38 18 L 26 8" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round"/>
-                        <path d="M 62 18 L 74 8" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round"/>
-                        <path d="M 29 26 L 15 19" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round"/>
-                        <path d="M 71 26 L 85 19" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round"/>
+                        <path d="M 50 15 L 50 2" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" />
+                        <path d="M 38 18 L 26 8" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" />
+                        <path d="M 62 18 L 74 8" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" />
+                        <path d="M 29 26 L 15 19" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" />
+                        <path d="M 71 26 L 85 19" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" />
                         <!-- Rising Sun (Red) -->
                         <path d="M 32 28 A 18 18 0 0 1 68 28 Z" fill="#dc2626" />
                         <!-- Shield Outline & Background (Royal Blue with Gold border) -->
-                        <path d="M 15 28 L 85 28 L 85 75 Q 85 98 50 108 Q 15 98 15 75 Z" fill="#1e3a8a" stroke="#d97706" stroke-width="3" stroke-linejoin="round"/>
+                        <path d="M 15 28 L 85 28 L 85 75 Q 85 98 50 108 Q 15 98 15 75 Z" fill="#1e3a8a" stroke="#d97706"
+                            stroke-width="3" stroke-linejoin="round" />
                         <!-- Hexagon grid lines (Gold) -->
-                        <line x1="15" y1="36" x2="35" y2="46" stroke="#d97706" stroke-width="1.5" opacity="0.8"/>
-                        <line x1="85" y1="36" x2="65" y2="46" stroke="#d97706" stroke-width="1.5" opacity="0.8"/>
-                        <line x1="15" y1="68" x2="35" y2="58" stroke="#d97706" stroke-width="1.5" opacity="0.8"/>
-                        <line x1="85" y1="68" x2="65" y2="58" stroke="#d97706" stroke-width="1.5" opacity="0.8"/>
+                        <line x1="15" y1="36" x2="35" y2="46" stroke="#d97706" stroke-width="1.5" opacity="0.8" />
+                        <line x1="85" y1="36" x2="65" y2="46" stroke="#d97706" stroke-width="1.5" opacity="0.8" />
+                        <line x1="15" y1="68" x2="35" y2="58" stroke="#d97706" stroke-width="1.5" opacity="0.8" />
+                        <line x1="85" y1="68" x2="65" y2="58" stroke="#d97706" stroke-width="1.5" opacity="0.8" />
                         <!-- Central Hexagon (White with Gold border) -->
-                        <polygon points="50,34 65,42.5 65,60 50,68.5 35,60 35,42.5" fill="#ffffff" stroke="#d97706" stroke-width="2"/>
+                        <polygon points="50,34 65,42.5 65,60 50,68.5 35,60 35,42.5" fill="#ffffff" stroke="#d97706"
+                            stroke-width="2" />
                         <!-- Water Lily & Book combo inside Hexagon (Red shapla sitting on a red open book) -->
-                        <path d="M 40 58 Q 45 56 50 59 Q 55 56 60 58 L 60 54 Q 55 52 50 55 Q 45 52 40 54 Z" fill="#dc2626"/>
-                        <line x1="50" y1="55" x2="50" y2="59" stroke="#ffffff" stroke-width="1"/>
-                        <path d="M 50 38 Q 47 46 50 53 Q 53 46 50 38 Z" fill="#dc2626"/>
-                        <path d="M 50 53 Q 41 45 42 42 Q 47 43 50 51 Z" fill="#dc2626"/>
-                        <path d="M 50 53 Q 36 51 38 48 Q 43 47 50 52 Z" fill="#dc2626"/>
-                        <path d="M 50 53 Q 59 45 58 42 Q 53 43 50 51 Z" fill="#dc2626"/>
-                        <path d="M 50 53 Q 64 51 62 48 Q 57 47 50 52 Z" fill="#dc2626"/>
+                        <path d="M 40 58 Q 45 56 50 59 Q 55 56 60 58 L 60 54 Q 55 52 50 55 Q 45 52 40 54 Z"
+                            fill="#dc2626" />
+                        <line x1="50" y1="55" x2="50" y2="59" stroke="#ffffff" stroke-width="1" />
+                        <path d="M 50 38 Q 47 46 50 53 Q 53 46 50 38 Z" fill="#dc2626" />
+                        <path d="M 50 53 Q 41 45 42 42 Q 47 43 50 51 Z" fill="#dc2626" />
+                        <path d="M 50 53 Q 36 51 38 48 Q 43 47 50 52 Z" fill="#dc2626" />
+                        <path d="M 50 53 Q 59 45 58 42 Q 53 43 50 51 Z" fill="#dc2626" />
+                        <path d="M 50 53 Q 64 51 62 48 Q 57 47 50 52 Z" fill="#dc2626" />
                         <!-- Eyeball Shape at the bottom (White) -->
-                        <path d="M 28 80 Q 50 67 72 80 Q 50 93 28 80 Z" fill="#ffffff"/>
+                        <path d="M 28 80 Q 50 67 72 80 Q 50 93 28 80 Z" fill="#ffffff" />
                         <!-- Globe pupil -->
                         <circle cx="50" cy="80" r="7" fill="#1e3a8a" />
-                        <circle cx="50" cy="80" r="7" fill="none" stroke="#ffffff" stroke-width="0.8"/>
-                        <ellipse cx="50" cy="80" rx="3" ry="7" fill="none" stroke="#ffffff" stroke-width="0.8"/>
-                        <line x1="43" y1="80" x2="57" y2="80" stroke="#ffffff" stroke-width="0.8"/>
+                        <circle cx="50" cy="80" r="7" fill="none" stroke="#ffffff" stroke-width="0.8" />
+                        <ellipse cx="50" cy="80" rx="3" ry="7" fill="none" stroke="#ffffff" stroke-width="0.8" />
+                        <line x1="43" y1="80" x2="57" y2="80" stroke="#ffffff" stroke-width="0.8" />
                         <!-- Golden Banner Ribbon at bottom -->
-                        <path d="M 8 102 L 20 95 L 80 95 L 92 102 L 86 112 L 50 114 L 14 112 Z" fill="#d97706" stroke="#b45309" stroke-width="1"/>
-                        <path d="M 8 102 L 14 112 L 14 100 Z" fill="#92400e"/>
-                        <path d="M 92 102 L 86 112 L 86 100 Z" fill="#92400e"/>
-                        <text x="50" y="108" font-family="'Plus Jakarta Sans', sans-serif" font-weight="900" font-size="8" fill="#dc2626" text-anchor="middle" letter-spacing="1">GBLMS</text>
+                        <path d="M 8 102 L 20 95 L 80 95 L 92 102 L 86 112 L 50 114 L 14 112 Z" fill="#d97706"
+                            stroke="#b45309" stroke-width="1" />
+                        <path d="M 8 102 L 14 112 L 14 100 Z" fill="#92400e" />
+                        <path d="M 92 102 L 86 112 L 86 100 Z" fill="#92400e" />
+                        <text x="50" y="108" font-family="'Plus Jakarta Sans', sans-serif" font-weight="900"
+                            font-size="8" fill="#dc2626" text-anchor="middle" letter-spacing="1">GBLMS</text>
                     </svg>
                 </div>
                 <div class="flex flex-col">
-                    <span class="text-xl font-extrabold tracking-tight bg-gradient-to-r from-slate-950 to-slate-800 bg-clip-text text-transparent leading-none">GBLMS</span>
-                    <span class="text-[9px] font-bold tracking-widest text-brand-600 uppercase mt-0.5">GB Library Portal</span>
+                    <span class="text-xl font-extrabold tracking-tight text-slate-900 leading-none">GBLMS</span>
+                    <span class="text-[9px] font-bold tracking-widest text-brand-600 uppercase mt-0.5">GB Library
+                        Portal</span>
                 </div>
             </a>
 
@@ -269,7 +296,7 @@
                     <button onclick="toggleUserDropdown(event)" id="userDropdownBtn"
                         class="flex items-center gap-2.5 bg-slate-100/80 hover:bg-slate-200/50 border border-slate-200/80 px-3 py-1.5 rounded-xl active:scale-95 transition-all duration-200 focus:outline-none select-none">
                         <div id="userAvatar"
-                            class="w-8 h-8 rounded-lg bg-gradient-to-tr from-brand-600 to-accent-500 flex items-center justify-center text-xs font-bold text-white uppercase shrink-0">
+                            class="w-8 h-8 rounded-lg bg-brand-600 flex items-center justify-center text-xs font-bold text-white uppercase shrink-0">
                             A
                         </div>
                         <div class="hidden lg:flex flex-col text-left">
@@ -372,19 +399,21 @@
 
                             <!-- Eyebrow badge -->
                             <div
-                                class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-50 border border-brand-200/80 text-xs font-bold text-brand-600 mb-5 shadow-sm">
-                                <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
-                                <span>Enterprise Architecture Standard</span>
+                                class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-50/70 backdrop-blur-md border border-brand-600/30 text-xs font-bold text-brand-600 mb-5 shadow-sm hover:bg-brand-50 transition-colors duration-300">
+                                <i data-lucide="shield-check" class="w-3.5 h-3.5 text-brand-600"></i>
+                                <span class="tracking-wide">Enterprise Architecture Standard</span>
                             </div>
 
                             <!-- Headline -->
                             <h1
                                 class="text-4xl sm:text-5xl md:text-6xl font-black tracking-tight leading-tight mb-4 md:mb-5 text-slate-900">
-                                Discover<br>
-                                &amp; Control<br>
-                                <span
-                                    class="bg-gradient-to-r from-brand-600 via-violet-500 to-accent-500 bg-clip-text text-transparent font-serif italic font-semibold block pb-3 overflow-visible">Intelligent
-                                    Knowledge</span>
+                                <span class="hero-title-line block overflow-hidden"><span
+                                        class="inline-block">Discover</span></span>
+                                <span class="hero-title-line block overflow-hidden"><span class="inline-block">&amp;
+                                        Control</span></span>
+                                <span class="hero-title-line block overflow-hidden pb-3 overflow-visible"><span
+                                        class="text-brand-600 font-serif italic font-semibold inline-block">Intelligent
+                                        Knowledge</span></span>
                             </h1>
 
                             <!-- Sub-copy -->
@@ -397,12 +426,12 @@
                             <!-- CTA Buttons -->
                             <div class="flex flex-wrap justify-center lg:justify-start gap-3 mb-7">
                                 <button onclick="navigateTo('catalog')"
-                                    class="flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-tr from-brand-600 to-violet-600 hover:from-brand-500 hover:to-violet-500 text-white text-sm font-bold shadow-lg shadow-brand-500/20 active:scale-95 transition-all duration-200">
+                                    class="flex items-center gap-2 px-6 py-3 rounded-xl bg-brand-600 hover:bg-brand-500 hover:-translate-y-1 hover:shadow-xl hover:shadow-brand-500/25 text-white text-sm font-bold active:scale-95 transition-all duration-300">
                                     <i data-lucide="compass" class="w-4 h-4"></i>
                                     Browse Catalog
                                 </button>
                                 <button onclick="showLoginModal()"
-                                    class="flex items-center gap-2 px-6 py-3 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-300 text-slate-700 text-sm font-bold shadow-sm active:scale-95 transition-all duration-200">
+                                    class="flex items-center gap-2 px-6 py-3 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-300 hover:-translate-y-1 hover:shadow-md text-slate-700 text-sm font-bold active:scale-95 transition-all duration-300">
                                     <i data-lucide="user-check" class="w-4 h-4"></i>
                                     Access Console
                                 </button>
@@ -431,92 +460,117 @@
                         </div>
 
                         <!-- ── RIGHT: Floating Book Animation ── -->
-                        <div class="hidden lg:flex flex-1 justify-center items-center relative min-h-[420px] book-perspective">
+                        <div
+                            class="hidden lg:flex flex-1 justify-center items-center relative min-h-[420px] book-perspective">
                             <!-- Book Floater container -->
                             <div class="book-floater select-none">
                                 <!-- Book Shadow -->
                                 <div class="book-shadow"></div>
-                                
+
                                 <!-- 3D Book Container -->
                                 <div class="book-container">
                                     <!-- Back Cover -->
                                     <div class="book-back"></div>
-                                    
+
                                     <!-- Pages fanning out inside -->
                                     <div class="book-page book-page-3"></div>
                                     <div class="book-page book-page-2"></div>
-                                    
+
                                     <!-- Bookmark Ribbon -->
-                                    <div class="absolute top-0 left-12 w-3.5 h-[395px] bg-gradient-to-r from-rose-600 to-red-500 shadow-md origin-top transform translateZ(8px) rounded-b pointer-events-none" style="clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 92%, 0 100%);"></div>
-                                    
+                                    <div class="absolute top-0 left-12 w-3.5 h-[395px] bg-accent-600 shadow-md origin-top transform translateZ(8px) rounded-b pointer-events-none"
+                                        style="clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 92%, 0 100%);"></div>
+
                                     <!-- Page 1 (Visible title page with console info) -->
                                     <div class="book-page book-page-1 flex flex-col justify-between p-5 text-slate-800">
-                                        <div class="border-2 border-brand-100/80 rounded-xl p-3 h-full flex flex-col justify-between bg-slate-50/50">
+                                        <div
+                                            class="border-2 border-brand-100/80 rounded-xl p-3 h-full flex flex-col justify-between bg-slate-50/50">
                                             <div class="text-center">
-                                                <span class="text-[8px] font-black tracking-widest text-brand-600 uppercase block mb-1">Catalog Guide</span>
-                                                <h4 class="font-serif font-bold text-xs text-slate-900 border-b border-slate-200 pb-2 mb-3 leading-tight">CONSOLE PROFILE</h4>
-                                                <ul class="text-left space-y-2.5 text-[9px] font-bold text-slate-650 mt-4">
+                                                <span
+                                                    class="text-[8px] font-black tracking-widest text-brand-600 uppercase block mb-1">Catalog
+                                                    Guide</span>
+                                                <h4
+                                                    class="font-serif font-bold text-xs text-slate-900 border-b border-slate-200 pb-2 mb-3 leading-tight">
+                                                    CONSOLE PROFILE</h4>
+                                                <ul
+                                                    class="text-left space-y-2.5 text-[9px] font-bold text-slate-650 mt-4">
                                                     <li class="flex items-center gap-1.5">
-                                                        <span class="w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>
+                                                        <span
+                                                            class="w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>
                                                         <span>1.8K+ Active Readers</span>
                                                     </li>
                                                     <li class="flex items-center gap-1.5">
-                                                        <span class="w-1.5 h-1.5 rounded-full bg-accent-500 shrink-0"></span>
+                                                        <span
+                                                            class="w-1.5 h-1.5 rounded-full bg-accent-500 shrink-0"></span>
                                                         <span>Admin Control Panel</span>
                                                     </li>
                                                     <li class="flex items-center gap-1.5">
-                                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"></span>
+                                                        <span
+                                                            class="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"></span>
                                                         <span>Zero-Lag Sync Engine</span>
                                                     </li>
                                                 </ul>
                                             </div>
                                             <div class="text-center pt-2 border-t border-slate-200">
-                                                <span class="text-[8px] font-black text-slate-400 tracking-wider">BIBLIOTHECA SYSTEM</span>
+                                                <span class="text-[8px] font-black text-slate-400 tracking-wider">GBLMS
+                                                    SYSTEM</span>
                                             </div>
                                         </div>
                                     </div>
-                                    
+
                                     <!-- Spine -->
-                                    <div class="book-spine flex flex-col justify-between py-8 items-center text-white/35">
+                                    <div
+                                        class="book-spine flex flex-col justify-between py-8 items-center text-white/35">
                                         <div class="w-full flex flex-col items-center gap-1.5">
                                             <div class="w-3/4 h-[1px] bg-white/20"></div>
                                             <div class="w-3/4 h-[1px] bg-white/10"></div>
                                         </div>
-                                        <span class="text-[6px] font-black uppercase tracking-widest rotate-90 my-auto whitespace-nowrap leading-none">BIBLIOTHECA SYSTEM</span>
+                                        <span
+                                            class="text-[6px] font-black uppercase tracking-widest rotate-90 my-auto whitespace-nowrap leading-none">GBLMS
+                                            SYSTEM</span>
                                         <div class="w-full flex flex-col items-center gap-1.5">
                                             <div class="w-3/4 h-[1px] bg-white/10"></div>
                                             <div class="w-3/4 h-[1px] bg-white/20"></div>
                                         </div>
                                     </div>
-                                    
+
                                     <!-- Front Cover -->
                                     <div class="book-front flex flex-col justify-between p-6">
                                         <!-- Top branding -->
                                         <div class="flex items-center justify-between">
-                                            <span class="text-[9px] font-black text-white/50 tracking-widest uppercase">Bibliotheca Edition</span>
-                                            <div class="w-6 h-6 rounded-lg bg-white/10 flex items-center justify-center">
+                                            <span
+                                                class="text-[9px] font-black text-white/50 tracking-widest uppercase">GBLMS
+                                                Edition</span>
+                                            <div
+                                                class="w-6 h-6 rounded-lg bg-white/10 flex items-center justify-center">
                                                 <i data-lucide="library" class="w-3.5 h-3.5 text-brand-300"></i>
                                             </div>
                                         </div>
-                                        
+
                                         <!-- Spine line decoration on front cover -->
                                         <div class="absolute left-1.5 inset-y-0 w-[2px] bg-white/20"></div>
                                         <div class="absolute left-[8px] inset-y-0 w-[1px] bg-white/10"></div>
-                                        
+
                                         <!-- Book Title/Author -->
                                         <div class="text-left relative z-10">
-                                            <h3 class="text-2xl font-black text-white leading-tight font-serif mb-2 tracking-wide">Intelligent<br>Knowledge<br>Management</h3>
-                                            <p class="text-[10px] font-bold text-brand-200 tracking-wider uppercase mb-6">Antigravity LMS Core</p>
-                                            
+                                            <h3
+                                                class="text-2xl font-black text-white leading-tight font-serif mb-2 tracking-wide">
+                                                Intelligent<br>Knowledge<br>Management</h3>
+                                            <p
+                                                class="text-[10px] font-bold text-brand-200 tracking-wider uppercase mb-6">
+                                                Antigravity LMS Core</p>
+
                                             <!-- Mini status/details badge -->
-                                            <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/10 backdrop-blur-md border border-white/10 text-[9px] font-bold text-white shadow-sm">
-                                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                                            <div
+                                                class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/10 backdrop-blur-md border border-white/10 text-[9px] font-bold text-white shadow-sm">
+                                                <span
+                                                    class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
                                                 <span>Live Sync v3.5</span>
                                             </div>
                                         </div>
-                                        
+
                                         <!-- Bottom branding -->
-                                        <div class="flex justify-between items-center text-white/45 text-[8px] font-bold uppercase tracking-widest">
+                                        <div
+                                            class="flex justify-between items-center text-white/45 text-[8px] font-bold uppercase tracking-widest">
                                             <span>Universal Core</span>
                                             <span>2026</span>
                                         </div>
@@ -529,8 +583,7 @@
 
 
                 <!-- Bottom divider line -->
-                <div
-                    class="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-slate-300/60 to-transparent pointer-events-none">
+                <div class="absolute bottom-0 inset-x-0 h-px bg-slate-200 pointer-events-none">
                 </div>
             </div>
 
@@ -573,6 +626,32 @@
                 </div>
             </div>
 
+            <!-- ==================== SECTION: FEATURED PUBLICATIONS ==================== -->
+            <div class="py-20 max-w-7xl mx-auto px-6 md:px-8 border-b border-slate-200/80" data-animate="section">
+                <div class="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-6 mb-14"
+                    data-animate="heading">
+                    <div class="text-left">
+                        <span
+                            class="text-xs font-extrabold tracking-widest text-brand-600 uppercase block mb-2">Featured
+                            Publications</span>
+                        <h2 class="text-2xl md:text-3xl font-black text-slate-900 font-serif">Highly Polished
+                            Recommendations</h2>
+                        <p class="text-sm text-slate-500 mt-2 max-w-md font-medium">Explore some of our most borrowed
+                            and highest-rated library titles, hand-selected by our catalog administrators.</p>
+                    </div>
+                    <button onclick="navigateTo('catalog')"
+                        class="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-bold text-brand-600 hover:text-brand-500 border border-brand-200 hover:border-brand-300 bg-brand-50 hover:bg-brand-100 active:scale-95 transition-all duration-200 shrink-0 shadow-sm">
+                        <span>Explore Catalog</span>
+                        <i data-lucide="arrow-right" class="w-4 h-4 -rotate-45"></i>
+                    </button>
+                </div>
+
+                <div id="featuredBooksGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5"
+                    data-animate="stagger-cards">
+                    <!-- Injected dynamically by js -->
+                </div>
+            </div>
+
             <!-- ==================== SECTION: KNOWLEDGE AREAS ==================== -->
             <div class="py-20 max-w-7xl mx-auto px-6 md:px-8 border-b border-slate-200/80" data-animate="section">
                 <div class="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-6 mb-14"
@@ -580,7 +659,8 @@
                     <div class="text-left">
                         <span class="text-xs font-extrabold tracking-widest text-brand-600 uppercase block mb-2">Subject
                             Classification</span>
-                        <h2 class="text-2xl md:text-3xl font-black text-slate-900 font-serif">Browse Knowledge Areas</h2>
+                        <h2 class="text-2xl md:text-3xl font-black text-slate-900 font-serif">Browse Knowledge Areas
+                        </h2>
                         <p class="text-sm text-slate-500 mt-2 max-w-md font-medium">Explore curated volumes across five
                             academic disciplines — each indexed with real-time catalog metrics.</p>
                     </div>
@@ -590,18 +670,23 @@
                         <span id="totalVolumesBadge">0 Volumes Cataloged</span>
                     </div>
                 </div>
-                <div id="knowledgeAreasGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5" data-animate="stagger-cards"></div>
+                <div id="knowledgeAreasGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5"
+                    data-animate="stagger-cards"></div>
             </div>
 
             <!-- ==================== SECTION: FREQUENTLY ASKED QUESTIONS (FAQ) ==================== -->
             <div class="py-20 max-w-4xl mx-auto px-6 md:px-8 border-b border-slate-200/80" data-animate="section">
                 <div class="text-center max-w-xl mx-auto mb-16" data-animate="heading">
-                    <div class="w-12 h-12 rounded-2xl bg-brand-50 border border-brand-100 flex items-center justify-center mx-auto mb-4 text-brand-600 shadow-sm">
+                    <div
+                        class="w-12 h-12 rounded-2xl bg-brand-50 border border-brand-100 flex items-center justify-center mx-auto mb-4 text-brand-600 shadow-sm">
                         <i data-lucide="help-circle" class="w-6 h-6"></i>
                     </div>
-                    <span class="text-xs font-extrabold tracking-widest text-brand-600 uppercase block mb-2">Information Center</span>
-                    <h2 class="text-2xl md:text-3xl font-black text-slate-900 font-serif">Frequently Asked Questions</h2>
-                    <p class="text-xs text-slate-550 mt-2 max-w-xs mx-auto font-medium leading-relaxed">Have queries regarding catalog credentials or local cached buffering? We are here to assist.</p>
+                    <span class="text-xs font-extrabold tracking-widest text-brand-600 uppercase block mb-2">Information
+                        Center</span>
+                    <h2 class="text-2xl md:text-3xl font-black text-slate-900 font-serif">Frequently Asked Questions
+                    </h2>
+                    <p class="text-xs text-slate-550 mt-2 max-w-xs mx-auto font-medium leading-relaxed">Have queries
+                        regarding catalog credentials or local cached buffering? We are here to assist.</p>
                 </div>
 
                 <div class="flex flex-col gap-4" data-animate="stagger-faq">
@@ -612,13 +697,16 @@
                             class="w-full px-6 py-5 flex justify-between items-center text-left transition-colors">
                             <div class="flex items-center gap-4">
                                 <div class="faq-icon-box w-10 h-10 rounded-2xl bg-brand-600 text-white flex items-center justify-center shrink-0 border border-brand-500/20 transition-all duration-300 group-hover:scale-105"
-                                     data-original-bg="bg-brand-600" data-expanded-bg="bg-brand-50" data-expanded-text="text-brand-600">
+                                    data-original-bg="bg-brand-600" data-expanded-bg="bg-brand-50"
+                                    data-expanded-text="text-brand-600">
                                     <i data-lucide="key-round" class="w-5 h-5"></i>
                                 </div>
                                 <span
-                                    class="font-extrabold text-sm text-slate-800 transition-transform duration-200 leading-normal">How do I authenticate and access portal privileges?</span>
+                                    class="font-extrabold text-sm text-slate-800 transition-transform duration-200 leading-normal">How
+                                    do I authenticate and access portal privileges?</span>
                             </div>
-                            <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center shrink-0 group-hover:bg-slate-200 transition-colors">
+                            <div
+                                class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center shrink-0 group-hover:bg-slate-200 transition-colors">
                                 <i id="faqIcon1" data-lucide="chevron-down"
                                     class="w-4 h-4 text-slate-500 transition-transform duration-200"></i>
                             </div>
@@ -626,7 +714,10 @@
                         <div id="faqContent1" class="hidden overflow-hidden transition-all duration-300">
                             <div
                                 class="pl-20 pr-6 pb-6 pt-2 text-xs text-slate-500 leading-relaxed border-t border-slate-100/50">
-                                Access is simple. Click the "Portal Access" button in the top-right corner. You can choose "System Admin" to manage the database records (add, edit, and delete volumes) or "Academic Reader" to view your personal shelf, read volumes, and configure offline cache settings. No password is required.
+                                Access is simple. Click the "Portal Access" button in the top-right corner. You can
+                                choose "System Admin" to manage the database records (add, edit, and delete volumes) or
+                                "Academic Reader" to view your personal shelf, read volumes, and configure offline cache
+                                settings. No password is required.
                             </div>
                         </div>
                     </div>
@@ -637,14 +728,17 @@
                         <button onclick="toggleFAQ(2)"
                             class="w-full px-6 py-5 flex justify-between items-center text-left transition-colors">
                             <div class="flex items-center gap-4">
-                                <div class="faq-icon-box w-10 h-10 rounded-2xl bg-cyan-600 text-white flex items-center justify-center shrink-0 border border-cyan-500/20 transition-all duration-300 group-hover:scale-105"
-                                     data-original-bg="bg-cyan-600" data-expanded-bg="bg-cyan-50" data-expanded-text="text-cyan-600">
+                                <div class="faq-icon-box w-10 h-10 rounded-2xl bg-accent-600 text-white flex items-center justify-center shrink-0 border border-accent-500/20 transition-all duration-300 group-hover:scale-105"
+                                    data-original-bg="bg-accent-600" data-expanded-bg="bg-accent-50"
+                                    data-expanded-text="text-accent-600">
                                     <i data-lucide="hard-drive-download" class="w-5 h-5"></i>
                                 </div>
                                 <span
-                                    class="font-extrabold text-sm text-slate-800 transition-transform duration-200 leading-normal">What is the GBLMS Offline Cache system?</span>
+                                    class="font-extrabold text-sm text-slate-800 transition-transform duration-200 leading-normal">What
+                                    is the GBLMS Offline Cache system?</span>
                             </div>
-                            <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center shrink-0 group-hover:bg-slate-200 transition-colors">
+                            <div
+                                class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center shrink-0 group-hover:bg-slate-200 transition-colors">
                                 <i id="faqIcon2" data-lucide="chevron-down"
                                     class="w-4 h-4 text-slate-500 transition-transform duration-200"></i>
                             </div>
@@ -652,7 +746,9 @@
                         <div id="faqContent2" class="hidden overflow-hidden transition-all duration-300">
                             <div
                                 class="pl-20 pr-6 pb-6 pt-2 text-xs text-slate-550 leading-relaxed border-t border-slate-100/50">
-                                The cache system uses your browser's persistent local storage. When you click "Buffer Offline" on a volume, its metadata profiles and reading credentials are downloaded locally, enabling zero-network access to your student database reading room!
+                                The cache system uses your browser's persistent local storage. When you click "Buffer
+                                Offline" on a volume, its metadata profiles and reading credentials are downloaded
+                                locally, enabling zero-network access to your student database reading room!
                             </div>
                         </div>
                     </div>
@@ -663,14 +759,17 @@
                         <button onclick="toggleFAQ(3)"
                             class="w-full px-6 py-5 flex justify-between items-center text-left transition-colors">
                             <div class="flex items-center gap-4">
-                                <div class="faq-icon-box w-10 h-10 rounded-2xl bg-violet-600 text-white flex items-center justify-center shrink-0 border border-violet-500/20 transition-all duration-300 group-hover:scale-105"
-                                     data-original-bg="bg-violet-600" data-expanded-bg="bg-violet-50" data-expanded-text="text-violet-600">
+                                <div class="faq-icon-box w-10 h-10 rounded-2xl bg-amber-600 text-white flex items-center justify-center shrink-0 border border-amber-500/20 transition-all duration-300 group-hover:scale-105"
+                                    data-original-bg="bg-amber-600" data-expanded-bg="bg-amber-50"
+                                    data-expanded-text="text-amber-600">
                                     <i data-lucide="search" class="w-5 h-5"></i>
                                 </div>
                                 <span
-                                    class="font-extrabold text-sm text-slate-800 transition-transform duration-200 leading-normal">How can I search, filter, and discover specific volumes?</span>
+                                    class="font-extrabold text-sm text-slate-800 transition-transform duration-200 leading-normal">How
+                                    can I search, filter, and discover specific volumes?</span>
                             </div>
-                            <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center shrink-0 group-hover:bg-slate-200 transition-colors">
+                            <div
+                                class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center shrink-0 group-hover:bg-slate-200 transition-colors">
                                 <i id="faqIcon3" data-lucide="chevron-down"
                                     class="w-4 h-4 text-slate-500 transition-transform duration-200"></i>
                             </div>
@@ -678,7 +777,10 @@
                         <div id="faqContent3" class="hidden overflow-hidden transition-all duration-300">
                             <div
                                 class="pl-20 pr-6 pb-6 pt-2 text-xs text-slate-500 leading-relaxed border-t border-slate-100/50">
-                                Navigate to the "Catalog" section. You can use the search bar to search by title or author. You can also filter using the dynamic sidebar by subject category (e.g. Technology, Science, Fiction), semester tracking (1st to 8th semester), and status availability (Available, Reserved, Out of Stock).
+                                Navigate to the "Catalog" section. You can use the search bar to search by title or
+                                author. You can also filter using the dynamic sidebar by subject category (e.g.
+                                Technology, Science, Fiction), semester tracking (1st to 8th semester), and status
+                                availability (Available, Reserved, Out of Stock).
                             </div>
                         </div>
                     </div>
@@ -690,13 +792,16 @@
                             class="w-full px-6 py-5 flex justify-between items-center text-left transition-colors">
                             <div class="flex items-center gap-4">
                                 <div class="faq-icon-box w-10 h-10 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shrink-0 border border-emerald-500/20 transition-all duration-300 group-hover:scale-105"
-                                     data-original-bg="bg-emerald-600" data-expanded-bg="bg-emerald-50" data-expanded-text="text-emerald-600">
+                                    data-original-bg="bg-emerald-600" data-expanded-bg="bg-emerald-50"
+                                    data-expanded-text="text-emerald-600">
                                     <i data-lucide="plus-circle" class="w-5 h-5"></i>
                                 </div>
                                 <span
-                                    class="font-extrabold text-sm text-slate-800 transition-transform duration-200 leading-normal">How can I add new books or edit catalog metadata?</span>
+                                    class="font-extrabold text-sm text-slate-800 transition-transform duration-200 leading-normal">How
+                                    can I add new books or edit catalog metadata?</span>
                             </div>
-                            <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center shrink-0 group-hover:bg-slate-200 transition-colors">
+                            <div
+                                class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center shrink-0 group-hover:bg-slate-200 transition-colors">
                                 <i id="faqIcon4" data-lucide="chevron-down"
                                     class="w-4 h-4 text-slate-500 transition-transform duration-200"></i>
                             </div>
@@ -704,7 +809,10 @@
                         <div id="faqContent4" class="hidden overflow-hidden transition-all duration-300">
                             <div
                                 class="pl-20 pr-6 pb-6 pt-2 text-xs text-slate-550 leading-relaxed border-t border-slate-100/50">
-                                Log in as "System Admin", click the "Admin Panel" tab in the nav bar, and select "Add Volume". Fill in details such as title, author, category, ISBN, publisher, and copies. You can also click "Edit" on any item in the admin list to update fields dynamically in real-time.
+                                Log in as "System Admin", click the "Admin Panel" tab in the nav bar, and select "Add
+                                Volume". Fill in details such as title, author, category, ISBN, publisher, and copies.
+                                You can also click "Edit" on any item in the admin list to update fields dynamically in
+                                real-time.
                             </div>
                         </div>
                     </div>
@@ -716,13 +824,16 @@
                             class="w-full px-6 py-5 flex justify-between items-center text-left transition-colors">
                             <div class="flex items-center gap-4">
                                 <div class="faq-icon-box w-10 h-10 rounded-2xl bg-amber-600 text-white flex items-center justify-center shrink-0 border border-amber-500/20 transition-all duration-300 group-hover:scale-105"
-                                     data-original-bg="bg-amber-600" data-expanded-bg="bg-amber-50" data-expanded-text="text-amber-600">
+                                    data-original-bg="bg-amber-600" data-expanded-bg="bg-amber-50"
+                                    data-expanded-text="text-amber-600">
                                     <i data-lucide="bookmark" class="w-5 h-5"></i>
                                 </div>
                                 <span
-                                    class="font-extrabold text-sm text-slate-800 transition-transform duration-200 leading-normal">Where do my buffered offline books go?</span>
+                                    class="font-extrabold text-sm text-slate-800 transition-transform duration-200 leading-normal">Where
+                                    do my buffered offline books go?</span>
                             </div>
-                            <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center shrink-0 group-hover:bg-slate-200 transition-colors">
+                            <div
+                                class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center shrink-0 group-hover:bg-slate-200 transition-colors">
                                 <i id="faqIcon5" data-lucide="chevron-down"
                                     class="w-4 h-4 text-slate-500 transition-transform duration-200"></i>
                             </div>
@@ -730,7 +841,9 @@
                         <div id="faqContent5" class="hidden overflow-hidden transition-all duration-300">
                             <div
                                 class="pl-20 pr-6 pb-6 pt-2 text-xs text-slate-550 leading-relaxed border-t border-slate-100/50">
-                                Saving any book adds it to your "My Library" personal vault dashboard and the "Saved Books" tab. You can manage your saved books, filter them by category, or sort them by title and average rating directly from your dashboard.
+                                Saving any book adds it to your "My Library" personal vault dashboard and the "Saved
+                                Books" tab. You can manage your saved books, filter them by category, or sort them by
+                                title and average rating directly from your dashboard.
                             </div>
                         </div>
                     </div>
@@ -742,13 +855,16 @@
                             class="w-full px-6 py-5 flex justify-between items-center text-left transition-colors">
                             <div class="flex items-center gap-4">
                                 <div class="faq-icon-box w-10 h-10 rounded-2xl bg-rose-600 text-white flex items-center justify-center shrink-0 border border-rose-500/20 transition-all duration-300 group-hover:scale-105"
-                                     data-original-bg="bg-rose-600" data-expanded-bg="bg-rose-50" data-expanded-text="text-rose-600">
+                                    data-original-bg="bg-rose-600" data-expanded-bg="bg-rose-50"
+                                    data-expanded-text="text-rose-600">
                                     <i data-lucide="refresh-cw" class="w-5 h-5"></i>
                                 </div>
                                 <span
-                                    class="font-extrabold text-sm text-slate-800 transition-transform duration-200 leading-normal">How are edits synchronized across different pages?</span>
+                                    class="font-extrabold text-sm text-slate-800 transition-transform duration-200 leading-normal">How
+                                    are edits synchronized across different pages?</span>
                             </div>
-                            <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center shrink-0 group-hover:bg-slate-200 transition-colors">
+                            <div
+                                class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center shrink-0 group-hover:bg-slate-200 transition-colors">
                                 <i id="faqIcon6" data-lucide="chevron-down"
                                     class="w-4 h-4 text-slate-500 transition-transform duration-200"></i>
                             </div>
@@ -756,7 +872,9 @@
                         <div id="faqContent6" class="hidden overflow-hidden transition-all duration-300">
                             <div
                                 class="pl-20 pr-6 pb-6 pt-2 text-xs text-slate-550 leading-relaxed border-t border-slate-100/50">
-                                Any book modifications made through the Admin console are saved directly to local storage and propagate instantly across all pages. This means any search results, coverflow picks, or dashboard statistics update without requiring a manual page refresh.
+                                Any book modifications made through the Admin console are saved directly to local
+                                storage and propagate instantly across all pages. This means any search results,
+                                coverflow picks, or dashboard statistics update without requiring a manual page refresh.
                             </div>
                         </div>
                     </div>
@@ -767,9 +885,8 @@
             <!-- Modern Newsletter Subscription Component -->
             <div class="py-16 max-w-7xl mx-auto px-6 md:px-8">
                 <div
-                    class="bg-gradient-to-tr from-brand-50 to-indigo-100/50 border border-brand-100 p-10 md:p-14 rounded-3xl relative overflow-hidden flex flex-col lg:flex-row justify-between items-center gap-8 shadow-sm">
-                    <div
-                        class="absolute inset-0 bg-[radial-gradient(circle_at_bottom_right,rgba(6,182,212,0.05),transparent)] pointer-events-none">
+                    class="bg-brand-50 border border-brand-100 p-10 md:p-14 rounded-3xl relative overflow-hidden flex flex-col lg:flex-row justify-between items-center gap-8 shadow-sm">
+                    <div class="absolute inset-0 bg-transparent pointer-events-none">
                     </div>
                     <div class="text-center lg:text-left relative z-10">
                         <h3 class="text-2xl md:text-3xl font-black text-slate-900 font-serif mb-2">Stay Connected</h3>
@@ -811,42 +928,52 @@
                         <div class="w-9 h-10 shrink-0">
                             <svg viewBox="0 0 100 120" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
                                 <!-- Sun Rays (Red) -->
-                                <path d="M 50 15 L 50 2" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round"/>
-                                <path d="M 38 18 L 26 8" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round"/>
-                                <path d="M 62 18 L 74 8" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round"/>
-                                <path d="M 29 26 L 15 19" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round"/>
-                                <path d="M 71 26 L 85 19" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round"/>
+                                <path d="M 50 15 L 50 2" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" />
+                                <path d="M 38 18 L 26 8" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" />
+                                <path d="M 62 18 L 74 8" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" />
+                                <path d="M 29 26 L 15 19" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" />
+                                <path d="M 71 26 L 85 19" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" />
                                 <!-- Rising Sun (Red) -->
                                 <path d="M 32 28 A 18 18 0 0 1 68 28 Z" fill="#dc2626" />
                                 <!-- Shield Outline & Background (Royal Blue with Gold border) -->
-                                <path d="M 15 28 L 85 28 L 85 75 Q 85 98 50 108 Q 15 98 15 75 Z" fill="#1e3a8a" stroke="#d97706" stroke-width="3" stroke-linejoin="round"/>
+                                <path d="M 15 28 L 85 28 L 85 75 Q 85 98 50 108 Q 15 98 15 75 Z" fill="#1e3a8a"
+                                    stroke="#d97706" stroke-width="3" stroke-linejoin="round" />
                                 <!-- Hexagon grid lines (Gold) -->
-                                <line x1="15" y1="36" x2="35" y2="46" stroke="#d97706" stroke-width="1.5" opacity="0.8"/>
-                                <line x1="85" y1="36" x2="65" y2="46" stroke="#d97706" stroke-width="1.5" opacity="0.8"/>
-                                <line x1="15" y1="68" x2="35" y2="58" stroke="#d97706" stroke-width="1.5" opacity="0.8"/>
-                                <line x1="85" y1="68" x2="65" y2="58" stroke="#d97706" stroke-width="1.5" opacity="0.8"/>
+                                <line x1="15" y1="36" x2="35" y2="46" stroke="#d97706" stroke-width="1.5"
+                                    opacity="0.8" />
+                                <line x1="85" y1="36" x2="65" y2="46" stroke="#d97706" stroke-width="1.5"
+                                    opacity="0.8" />
+                                <line x1="15" y1="68" x2="35" y2="58" stroke="#d97706" stroke-width="1.5"
+                                    opacity="0.8" />
+                                <line x1="85" y1="68" x2="65" y2="58" stroke="#d97706" stroke-width="1.5"
+                                    opacity="0.8" />
                                 <!-- Central Hexagon (White with Gold border) -->
-                                <polygon points="50,34 65,42.5 65,60 50,68.5 35,60 35,42.5" fill="#ffffff" stroke="#d97706" stroke-width="2"/>
+                                <polygon points="50,34 65,42.5 65,60 50,68.5 35,60 35,42.5" fill="#ffffff"
+                                    stroke="#d97706" stroke-width="2" />
                                 <!-- Water Lily & Book combo inside Hexagon (Red shapla sitting on a red open book) -->
-                                <path d="M 40 58 Q 45 56 50 59 Q 55 56 60 58 L 60 54 Q 55 52 50 55 Q 45 52 40 54 Z" fill="#dc2626"/>
-                                <line x1="50" y1="55" x2="50" y2="59" stroke="#ffffff" stroke-width="1"/>
-                                <path d="M 50 38 Q 47 46 50 53 Q 53 46 50 38 Z" fill="#dc2626"/>
-                                <path d="M 50 53 Q 41 45 42 42 Q 47 43 50 51 Z" fill="#dc2626"/>
-                                <path d="M 50 53 Q 36 51 38 48 Q 43 47 50 52 Z" fill="#dc2626"/>
-                                <path d="M 50 53 Q 59 45 58 42 Q 53 43 50 51 Z" fill="#dc2626"/>
-                                <path d="M 50 53 Q 64 51 62 48 Q 57 47 50 52 Z" fill="#dc2626"/>
+                                <path d="M 40 58 Q 45 56 50 59 Q 55 56 60 58 L 60 54 Q 55 52 50 55 Q 45 52 40 54 Z"
+                                    fill="#dc2626" />
+                                <line x1="50" y1="55" x2="50" y2="59" stroke="#ffffff" stroke-width="1" />
+                                <path d="M 50 38 Q 47 46 50 53 Q 53 46 50 38 Z" fill="#dc2626" />
+                                <path d="M 50 53 Q 41 45 42 42 Q 47 43 50 51 Z" fill="#dc2626" />
+                                <path d="M 50 53 Q 36 51 38 48 Q 43 47 50 52 Z" fill="#dc2626" />
+                                <path d="M 50 53 Q 59 45 58 42 Q 53 43 50 51 Z" fill="#dc2626" />
+                                <path d="M 50 53 Q 64 51 62 48 Q 57 47 50 52 Z" fill="#dc2626" />
                                 <!-- Eyeball Shape at the bottom (White) -->
-                                <path d="M 28 80 Q 50 67 72 80 Q 50 93 28 80 Z" fill="#ffffff"/>
+                                <path d="M 28 80 Q 50 67 72 80 Q 50 93 28 80 Z" fill="#ffffff" />
                                 <!-- Globe pupil -->
                                 <circle cx="50" cy="80" r="7" fill="#1e3a8a" />
-                                <circle cx="50" cy="80" r="7" fill="none" stroke="#ffffff" stroke-width="0.8"/>
-                                <ellipse cx="50" cy="80" rx="3" ry="7" fill="none" stroke="#ffffff" stroke-width="0.8"/>
-                                <line x1="43" y1="80" x2="57" y2="80" stroke="#ffffff" stroke-width="0.8"/>
+                                <circle cx="50" cy="80" r="7" fill="none" stroke="#ffffff" stroke-width="0.8" />
+                                <ellipse cx="50" cy="80" rx="3" ry="7" fill="none" stroke="#ffffff"
+                                    stroke-width="0.8" />
+                                <line x1="43" y1="80" x2="57" y2="80" stroke="#ffffff" stroke-width="0.8" />
                                 <!-- Golden Banner Ribbon at bottom -->
-                                <path d="M 8 102 L 20 95 L 80 95 L 92 102 L 86 112 L 50 114 L 14 112 Z" fill="#d97706" stroke="#b45309" stroke-width="1"/>
-                                <path d="M 8 102 L 14 112 L 14 100 Z" fill="#92400e"/>
-                                <path d="M 92 102 L 86 112 L 86 100 Z" fill="#92400e"/>
-                                <text x="50" y="108" font-family="'Plus Jakarta Sans', sans-serif" font-weight="900" font-size="8" fill="#dc2626" text-anchor="middle" letter-spacing="1">GBLMS</text>
+                                <path d="M 8 102 L 20 95 L 80 95 L 92 102 L 86 112 L 50 114 L 14 112 Z" fill="#d97706"
+                                    stroke="#b45309" stroke-width="1" />
+                                <path d="M 8 102 L 14 112 L 14 100 Z" fill="#92400e" />
+                                <path d="M 92 102 L 86 112 L 86 100 Z" fill="#92400e" />
+                                <text x="50" y="108" font-family="'Plus Jakarta Sans', sans-serif" font-weight="900"
+                                    font-size="8" fill="#dc2626" text-anchor="middle" letter-spacing="1">GBLMS</text>
                             </svg>
                         </div>
                         <span class="text-lg font-black tracking-tight text-white">GBLMS</span>

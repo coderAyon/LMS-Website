@@ -181,7 +181,10 @@ async function fetchCatalogDatabase() {
         if (heroBookCount) heroBookCount.textContent = allBooks.length;
 
         const pageId = getCurrentPageId();
-        if (pageId === 'home') renderFeaturedSlider();
+        if (pageId === 'home') {
+            renderFeaturedSlider();
+            renderFeaturedList();
+        }
         renderKnowledgeAreas();
         if (pageId === 'catalog') renderCatalogGrid();
         if (pageId === 'admin') updateAdminTable();
@@ -322,7 +325,10 @@ async function fetchCatalogDatabase() {
         if (heroBookCount2) heroBookCount2.textContent = allBooks.length;
 
         const fallbackPageId = getCurrentPageId();
-        if (fallbackPageId === 'home') { if (typeof renderFeaturedSlider === 'function') renderFeaturedSlider(); }
+        if (fallbackPageId === 'home') {
+            if (typeof renderFeaturedSlider === 'function') renderFeaturedSlider();
+            if (typeof renderFeaturedList === 'function') renderFeaturedList();
+        }
         if (fallbackPageId === 'catalog') { if (typeof renderCatalogGrid === 'function') renderCatalogGrid(); }
         if (fallbackPageId === 'admin') { if (document.getElementById('adminBooksTable')) updateAdminTable(); }
         if (fallbackPageId === 'saved') renderSavedBooks();
@@ -391,10 +397,10 @@ function animateIntro() {
     const pageId = getCurrentPageId();
     if (pageId === 'home') {
         tl// Badge pill
-            .fromTo("#heroSection .inline-flex", { y: 12, opacity: 0, scale: 0.95 }, { y: 0, opacity: 1, scale: 1, duration: 0.4 }, "-=0.2")
+            .fromTo("#heroSection .inline-flex", { y: 15, opacity: 0, scale: 0.95 }, { y: 0, opacity: 1, scale: 1, duration: 0.45 }, "-=0.2")
 
             // h1 lines cascade
-            .fromTo("#heroSection h1", { y: 30, opacity: 0, clipPath: "inset(100% 0% 0% 0%)" }, { y: 0, opacity: 1, clipPath: "inset(0% 0% 0% 0%)", duration: 0.6 }, "-=0.25")
+            .fromTo("#heroSection h1 .hero-title-line > span", { yPercent: 100, opacity: 0 }, { yPercent: 0, opacity: 1, stagger: 0.12, duration: 0.8, ease: "power4.out" }, "-=0.25")
 
             // Subparagraph
             .fromTo("#heroSection > div p.text-slate-500", { y: 16, opacity: 0 }, { y: 0, opacity: 1, duration: 0.45 }, "-=0.3")
@@ -1086,6 +1092,23 @@ function renderFeaturedSlider() {
     lucide.createIcons();
 }
 
+function renderFeaturedList() {
+    const grid = document.getElementById('featuredBooksGrid');
+    if (!grid) return;
+    grid.innerHTML = '';
+
+    const featured = allBooks
+        .filter(b => b.rating && Number(b.rating) >= 4.5)
+        .slice(0, 8);
+
+    featured.forEach(book => {
+        const card = createBookCard(book);
+        grid.appendChild(card);
+    });
+
+    lucide.createIcons();
+}
+
 function updateCoverflowPosition() {
     const books = document.querySelectorAll('.coverflow-book');
     const indicators = document.querySelectorAll('.coverflow-indicator');
@@ -1265,12 +1288,12 @@ function createBookCard(book) {
     const bookIdNum = Number(book.id);
     const isSaved = userDownloads.some(id => Number(id) === bookIdNum);
     const card = document.createElement('div');
-    card.className = "bg-white border border-slate-100 rounded-3xl overflow-hidden hover:border-brand-500/25 hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between group shadow-sm p-4 relative text-left";
+    card.className = "bg-white border border-slate-200 rounded-3xl overflow-hidden hover:border-brand-500/25 hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between group shadow-sm p-3 relative text-left";
 
     // Choose dynamic text color based on category for enhanced micro-aesthetics
     const categoryTextColors = {
-        "Technology": "text-indigo-600",
-        "Science": "text-cyan-600",
+        "Technology": "text-brand-600",
+        "Science": "text-accent-600",
         "Fiction": "text-pink-600",
         "History": "text-amber-600",
         "Business": "text-emerald-600"
@@ -1290,7 +1313,7 @@ function createBookCard(book) {
         </div>
         
         <!-- Book Details context block -->
-        <div class="pt-4 px-1 flex-grow flex flex-col justify-between text-left">
+        <div class="pt-3 px-1 flex-grow flex flex-col justify-between text-left">
             <div>
                 <!-- Curated Category Tag -->
                 <span class="text-[9px] font-black tracking-widest ${categoryTextColor} uppercase block mb-1.5">${book.category}</span>
@@ -1303,7 +1326,7 @@ function createBookCard(book) {
             </div>
             
             <!-- Bottom Interactive Controls Row -->
-            <div class="flex justify-between items-center mt-5 pt-3 border-t border-slate-100/80">
+            <div class="flex justify-between items-center mt-3.5 pt-2.5 border-t border-slate-200/60">
                 <!-- Rating Indicators -->
                 <span class="text-[12px] font-extrabold text-amber-500 flex items-center gap-1">
                     <i data-lucide="star" class="w-3.5 h-3.5 fill-current"></i>
@@ -1765,7 +1788,7 @@ function addBook() {
         rating: 4.5,
         yearPublished: new Date().getFullYear(),
         pages: 380,
-        publisher: "Bibliotheca Press"
+        publisher: "GBLMS Press"
     };
 
     allBooks.push(newRecord);
@@ -2134,6 +2157,7 @@ function quickBuffer(bookId) {
         renderSavedBooks();
     } else {
         if (typeof renderFeaturedSlider === 'function') renderFeaturedSlider();
+        if (typeof renderFeaturedList === 'function') renderFeaturedList();
         if (typeof renderCatalogGrid === 'function') renderCatalogGrid();
     }
 }
