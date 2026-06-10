@@ -137,8 +137,7 @@ async function fetchCatalogDatabase() {
             }
         } else {
             // Load from books.json relative to active folder path
-            const isInPages = window.location.pathname.includes('/pages/');
-            const response = await axios.get(isInPages ? '../data/books.json' : 'data/books.json');
+            const response = await axios.get('data/books.json');
             allBooks = response.data;
         }
 
@@ -887,7 +886,12 @@ function handleLoginSubmit(event) {
         updateSessionUI();
         closeLoginModal();
         showNotification("Portal Authentication Verified: Welcome, Admin Manager", "success");
-        navigateTo('admin');
+        // If already on profile page, load it directly instead of redirecting away
+        if (getCurrentPageId() === 'profile') {
+            initProfilePage();
+        } else {
+            navigateTo('admin');
+        }
         return;
     }
 
@@ -898,7 +902,12 @@ function handleLoginSubmit(event) {
         updateSessionUI();
         closeLoginModal();
         showNotification(`Portal Authentication Verified: Welcome, ${user.name}`, "success");
-        navigateTo('saved');
+        // If already on profile page, load it directly instead of redirecting away
+        if (getCurrentPageId() === 'profile') {
+            initProfilePage();
+        } else {
+            navigateTo('saved');
+        }
         return;
     }
 
@@ -1022,10 +1031,8 @@ function updateSessionUI() {
 // ==================== PROFILE PAGE CONTROLLER ====================
 function initProfilePage() {
     if (!currentUserEmail) {
-        // Redirect to homepage if not logged in
-        const isInPages = window.location.pathname.includes('/pages/');
-        const homeRedirect = isInPages ? '../index.html' : 'index.html';
-        window.location.href = homeRedirect;
+        // Show login modal instead of redirecting — keep user on profile.html
+        setTimeout(() => showLoginModal(), 150);
         return;
     }
 
@@ -1307,8 +1314,7 @@ function getCurrentPageId() {
 
 function checkPageSecurity() {
     const pageId = getCurrentPageId();
-    const isInPages = window.location.pathname.includes('/pages/');
-    const homeRedirect = isInPages ? '../index.html' : 'index.html';
+    const homeRedirect = 'index.html';
 
     // Only hard-redirect admins away from admin panel if they lack the role
     if (pageId === 'admin' && currentRole !== 'admin') {
@@ -1381,13 +1387,12 @@ function navigateTo(sectionId) {
         toggleMobileMenu();
     }
 
-    const isInPages = window.location.pathname.includes('/pages/');
-    let targetPage = isInPages ? '../index.html' : 'index.html';
-    if (sectionId === 'catalog') targetPage = isInPages ? 'catalog.html' : 'pages/catalog.html';
-    else if (sectionId === 'dashboard') targetPage = isInPages ? 'dashboard.html' : 'pages/dashboard.html';
-    else if (sectionId === 'admin') targetPage = isInPages ? 'admin.html' : 'pages/admin.html';
-    else if (sectionId === 'saved') targetPage = isInPages ? 'saved.html' : 'pages/saved.html';
-    else if (sectionId === 'profile') targetPage = isInPages ? 'profile.html' : 'pages/profile.html';
+    let targetPage = 'index.html';
+    if (sectionId === 'catalog') targetPage = 'catalog.html';
+    else if (sectionId === 'dashboard') targetPage = 'dashboard.html';
+    else if (sectionId === 'admin') targetPage = 'admin.html';
+    else if (sectionId === 'saved') targetPage = 'saved.html';
+    else if (sectionId === 'profile') targetPage = 'profile.html';
 
     const queryString = getSessionQueryString();
     window.location.href = targetPage + queryString;
