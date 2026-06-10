@@ -4,7 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GBLMS — Gono Bishwabidyalay Library Portal</title>
+    <title>GBLMS | Gono Bishwabidyalay Library Portal</title>
+    <link rel="icon" type="image/svg+xml"
+        href="data:image/svg+xml,%3Csvg viewBox='0 0 100 120' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M 50 15 L 50 2' stroke='%23dc2626' stroke-width='2.5' stroke-linecap='round' /%3E%3Cpath d='M 38 18 L 26 8' stroke='%23dc2626' stroke-width='2.5' stroke-linecap='round' /%3E%3Cpath d='M 62 18 L 74 8' stroke='%23dc2626' stroke-width='2.5' stroke-linecap='round' /%3E%3Cpath d='M 29 26 L 15 19' stroke='%23dc2626' stroke-width='2.5' stroke-linecap='round' /%3E%3Cpath d='M 71 26 L 85 19' stroke='%23dc2626' stroke-width='2.5' stroke-linecap='round' /%3E%3Cpath d='M 32 28 A 18 18 0 0 1 68 28 Z' fill='%23dc2626' /%3E%3Cpath d='M 15 28 L 85 28 L 85 75 Q 85 98 50 108 Q 15 98 15 75 Z' fill='%231e3a8a' stroke='%23d97706' stroke-width='3' stroke-linejoin='round' /%3E%3Cline x1='15' y1='36' x2='35' y2='46' stroke='%23d97706' stroke-width='1.5' opacity='0.8' /%3E%3Cline x1='85' y1='36' x2='65' y2='46' stroke='%23d97706' stroke-width='1.5' opacity='0.8' /%3E%3Cline x1='15' y1='68' x2='35' y2='58' stroke='%23d97706' stroke-width='1.5' opacity='0.8' /%3E%3Cline x1='85' y1='68' x2='65' y2='58' stroke='%23d97706' stroke-width='1.5' opacity='0.8' /%3E%3Cpolygon points='50,34 65,42.5 65,60 50,68.5 35,60 35,42.5' fill='%23ffffff' stroke='%23d97706' stroke-width='2' /%3E%3Cpath d='M 40 58 Q 45 56 50 59 Q 55 56 60 58 L 60 54 Q 55 52 50 55 Q 45 52 40 54 Z' fill='%23dc2626' /%3E%3Cline x1='50' y1='55' x2='50' y2='59' stroke='%23ffffff' stroke-width='1' /%3E%3Cpath d='M 50 38 Q 47 46 50 53 Q 53 46 50 38 Z' fill='%23dc2626' /%3E%3Cpath d='M 50 53 Q 41 45 42 42 Q 47 43 50 51 Z' fill='%23dc2626' /%3E%3Cpath d='M 50 53 Q 36 51 38 48 Q 43 47 50 52 Z' fill='%23dc2626' /%3E%3Cpath d='M 50 53 Q 59 45 58 42 Q 53 43 50 51 Z' fill='%23dc2626' /%3E%3Cpath d='M 50 53 Q 64 51 62 48 Q 57 47 50 52 Z' fill='%23dc2626' /%3E%3Cpath d='M 28 80 Q 50 67 72 80 Q 50 93 28 80 Z' fill='%23ffffff' /%3E%3Ccircle cx='50' cy='80' r='7' fill='%231e3a8a' /%3E%3Ccircle cx='50' cy='80' r='7' fill='none' stroke='%23ffffff' stroke-width='0.8' /%3E%3Cellipse cx='50' cy='80' rx='3' ry='7' fill='none' stroke='%23ffffff' stroke-width='0.8' /%3E%3Cline x1='43' y1='80' x2='57' y2='80' stroke='%23ffffff' stroke-width='0.8' /%3E%3Cpath d='M 8 102 L 20 95 L 80 95 L 92 102 L 86 112 L 50 114 L 14 112 Z' fill='%23d97706' stroke='%23b45309' stroke-width='1' /%3E%3Cpath d='M 8 102 L 14 112 L 14 100 Z' fill='%2392400e' /%3E%3Cpath d='M 92 102 L 86 112 L 86 100 Z' fill='%2392400e' /%3E%3Ctext x='50' y='108' font-family='sans-serif' font-weight='900' font-size='8' fill='%23dc2626' text-anchor='middle' letter-spacing='1'%3EGBLMS%3C/text%3E%3C/svg%3E">
 
     <!-- Meta SEO -->
     <meta name="description"
@@ -18,6 +20,14 @@
         href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&display=swap"
         rel="stylesheet">
 
+    <!-- Suppress Tailwind Play CDN warning -->
+    <script>
+        const _warn = console.warn;
+        console.warn = function (...args) {
+            if (args[0] && typeof args[0] === 'string' && args[0].includes('cdn.tailwindcss.com')) return;
+            _warn.apply(console, args);
+        };
+    </script>
     <!-- Tailwind CSS Play CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -39,6 +49,7 @@
                             900: '#1e3a8a',
                         },
                         accent: {
+                            50: '#fef2f2',
                             500: '#dc2626',
                             600: '#b91c1c',
                         }
@@ -288,7 +299,7 @@
                 <button onclick="showLoginModal()" id="loginBtn"
                     class="flex items-center justify-center gap-2 w-10 sm:w-auto h-10 px-0 sm:px-5 py-2.5 rounded-xl text-sm font-semibold bg-brand-600 text-white hover:bg-brand-500 hover:shadow-lg hover:shadow-brand-500/10 active:scale-95 transition-all duration-200">
                     <i data-lucide="log-in" class="w-4 h-4"></i>
-                    <span class="hidden sm:inline">Portal Access</span>
+                    <span class="hidden sm:inline">Login / Register</span>
                 </button>
 
                 <!-- Authenticated User Menu Dropdown -->
@@ -312,32 +323,49 @@
 
                     <!-- Premium Dropdown Menu Panel -->
                     <div id="userDropdownMenu"
-                        class="absolute right-0 top-full mt-2 w-56 bg-white border border-slate-200/80 rounded-2xl shadow-xl py-2 hidden flex-col z-[70] transition-all duration-200 origin-top-right transform scale-95 opacity-0">
+                        class="absolute right-0 top-full mt-2 w-56 bg-white border border-slate-200/80 rounded-2xl shadow-xl py-1.5 hidden flex-col z-[70] transition-all duration-200 origin-top-right transform scale-95 opacity-0">
                         <div class="px-4 py-3 border-b border-slate-100 flex flex-col text-left">
                             <span id="dropdownUserName" class="text-xs font-bold text-slate-800">Admin User</span>
                             <span id="dropdownUserRole"
                                 class="text-[10px] font-semibold text-brand-600 uppercase tracking-wider mt-0.5">ADMIN</span>
                         </div>
-                        <div class="py-1">
-                            <!-- Quick Workspace Navigation Links -->
-                            <a href="#" onclick="navigateTo('dashboard'); return false;" id="dropdownDashboardLink"
-                                class="flex items-center gap-3 px-4 py-2 text-xs font-bold text-slate-655 hover:text-slate-900 hover:bg-slate-50 transition-colors duration-150">
-                                <i data-lucide="layout-dashboard" class="w-4 h-4 text-slate-400"></i>
-                                <span>Reader Dashboard</span>
-                            </a>
-                            <a href="#" onclick="navigateTo('admin'); return false;" id="dropdownAdminLink"
-                                class="flex items-center gap-3 px-4 py-2 text-xs font-bold text-slate-655 hover:text-slate-900 hover:bg-slate-50 transition-colors duration-150">
-                                <i data-lucide="shield" class="w-4 h-4 text-slate-400"></i>
-                                <span>System Admin</span>
-                            </a>
-                        </div>
-                        <div class="border-t border-slate-100 pt-1 mt-1">
-                            <button onclick="logout()"
-                                class="w-full flex items-center gap-3 px-4 py-2.5 text-xs font-bold text-red-655 hover:bg-red-50 transition-colors duration-150 text-left">
-                                <i data-lucide="log-out" class="w-4 h-4"></i>
-                                <span>Portal Sign Out</span>
-                            </button>
-                        </div>
+
+                        <!-- Account Link -->
+                        <a href="#" onclick="navigateTo('profile'); return false;" id="dropdownProfileLink"
+                            class="flex items-center gap-3 px-4 py-2 text-xs font-bold text-slate-655 hover:text-slate-900 hover:bg-slate-50 transition-colors duration-150">
+                            <i data-lucide="user" class="w-4 h-4 text-slate-400"></i>
+                            <span>My Profile</span>
+                        </a>
+
+                        <!-- Separator -->
+                        <div class="border-t border-slate-100 my-1"></div>
+
+                        <!-- Workspace Links -->
+                        <a href="#" onclick="navigateTo('saved'); return false;" id="dropdownSavedLink"
+                            class="flex items-center gap-3 px-4 py-2 text-xs font-bold text-slate-655 hover:text-slate-900 hover:bg-slate-50 transition-colors duration-150 hidden">
+                            <i data-lucide="bookmark" class="w-4 h-4 text-slate-400"></i>
+                            <span>Saved Books</span>
+                        </a>
+                        <a href="#" onclick="navigateTo('dashboard'); return false;" id="dropdownDashboardLink"
+                            class="flex items-center gap-3 px-4 py-2 text-xs font-bold text-slate-655 hover:text-slate-900 hover:bg-slate-50 transition-colors duration-150">
+                            <i data-lucide="layout-dashboard" class="w-4 h-4 text-slate-400"></i>
+                            <span>Reader Dashboard</span>
+                        </a>
+                        <a href="#" onclick="navigateTo('admin'); return false;" id="dropdownAdminLink"
+                            class="flex items-center gap-3 px-4 py-2 text-xs font-bold text-slate-655 hover:text-slate-900 hover:bg-slate-50 transition-colors duration-150">
+                            <i data-lucide="shield" class="w-4 h-4 text-slate-400"></i>
+                            <span>System Admin</span>
+                        </a>
+
+                        <!-- Separator -->
+                        <div class="border-t border-slate-100 my-1"></div>
+
+                        <!-- Sign Out -->
+                        <button onclick="logout()"
+                            class="w-full flex items-center gap-3 px-4 py-2 text-xs font-bold text-red-655 hover:bg-red-50 transition-colors duration-150 text-left">
+                            <i data-lucide="log-out" class="w-4 h-4"></i>
+                            <span>Portal Sign Out</span>
+                        </button>
                     </div>
                 </div>
 
@@ -439,7 +467,7 @@
 
                             <!-- Trust bar -->
                             <div class="flex items-center gap-4 justify-center lg:justify-start">
-                                <div class="flex -space-x-2.5">
+                                <div id="heroAvatars" class="flex -space-x-2.5">
                                     <img class="w-8 h-8 rounded-full border-2 border-white object-cover shadow-sm bg-slate-100"
                                         src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=80&h=80&q=85"
                                         alt="Reader 1">
@@ -714,10 +742,9 @@
                         <div id="faqContent1" class="hidden overflow-hidden transition-all duration-300">
                             <div
                                 class="pl-20 pr-6 pb-6 pt-2 text-xs text-slate-500 leading-relaxed border-t border-slate-100/50">
-                                Access is simple. Click the "Portal Access" button in the top-right corner. You can
-                                choose "System Admin" to manage the database records (add, edit, and delete volumes) or
-                                "Academic Reader" to view your personal shelf, read volumes, and configure offline cache
-                                settings. No password is required.
+                                Access is simple. Click the "Login / Register" button in the top-right corner. Use
+                                the Administrator account (admin@gmail.com with password admin1234) for system control,
+                                or register your own account to manage your shelf and access cached volumes.
                             </div>
                         </div>
                     </div>
@@ -1099,52 +1126,6 @@
     <!-- ==================== SYSTEM MODAL: PORTAL ACCESS (LOGIN) ==================== -->
     <div id="loginModal"
         class="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[60] hidden justify-center items-center p-6 transition-all duration-300">
-        <div class="modal-card w-full max-w-md bg-white border border-slate-200 rounded-3xl p-8 relative shadow-2xl">
-            <button onclick="closeLoginModal()"
-                class="absolute top-6 right-6 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 border border-slate-200/80 flex items-center justify-center transition-colors duration-200">
-                <i data-lucide="x" class="w-4 h-4"></i>
-            </button>
-
-            <div class="text-center mb-8">
-                <div
-                    class="w-12 h-12 rounded-xl bg-brand-500/10 text-brand-600 flex items-center justify-center mx-auto mb-4">
-                    <i data-lucide="shield-check" class="w-6 h-6"></i>
-                </div>
-                <h3 class="text-xl font-extrabold text-slate-800 mb-2">Select Access Workspace</h3>
-                <p class="text-slate-500 text-xs leading-normal">Authenticate database controls or reading dashboard
-                    portals</p>
-            </div>
-
-            <div class="flex flex-col gap-4">
-                <button onclick="login('admin')"
-                    class="w-full p-5 bg-slate-50 border border-slate-200 hover:border-brand-500/40 rounded-2xl text-left hover:bg-slate-100/50 group transition-all duration-300 flex items-center gap-4 shadow-sm">
-                    <div
-                        class="w-10 h-10 rounded-lg bg-brand-500/10 text-brand-650 flex items-center justify-center group-hover:scale-105 transition-transform duration-300 shrink-0">
-                        <i data-lucide="user-cog" class="w-5 h-5"></i>
-                    </div>
-                    <div>
-                        <h4 class="font-bold text-slate-800 group-hover:text-brand-600 transition-colors duration-200">
-                            System Admin</h4>
-                        <p class="text-slate-500 text-[11px] font-semibold leading-normal">Full control over records
-                            uploading & modifications.</p>
-                    </div>
-                </button>
-
-                <button onclick="login('user')"
-                    class="w-full p-5 bg-slate-50 border border-slate-200 hover:border-accent-500/40 rounded-2xl text-left hover:bg-slate-100/50 group transition-all duration-300 flex items-center gap-4 shadow-sm">
-                    <div
-                        class="w-10 h-10 rounded-lg bg-accent-500/10 text-accent-650 flex items-center justify-center group-hover:scale-105 transition-transform duration-300 shrink-0">
-                        <i data-lucide="graduation-cap" class="w-5 h-5"></i>
-                    </div>
-                    <div>
-                        <h4 class="font-bold text-slate-800 group-hover:text-accent-650 transition-colors duration-200">
-                            Academic Reader</h4>
-                        <p class="text-slate-500 text-[11px] font-semibold leading-normal">Construct customized folders
-                            & access offline caching.</p>
-                    </div>
-                </button>
-            </div>
-        </div>
     </div>
 
     <!-- ==================== SYSTEM MODAL: VOLUME DETAILS ==================== -->
@@ -1200,12 +1181,11 @@
                         <p id="modalBookDescription" class="text-slate-600 text-sm leading-relaxed mb-6">Publication
                             abstract data rendering dynamically inside system overlay view.</p>
                     </div>
-
                     <div class="flex flex-wrap gap-3">
                         <button onclick="downloadBook()" id="downloadBtn"
                             class="flex items-center gap-2 px-6 py-3 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-bold text-sm active:scale-95 transition-all duration-200 shadow-md shadow-brand-500/10">
                             <i data-lucide="download" class="w-4 h-4"></i>
-                            <span>Buffer Offline</span>
+                            <span>Download</span>
                         </button>
                     </div>
                 </div>

@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile — GBLMS</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg viewBox='0 0 100 120' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M 50 15 L 50 2' stroke='%23dc2626' stroke-width='2.5' stroke-linecap='round' /%3E%3Cpath d='M 38 18 L 26 8' stroke='%23dc2626' stroke-width='2.5' stroke-linecap='round' /%3E%3Cpath d='M 62 18 L 74 8' stroke='%23dc2626' stroke-width='2.5' stroke-linecap='round' /%3E%3Cpath d='M 29 26 L 15 19' stroke='%23dc2626' stroke-width='2.5' stroke-linecap='round' /%3E%3Cpath d='M 71 26 L 85 19' stroke='%23dc2626' stroke-width='2.5' stroke-linecap='round' /%3E%3Cpath d='M 32 28 A 18 18 0 0 1 68 28 Z' fill='%23dc2626' /%3E%3Cpath d='M 15 28 L 85 28 L 85 75 Q 85 98 50 108 Q 15 98 15 75 Z' fill='%231e3a8a' stroke='%23d97706' stroke-width='3' stroke-linejoin='round' /%3E%3Cline x1='15' y1='36' x2='35' y2='46' stroke='%23d97706' stroke-width='1.5' opacity='0.8' /%3E%3Cline x1='85' y1='36' x2='65' y2='46' stroke='%23d97706' stroke-width='1.5' opacity='0.8' /%3E%3Cline x1='15' y1='68' x2='35' y2='58' stroke='%23d97706' stroke-width='1.5' opacity='0.8' /%3E%3Cline x1='85' y1='68' x2='65' y2='58' stroke='%23d97706' stroke-width='1.5' opacity='0.8' /%3E%3Cpolygon points='50,34 65,42.5 65,60 50,68.5 35,60 35,42.5' fill='%23ffffff' stroke='%23d97706' stroke-width='2' /%3E%3Cpath d='M 40 58 Q 45 56 50 59 Q 55 56 60 58 L 60 54 Q 55 52 50 55 Q 45 52 40 54 Z' fill='%23dc2626' /%3E%3Cline x1='50' y1='55' x2='50' y2='59' stroke='%23ffffff' stroke-width='1' /%3E%3Cpath d='M 50 38 Q 47 46 50 53 Q 53 46 50 38 Z' fill='%23dc2626' /%3E%3Cpath d='M 50 53 Q 41 45 42 42 Q 47 43 50 51 Z' fill='%23dc2626' /%3E%3Cpath d='M 50 53 Q 36 51 38 48 Q 43 47 50 52 Z' fill='%23dc2626' /%3E%3Cpath d='M 50 53 Q 59 45 58 42 Q 53 43 50 51 Z' fill='%23dc2626' /%3E%3Cpath d='M 50 53 Q 64 51 62 48 Q 57 47 50 52 Z' fill='%23dc2626' /%3E%3Cpath d='M 28 80 Q 50 67 72 80 Q 50 93 28 80 Z' fill='%23ffffff' /%3E%3Ccircle cx='50' cy='80' r='7' fill='%231e3a8a' /%3E%3Ccircle cx='50' cy='80' r='7' fill='none' stroke='%23ffffff' stroke-width='0.8' /%3E%3Cellipse cx='50' cy='80' rx='3' ry='7' fill='none' stroke='%23ffffff' stroke-width='0.8' /%3E%3Cline x1='43' y1='80' x2='57' y2='80' stroke='%23ffffff' stroke-width='0.8' /%3E%3Cpath d='M 8 102 L 20 95 L 80 95 L 92 102 L 86 112 L 50 114 L 14 112 Z' fill='%23d97706' stroke='%23b45309' stroke-width='1' /%3E%3Cpath d='M 8 102 L 14 112 L 14 100 Z' fill='%2392400e' /%3E%3Cpath d='M 92 102 L 86 112 L 86 100 Z' fill='%2392400e' /%3E%3Ctext x='50' y='108' font-family='sans-serif' font-weight='900' font-size='8' fill='%23dc2626' text-anchor='middle' letter-spacing='1'%3EGBLMS%3C/text%3E%3C/svg%3E">
+    <meta name="description" content="Manage your reading library ID and profile data.">
+    <meta name="author" content="GBLMS">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&display=swap" rel="stylesheet">
+    
+    <!-- Suppress Tailwind Play CDN warning -->
+    <script>
+        const _warn = console.warn;
+        console.warn = function(...args) {
+            if (args[0] && typeof args[0] === 'string' && args[0].includes('cdn.tailwindcss.com')) return;
+            _warn.apply(console, args);
+        };
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        serif: ['"Playfair Display"', 'serif'],
+                    },
+                    colors: {
+                        brand: { 50: '#eff6ff', 100: '#dbeafe', 500: '#2563eb', 600: '#1d4ed8', 700: '#1e40af', 900: '#1e3a8a' },
+                        accent: { 50: '#fef2f2', 500: '#dc2626', 600: '#b91c1c' }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body class="bg-[#f8fafc] text-slate-900 font-sans min-h-screen flex flex-col antialiased selection:bg-brand-100 selection:text-brand-900">
+
+    <!-- HEADER -->
+    <header class="fixed top-0 left-0 w-full h-20 bg-white/80 backdrop-blur-xl border-b border-slate-200/80 z-50 transition-all duration-300">
+        <div class="max-w-7xl mx-auto h-full px-6 md:px-8 flex justify-between items-center">
+            <a href="#" onclick="navigateTo('home')" class="flex items-center gap-3 group">
+                <div class="w-12 h-14 shrink-0 transition-transform duration-300 group-hover:scale-105">
+                    <svg viewBox="0 0 100 120" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Sun Rays (Red) -->
+                        <path d="M 50 15 L 50 2" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round"/>
+                        <path d="M 38 18 L 26 8" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round"/>
+                        <path d="M 62 18 L 74 8" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round"/>
+                        <path d="M 29 26 L 15 19" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round"/>
+                        <path d="M 71 26 L 85 19" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round"/>
+                        <!-- Rising Sun (Red) -->
+                        <path d="M 32 28 A 18 18 0 0 1 68 28 Z" fill="#dc2626" />
+                        <!-- Shield Outline & Background (Royal Blue with Gold border) -->
+                        <path d="M 15 28 L 85 28 L 85 75 Q 85 98 50 108 Q 15 98 15 75 Z" fill="#1e3a8a" stroke="#d97706" stroke-width="3" stroke-linejoin="round"/>
+                        <!-- Hexagon grid lines (Gold) -->
+                        <line x1="15" y1="36" x2="35" y2="46" stroke="#d97706" stroke-width="1.5" opacity="0.8"/>
+                        <line x1="85" y1="36" x2="65" y2="46" stroke="#d97706" stroke-width="1.5" opacity="0.8"/>
+                        <line x1="15" y1="68" x2="35" y2="58" stroke="#d97706" stroke-width="1.5" opacity="0.8"/>
+                        <line x1="85" y1="68" x2="65" y2="58" stroke="#d97706" stroke-width="1.5" opacity="0.8"/>
+                        <!-- Central Hexagon (White with Gold border) -->
+                        <polygon points="50,34 65,42.5 65,60 50,68.5 35,60 35,42.5" fill="#ffffff" stroke="#d97706" stroke-width="2"/>
+                        <!-- Water Lily & Book combo inside Hexagon (Red shapla sitting on a red open book) -->
+                        <path d="M 40 58 Q 45 56 50 59 Q 55 56 60 58 L 60 54 Q 55 52 50 55 Q 45 52 40 54 Z" fill="#dc2626"/>
+                        <line x1="50" y1="55" x2="50" y2="59" stroke="#ffffff" stroke-width="1"/>
+                        <path d="M 50 38 Q 47 46 50 53 Q 53 46 50 38 Z" fill="#dc2626"/>
+                        <path d="M 50 53 Q 41 45 42 42 Q 47 43 50 51 Z" fill="#dc2626"/>
+                        <path d="M 50 53 Q 36 51 38 48 Q 43 47 50 52 Z" fill="#dc2626"/>
+                        <path d="M 50 53 Q 59 45 58 42 Q 53 43 50 51 Z" fill="#dc2626"/>
+                        <path d="M 50 53 Q 64 51 62 48 Q 57 47 50 52 Z" fill="#dc2626"/>
+                        <!-- Eyeball Shape at the bottom (White) -->
+                        <path d="M 28 80 Q 50 67 72 80 Q 50 93 28 80 Z" fill="#ffffff"/>
+                        <!-- Globe pupil -->
+                        <circle cx="50" cy="80" r="7" fill="#1e3a8a" />
+                        <circle cx="50" cy="80" r="7" fill="none" stroke="#ffffff" stroke-width="0.8"/>
+                        <ellipse cx="50" cy="80" rx="3" ry="7" fill="none" stroke="#ffffff" stroke-width="0.8"/>
+                        <line x1="43" y1="80" x2="57" y2="80" stroke="#ffffff" stroke-width="0.8"/>
+                        <!-- Golden Banner Ribbon at bottom -->
+                        <path d="M 8 102 L 20 95 L 80 95 L 92 102 L 86 112 L 50 114 L 14 112 Z" fill="#d97706" stroke="#b45309" stroke-width="1"/>
+                        <path d="M 8 102 L 14 112 L 14 100 Z" fill="#92400e"/>
+                        <path d="M 92 102 L 86 112 L 86 100 Z" fill="#92400e"/>
+                        <text x="50" y="108" font-family="'Plus Jakarta Sans', sans-serif" font-weight="900" font-size="8" fill="#dc2626" text-anchor="middle" letter-spacing="1">GBLMS</text>
+                    </svg>
+                </div>
+                <div class="flex flex-col">
+                    <span class="text-xl font-extrabold tracking-tight text-slate-900 leading-none">GBLMS</span>
+                    <span class="text-[9px] font-bold tracking-widest text-brand-600 uppercase mt-0.5">GB Library Portal</span>
+                </div>
+            </a>
+            <nav class="hidden md:flex items-center gap-8">
+                <a href="#" data-section="home" onclick="navigateTo('home')" class="nav-link text-sm font-semibold text-slate-655 hover:text-slate-950 transition-colors duration-200 relative py-2">Home</a>
+                <a href="#" data-section="catalog" onclick="navigateTo('catalog')" class="nav-link text-sm font-semibold text-slate-655 hover:text-slate-950 transition-colors duration-200 relative py-2">Catalog</a>
+                <a href="#" id="savedNavLink" data-section="saved" onclick="navigateTo('saved')" class="nav-link text-sm font-semibold text-slate-655 hover:text-slate-950 transition-colors duration-200 relative py-2 hidden">Saved Books</a>
+                <a href="#" id="dashboardLink" data-section="dashboard" onclick="navigateTo('dashboard')" class="nav-link text-sm font-semibold text-slate-655 hover:text-slate-950 transition-colors duration-200 relative py-2 hidden">My Library</a>
+                <a href="#" id="adminLink" data-section="admin" onclick="navigateTo('admin')" class="nav-link text-sm font-semibold text-slate-655 hover:text-slate-950 transition-colors duration-200 relative py-2 hidden">Admin Panel</a>
+            </nav>
+            <div class="flex items-center gap-4">
+                <button onclick="showLoginModal()" id="loginBtn" class="flex items-center justify-center gap-2 w-10 sm:w-auto h-10 px-0 sm:px-5 py-2.5 rounded-xl text-sm font-semibold bg-brand-600 text-white hover:bg-brand-500 hover:shadow-lg hover:shadow-brand-500/10 active:scale-95 transition-all duration-200">
+                    <i data-lucide="log-in" class="w-4 h-4"></i>
+                    <span class="hidden sm:inline">Login / Register</span>
+                </button>
+                <div id="navUser" class="hidden relative">
+                    <button onclick="toggleUserDropdown(event)" id="userDropdownBtn" class="flex items-center gap-2.5 bg-slate-100/80 hover:bg-slate-200/50 border border-slate-200/80 px-3 py-1.5 rounded-xl active:scale-95 transition-all duration-200 focus:outline-none select-none">
+                        <div id="userAvatar" class="w-8 h-8 rounded-lg bg-brand-600 flex items-center justify-center text-xs font-bold text-white uppercase shrink-0">A</div>
+                        <div class="hidden lg:flex flex-col text-left">
+                            <span id="navUserName" class="text-xs font-bold text-slate-800 leading-tight">User</span>
+                            <span id="navUserRole" class="text-[9px] font-semibold text-accent-600 uppercase tracking-wider leading-none">READER</span>
+                        </div>
+                        <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-500 shrink-0 hidden lg:block" id="dropdownChevron"></i>
+                    </button>
+                    <div id="userDropdownMenu" class="absolute right-0 top-full mt-2 w-56 bg-white border border-slate-200/80 rounded-2xl shadow-xl py-1.5 hidden flex-col z-[70] transition-all duration-200 origin-top-right transform scale-95 opacity-0">
+                        <div class="px-4 py-3 border-b border-slate-100 flex flex-col text-left">
+                            <span id="dropdownUserName" class="text-xs font-bold text-slate-800">User</span>
+                            <span id="dropdownUserRole" class="text-[10px] font-semibold text-brand-600 uppercase tracking-wider mt-0.5">READER</span>
+                        </div>
+                        
+                        <!-- Account Link -->
+                        <a href="#" onclick="navigateTo('profile'); return false;" id="dropdownProfileLink" class="flex items-center gap-3 px-4 py-2 text-xs font-bold text-slate-655 hover:text-slate-900 hover:bg-slate-50 transition-colors duration-150">
+                            <i data-lucide="user" class="w-4 h-4 text-slate-400"></i>
+                            <span>My Profile</span>
+                        </a>
+
+                        <!-- Separator -->
+                        <div class="border-t border-slate-100 my-1"></div>
+
+                        <!-- Workspace Links -->
+                        <a href="#" onclick="navigateTo('saved'); return false;" id="dropdownSavedLink" class="flex items-center gap-3 px-4 py-2 text-xs font-bold text-slate-655 hover:text-slate-900 hover:bg-slate-50 transition-colors duration-150 hidden">
+                            <i data-lucide="bookmark" class="w-4 h-4 text-slate-400"></i>
+                            <span>Saved Books</span>
+                        </a>
+                        <a href="#" onclick="navigateTo('dashboard'); return false;" id="dropdownDashboardLink" class="flex items-center gap-3 px-4 py-2 text-xs font-bold text-slate-655 hover:text-slate-900 hover:bg-slate-50 transition-colors duration-150 hidden">
+                            <i data-lucide="layout-dashboard" class="w-4 h-4 text-slate-400"></i>
+                            <span>Reader Dashboard</span>
+                        </a>
+                        <a href="#" onclick="navigateTo('admin'); return false;" id="dropdownAdminLink" class="flex items-center gap-3 px-4 py-2 text-xs font-bold text-slate-655 hover:text-slate-900 hover:bg-slate-50 transition-colors duration-150 hidden">
+                            <i data-lucide="shield" class="w-4 h-4 text-slate-400"></i>
+                            <span>System Admin</span>
+                        </a>
+
+                        <!-- Separator -->
+                        <div class="border-t border-slate-100 my-1"></div>
+
+                        <!-- Sign Out -->
+                        <button onclick="logout()" class="w-full flex items-center gap-3 px-4 py-2 text-xs font-bold text-red-655 hover:bg-red-50 transition-colors duration-150 text-left">
+                            <i data-lucide="log-out" class="w-4 h-4"></i>
+                            <span>Portal Sign Out</span>
+                        </button>
+                    </div>
+                </div>
+                <button class="md:hidden flex items-center justify-center w-10 h-10 rounded-xl bg-slate-100 hover:bg-slate-200/80 text-slate-600 border border-slate-200/60 active:scale-95 transition-all duration-200" id="hamburger" onclick="toggleMobileMenu()">
+                    <i data-lucide="menu" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Mobile Drawer -->
+    <div id="mobileDrawer" class="fixed inset-0 bg-white/95 backdrop-blur-2xl z-40 hidden flex-col justify-center items-center gap-8 px-8">
+        <a href="#" data-section="home" onclick="navigateTo('home')" class="text-2xl font-bold text-slate-800 hover:text-slate-950">Home</a>
+        <a href="#" data-section="catalog" onclick="navigateTo('catalog')" class="text-2xl font-bold text-slate-800 hover:text-slate-950">Catalog</a>
+        <a href="#" id="mobileDashboardLink" data-section="dashboard" onclick="navigateTo('dashboard')" class="text-2xl font-bold text-slate-800 hover:text-slate-950 hidden">My Library</a>
+        <a href="#" id="mobileAdminLink" data-section="admin" onclick="navigateTo('admin')" class="text-2xl font-bold text-slate-800 hover:text-slate-950 hidden">Admin Panel</a>
+    </div>
+
+    <!-- MAIN CONTENTS -->
+    <main class="flex-grow pt-20">
+        <section class="page-section active-section block opacity-1">
+            <div class="max-w-4xl mx-auto px-6 md:px-8 py-12">
+
+                <!-- Page Header -->
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10 border-b border-slate-200 pb-8">
+                    <div>
+                        <span class="text-xs font-extrabold tracking-widest text-brand-600 uppercase block mb-2">My Account</span>
+                        <h1 class="text-3xl font-black text-slate-900 font-serif">Personal Profile</h1>
+                        <p class="text-slate-500 text-sm mt-1">Manage your library ID, contact information, and avatar.</p>
+                    </div>
+                </div>
+
+                <!-- Profile Container Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
+                    
+                    <!-- Left: Profile Avatar Card -->
+                    <div class="md:col-span-4 flex flex-col items-center">
+                        <div id="profileCard" class="w-full bg-white border border-slate-200 rounded-3xl p-6 shadow-sm text-center flex flex-col items-center">
+                            <!-- Avatar Circle -->
+                            <div class="relative group cursor-pointer w-32 h-32 rounded-3xl bg-brand-600 flex items-center justify-center text-5xl font-black text-white uppercase shadow-md overflow-hidden mb-4 border-4 border-white ring-4 ring-slate-105 transition-all duration-300">
+                                <!-- Avatar Preview Image -->
+                                <img id="profileAvatarPreview" src="" alt="Profile Image" class="absolute inset-0 w-full h-full object-cover hidden">
+                                <!-- Default Text Initials -->
+                                <span id="profileAvatarText">S</span>
+                                
+                                <!-- Hover Overlay for Upload -->
+                                <div onclick="document.getElementById('profileImageInput').click()" class="absolute inset-0 bg-slate-950/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center text-white text-[10px] font-black uppercase tracking-wider gap-1.5">
+                                    <i data-lucide="camera" class="w-5 h-5"></i>
+                                    <span>Upload Photo</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Hidden File Input -->
+                            <input type="file" id="profileImageInput" accept="image/*" class="hidden">
+                            
+                            <!-- Details -->
+                            <h3 id="profileNameHeader" class="text-lg font-black text-slate-800 leading-tight">Reader</h3>
+                            <span id="profileRoleHeader" class="text-[9px] font-semibold text-brand-600 bg-brand-50 border border-brand-100 px-2 py-0.5 rounded-md uppercase tracking-wider mt-1.5 inline-block">USER</span>
+                            
+                            <p class="text-slate-400 text-[11px] font-medium leading-relaxed mt-4 border-t border-slate-100 pt-4 w-full">
+                                Click the avatar box to upload a custom JPG or PNG picture.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Right: Info Form -->
+                    <div class="md:col-span-8">
+                        <form onsubmit="saveUserProfile(event)" class="bg-white border border-slate-200 rounded-3xl p-6 md:p-8 shadow-sm text-left flex flex-col gap-5">
+                            <h3 class="text-md font-black text-slate-800 border-b border-slate-100 pb-3 mb-2 flex items-center gap-2">
+                                <i data-lucide="user-check" class="w-4 h-4 text-brand-600"></i>
+                                <span>Personal Information</span>
+                            </h3>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Full Name</label>
+                                    <input type="text" id="profileName" required placeholder="John Doe" 
+                                        class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-800 focus:outline-none focus:border-brand-500 focus:bg-white transition-all duration-200">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Email Address (Read-Only)</label>
+                                    <input type="email" id="profileEmail" readonly disabled placeholder="name@example.com" 
+                                        class="w-full px-4 py-3 bg-slate-100 border border-slate-200 rounded-xl text-sm font-bold text-slate-400 cursor-not-allowed focus:outline-none">
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Contact Number</label>
+                                    <input type="tel" id="profilePhone" placeholder="+880 1XXX XXXXXX" 
+                                        class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-800 focus:outline-none focus:border-brand-500 focus:bg-white transition-all duration-200">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Department / Major</label>
+                                    <input type="text" id="profileDept" placeholder="Computer Science & Engineering" 
+                                        class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-800 focus:outline-none focus:border-brand-500 focus:bg-white transition-all duration-200">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Student ID / Employee ID</label>
+                                <input type="text" id="profileId" placeholder="CSE-2026-001" 
+                                    class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-800 focus:outline-none focus:border-brand-500 focus:bg-white transition-all duration-200">
+                                </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Short Bio</label>
+                                <textarea id="profileBio" rows="4" placeholder="Brief statement about your academic reading profile..." 
+                                    class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-800 focus:outline-none focus:border-brand-500 focus:bg-white transition-all duration-200 resize-none"></textarea>
+                            </div>
+
+                            <div class="flex justify-end gap-3 mt-4 border-t border-slate-100 pt-5">
+                                <button type="button" onclick="navigateTo('saved')" 
+                                    class="px-5 py-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-650 text-xs font-black active:scale-95 transition-all duration-200">
+                                    Cancel
+                                </button>
+                                <button type="submit" 
+                                    class="px-6 py-3 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-xs font-black active:scale-95 transition-all duration-200 flex items-center gap-1.5 shadow-md shadow-brand-500/10">
+                                    <i data-lucide="check-circle" class="w-4 h-4"></i>
+                                    <span>Save Profile</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                </div>
+
+            </div>
+        </section>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-slate-950 border-t border-slate-800/80 py-8 mt-auto">
+        <div class="max-w-7xl mx-auto px-6 md:px-8 flex flex-col md:flex-row justify-between items-center gap-4">
+            <span class="text-[11px] font-bold text-slate-500">© 2026 GBLMS. All Rights Reserved.</span>
+            <div class="flex gap-6 text-[11px] font-bold text-slate-500">
+                <a href="#" onclick="navigateTo('catalog')" class="hover:text-white transition-colors">Explore Catalog</a>
+                <a href="#" onclick="navigateTo('home')" class="hover:text-white transition-colors">Portal Home</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- LOGIN MODAL -->
+    <div id="loginModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[60] hidden justify-center items-center p-6 transition-all duration-300">
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    <script src="../js/script.js"></script>
+</body>
+</html>

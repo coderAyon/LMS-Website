@@ -18,6 +18,14 @@
         href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&display=swap"
         rel="stylesheet">
  
+    <!-- Suppress Tailwind Play CDN warning -->
+    <script>
+        const _warn = console.warn;
+        console.warn = function(...args) {
+            if (args[0] && typeof args[0] === 'string' && args[0].includes('cdn.tailwindcss.com')) return;
+            _warn.apply(console, args);
+        };
+    </script>
     <!-- Tailwind CSS Play CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -133,7 +141,7 @@
                 <button onclick="showLoginModal()" id="loginBtn"
                     class="flex items-center justify-center gap-2 w-10 sm:w-auto h-10 px-0 sm:px-5 py-2.5 rounded-xl text-sm font-semibold bg-brand-600 text-white hover:bg-brand-500 hover:shadow-lg hover:shadow-brand-500/10 active:scale-95 transition-all duration-200">
                     <i data-lucide="log-in" class="w-4 h-4"></i>
-                    <span class="hidden sm:inline">Portal Access</span>
+                    <span class="hidden sm:inline">Login / Register</span>
                 </button>
 
                 <!-- Authenticated User Menu Dropdown -->
@@ -154,31 +162,48 @@
                     
                     <!-- Premium Dropdown Menu Panel -->
                     <div id="userDropdownMenu" 
-                        class="absolute right-0 top-full mt-2 w-56 bg-white border border-slate-200/80 rounded-2xl shadow-xl py-2 hidden flex-col z-[70] transition-all duration-200 origin-top-right transform scale-95 opacity-0">
+                        class="absolute right-0 top-full mt-2 w-56 bg-white border border-slate-200/80 rounded-2xl shadow-xl py-1.5 hidden flex-col z-[70] transition-all duration-200 origin-top-right transform scale-95 opacity-0">
                         <div class="px-4 py-3 border-b border-slate-100 flex flex-col text-left">
                             <span id="dropdownUserName" class="text-xs font-bold text-slate-800">Admin User</span>
                             <span id="dropdownUserRole" class="text-[10px] font-semibold text-brand-600 uppercase tracking-wider mt-0.5">ADMIN</span>
                         </div>
-                        <div class="py-1">
-                            <!-- Quick Workspace Navigation Links -->
-                            <a href="#" onclick="navigateTo('dashboard'); return false;" id="dropdownDashboardLink"
-                                class="flex items-center gap-3 px-4 py-2 text-xs font-bold text-slate-655 hover:text-slate-900 hover:bg-slate-50 transition-colors duration-150">
-                                <i data-lucide="layout-dashboard" class="w-4 h-4 text-slate-400"></i>
-                                <span>Reader Dashboard</span>
-                            </a>
-                            <a href="#" onclick="navigateTo('admin'); return false;" id="dropdownAdminLink"
-                                class="flex items-center gap-3 px-4 py-2 text-xs font-bold text-slate-655 hover:text-slate-900 hover:bg-slate-50 transition-colors duration-150">
-                                <i data-lucide="shield" class="w-4 h-4 text-slate-400"></i>
-                                <span>System Admin</span>
-                            </a>
-                        </div>
-                        <div class="border-t border-slate-100 pt-1 mt-1">
-                            <button onclick="logout()" 
-                                class="w-full flex items-center gap-3 px-4 py-2.5 text-xs font-bold text-red-655 hover:bg-red-50 transition-colors duration-150 text-left">
-                                <i data-lucide="log-out" class="w-4 h-4"></i>
-                                <span>Portal Sign Out</span>
-                            </button>
-                        </div>
+                        
+                        <!-- Account Link -->
+                        <a href="#" onclick="navigateTo('profile'); return false;" id="dropdownProfileLink"
+                            class="flex items-center gap-3 px-4 py-2 text-xs font-bold text-slate-655 hover:text-slate-900 hover:bg-slate-50 transition-colors duration-150">
+                            <i data-lucide="user" class="w-4 h-4 text-slate-400"></i>
+                            <span>My Profile</span>
+                        </a>
+
+                        <!-- Separator -->
+                        <div class="border-t border-slate-100 my-1"></div>
+
+                        <!-- Workspace Links -->
+                        <a href="#" onclick="navigateTo('saved'); return false;" id="dropdownSavedLink"
+                            class="flex items-center gap-3 px-4 py-2 text-xs font-bold text-slate-655 hover:text-slate-900 hover:bg-slate-50 transition-colors duration-150 hidden">
+                            <i data-lucide="bookmark" class="w-4 h-4 text-slate-400"></i>
+                            <span>Saved Books</span>
+                        </a>
+                        <a href="#" onclick="navigateTo('dashboard'); return false;" id="dropdownDashboardLink"
+                            class="flex items-center gap-3 px-4 py-2 text-xs font-bold text-slate-655 hover:text-slate-900 hover:bg-slate-50 transition-colors duration-150">
+                            <i data-lucide="layout-dashboard" class="w-4 h-4 text-slate-400"></i>
+                            <span>Reader Dashboard</span>
+                        </a>
+                        <a href="#" onclick="navigateTo('admin'); return false;" id="dropdownAdminLink"
+                            class="flex items-center gap-3 px-4 py-2 text-xs font-bold text-slate-655 hover:text-slate-900 hover:bg-slate-50 transition-colors duration-150">
+                            <i data-lucide="shield" class="w-4 h-4 text-slate-400"></i>
+                            <span>System Admin</span>
+                        </a>
+
+                        <!-- Separator -->
+                        <div class="border-t border-slate-100 my-1"></div>
+
+                        <!-- Sign Out -->
+                        <button onclick="logout()" 
+                            class="w-full flex items-center gap-3 px-4 py-2 text-xs font-bold text-red-655 hover:bg-red-50 transition-colors duration-150 text-left">
+                            <i data-lucide="log-out" class="w-4 h-4"></i>
+                            <span>Portal Sign Out</span>
+                        </button>
                     </div>
                 </div>
 
@@ -211,7 +236,6 @@
         <!-- ==================== SECTION: MY LIBRARY (DASHBOARD) ==================== -->
         <section id="dashboardSection" class="page-section active-section block opacity-1">
             <div class="max-w-7xl mx-auto px-6 md:px-8 py-12">
-
                 <div
                     class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12 border-b border-slate-200 pb-8">
                     <div>
@@ -219,18 +243,25 @@
                             Portfolio</span>
                         <h1 class="text-3xl font-black text-slate-900 font-serif">My Library Portfolio</h1>
                     </div>
-
-                    <div class="flex gap-2 bg-slate-100 p-1.5 rounded-xl border border-slate-200 shadow-sm">
-                        <button onclick="switchDashboardTab('myBooks', this)"
-                            class="dash-tab active flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold text-brand-600 transition-all duration-200">
-                            <i data-lucide="cloud-lightning" class="w-3.5 h-3.5"></i>
-                            <span>Offline Cache</span>
+ 
+                    <div class="flex flex-wrap items-center gap-3">
+                        <button onclick="showAddBookModal()"
+                            class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-bold text-xs active:scale-95 shadow-md shadow-brand-500/10 transition-all duration-200">
+                            <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i>
+                            <span>Add Custom Book</span>
                         </button>
-                        <button onclick="switchDashboardTab('recommendations', this)"
-                            class="dash-tab flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold text-slate-500 hover:text-slate-700 transition-all duration-200">
-                            <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
-                            <span>System Matches</span>
-                        </button>
+                        <div class="flex gap-2 bg-slate-100 p-1.5 rounded-xl border border-slate-200 shadow-sm">
+                            <button onclick="switchDashboardTab('myBooks', this)"
+                                class="dash-tab active flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold text-brand-600 transition-all duration-200">
+                                <i data-lucide="cloud-lightning" class="w-3.5 h-3.5"></i>
+                                <span>Offline Cache</span>
+                            </button>
+                            <button onclick="switchDashboardTab('recommendations', this)"
+                                class="dash-tab flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold text-slate-500 hover:text-slate-700 transition-all duration-200">
+                                <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                                <span>System Matches</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -384,52 +415,6 @@
     <!-- ==================== SYSTEM MODAL: PORTAL ACCESS (LOGIN) ==================== -->
     <div id="loginModal"
         class="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[60] hidden justify-center items-center p-6 transition-all duration-300">
-        <div class="modal-card w-full max-w-md bg-white border border-slate-200 rounded-3xl p-8 relative shadow-2xl">
-            <button onclick="closeLoginModal()"
-                class="absolute top-6 right-6 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 border border-slate-200/80 flex items-center justify-center transition-colors duration-200">
-                <i data-lucide="x" class="w-4 h-4"></i>
-            </button>
-
-            <div class="text-center mb-8">
-                <div
-                    class="w-12 h-12 rounded-xl bg-brand-500/10 text-brand-600 flex items-center justify-center mx-auto mb-4">
-                    <i data-lucide="shield-check" class="w-6 h-6"></i>
-                </div>
-                <h3 class="text-xl font-extrabold text-slate-800 mb-2">Select Access Workspace</h3>
-                <p class="text-slate-500 text-xs leading-normal">Authenticate database controls or reading dashboard
-                    portals</p>
-            </div>
-
-            <div class="flex flex-col gap-4">
-                <button onclick="login('admin')"
-                    class="w-full p-5 bg-slate-50 border border-slate-200 hover:border-brand-500/40 rounded-2xl text-left hover:bg-slate-100/50 group transition-all duration-300 flex items-center gap-4 shadow-sm">
-                    <div
-                        class="w-10 h-10 rounded-lg bg-brand-500/10 text-brand-650 flex items-center justify-center group-hover:scale-105 transition-transform duration-300 shrink-0">
-                        <i data-lucide="user-cog" class="w-5 h-5"></i>
-                    </div>
-                    <div>
-                        <h4 class="font-bold text-slate-800 group-hover:text-brand-600 transition-colors duration-200">
-                            System Admin</h4>
-                        <p class="text-slate-500 text-[11px] font-semibold leading-normal">Full control over records
-                            uploading & modifications.</p>
-                    </div>
-                </button>
-
-                <button onclick="login('user')"
-                    class="w-full p-5 bg-slate-50 border border-slate-200 hover:border-accent-500/40 rounded-2xl text-left hover:bg-slate-100/50 group transition-all duration-300 flex items-center gap-4 shadow-sm">
-                    <div
-                        class="w-10 h-10 rounded-lg bg-accent-500/10 text-accent-650 flex items-center justify-center group-hover:scale-105 transition-transform duration-300 shrink-0">
-                        <i data-lucide="graduation-cap" class="w-5 h-5"></i>
-                    </div>
-                    <div>
-                        <h4 class="font-bold text-slate-800 group-hover:text-accent-650 transition-colors duration-200">
-                            Academic Reader</h4>
-                        <p class="text-slate-500 text-[11px] font-semibold leading-normal">Construct customized folders
-                            & access offline caching.</p>
-                    </div>
-                </button>
-            </div>
-        </div>
     </div>
 
     <!-- ==================== SYSTEM MODAL: VOLUME DETAILS ==================== -->
@@ -490,10 +475,100 @@
                         <button onclick="downloadBook()" id="downloadBtn"
                             class="flex items-center gap-2 px-6 py-3 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-bold text-sm active:scale-95 transition-all duration-200 shadow-md shadow-brand-500/10">
                             <i data-lucide="download" class="w-4 h-4"></i>
-                            <span>Buffer Offline</span>
+                            <span>Download</span>
                         </button>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== ADD CUSTOM BOOK MODAL ==================== -->
+    <div id="addBookModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[60] hidden justify-center items-center p-6 transition-all duration-300">
+        <div class="modal-card w-full max-w-lg bg-white border border-slate-200 rounded-3xl p-8 relative shadow-2xl max-h-[90vh] overflow-y-auto">
+            <!-- Close Button -->
+            <button onclick="closeAddBookModal()"
+                class="absolute top-6 right-6 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 border border-slate-200/80 flex items-center justify-center transition-colors duration-200">
+                <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+            <div class="text-left">
+                <h3 class="text-xl font-black text-slate-950 font-serif mb-1">Add Custom Book</h3>
+                <p class="text-xs text-slate-500 mb-6">Create a personal book entry in your local library cache portfolio.</p>
+                
+                <form onsubmit="handleAddBookSubmit(event)" class="space-y-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Book Title</label>
+                            <input type="text" id="addBookTitle" required placeholder="e.g. Clean Code"
+                                class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:border-brand-500 focus:bg-white transition-all">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Author Name</label>
+                            <input type="text" id="addBookAuthor" required placeholder="e.g. Robert C. Martin"
+                                class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:border-brand-500 focus:bg-white transition-all">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Category</label>
+                            <select id="addBookCategory" required
+                                class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:border-brand-500 focus:bg-white transition-all">
+                                <option value="Technology">Technology</option>
+                                <option value="Science">Science</option>
+                                <option value="Fiction">Fiction</option>
+                                <option value="History">History</option>
+                                <option value="Business">Business</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Publisher</label>
+                            <input type="text" id="addBookPublisher" placeholder="e.g. Prentice Hall"
+                                class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:border-brand-500 focus:bg-white transition-all">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Pages</label>
+                            <input type="number" id="addBookPages" placeholder="e.g. 464" min="1"
+                                class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:border-brand-500 focus:bg-white transition-all">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Released Year</label>
+                            <input type="number" id="addBookYear" placeholder="e.g. 2008" min="1000" max="2027"
+                                class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:border-brand-500 focus:bg-white transition-all">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">ISBN Identifier (Optional)</label>
+                        <input type="text" id="addBookIsbn" placeholder="e.g. 978-0132350884"
+                            class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:border-brand-500 focus:bg-white transition-all">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Cover Image File (Optional)</label>
+                        <input type="file" id="addBookCoverInput" accept="image/*"
+                            class="w-full text-xs text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-brand-55 file:text-brand-700 hover:file:bg-brand-100 transition-all cursor-pointer">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Short Description</label>
+                        <textarea id="addBookDescription" rows="3" placeholder="Brief abstract overview of this volume..."
+                            class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:border-brand-500 focus:bg-white transition-all resize-none"></textarea>
+                    </div>
+
+                    <div class="flex justify-end gap-3 pt-4 border-t border-slate-100">
+                        <button type="button" onclick="closeAddBookModal()"
+                            class="px-5 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 text-xs font-bold active:scale-95 transition-all">Cancel</button>
+                        <button type="submit"
+                            class="px-5 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-xs font-bold active:scale-95 transition-all flex items-center gap-1.5 shadow-md shadow-brand-500/10">
+                            <i data-lucide="check-circle" class="w-4 h-4"></i>
+                            <span>Save Book</span>
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>

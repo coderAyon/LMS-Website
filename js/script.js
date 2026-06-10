@@ -3,6 +3,7 @@ let allBooks = [];
 let userDownloads = [];
 let currentUser = null;
 let currentRole = null;
+let currentUserEmail = null;
 let currentSection = 'home';
 let featuredStartIndex = 0;
 let selectedBookForModal = null;
@@ -373,12 +374,20 @@ function updateLibraryStats() {
 
 // ==================== APP BOOTSTRAPPING ====================
 function initializeApp() {
+    injectLoginModalHTML();
     loadDownloads();
     initUserSession();   // ← Must run BEFORE fetchCatalogDatabase so currentUser is set
     fetchCatalogDatabase();
     checkPageSecurity();
     updateActiveNavLinkStyle();
     initCustomSelects();
+
+    if (getCurrentPageId() === 'profile') {
+        initProfilePage();
+    }
+    if (getCurrentPageId() === 'dashboard') {
+        initAddBookImageLoader();
+    }
 
     // Refresh lucide icons initially
     lucide.createIcons();
@@ -392,37 +401,63 @@ function animateIntro() {
     const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
 
     // Header slides in
-    tl.fromTo("header", { y: -20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.45 });
+    if (document.querySelector("header")) {
+        tl.fromTo("header", { y: -20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.45 });
+    }
 
     const pageId = getCurrentPageId();
     if (pageId === 'home') {
-        tl// Badge pill
-            .fromTo("#heroSection .inline-flex", { y: 15, opacity: 0, scale: 0.95 }, { y: 0, opacity: 1, scale: 1, duration: 0.45 }, "-=0.2")
+        // Badge pill
+        const badge = document.querySelector("#heroSection .inline-flex");
+        if (badge) {
+            tl.fromTo(badge, { y: 15, opacity: 0, scale: 0.95 }, { y: 0, opacity: 1, scale: 1, duration: 0.45 }, "-=0.2");
+        }
 
-            // h1 lines cascade
-            .fromTo("#heroSection h1 .hero-title-line > span", { yPercent: 100, opacity: 0 }, { yPercent: 0, opacity: 1, stagger: 0.12, duration: 0.8, ease: "power4.out" }, "-=0.25")
+        // h1 lines cascade
+        const h1Spans = document.querySelectorAll("#heroSection h1 .hero-title-line > span");
+        if (h1Spans.length) {
+            tl.fromTo(h1Spans, { yPercent: 100, opacity: 0 }, { yPercent: 0, opacity: 1, stagger: 0.12, duration: 0.8, ease: "power4.out" }, "-=0.25");
+        }
 
-            // Subparagraph
-            .fromTo("#heroSection > div p.text-slate-500", { y: 16, opacity: 0 }, { y: 0, opacity: 1, duration: 0.45 }, "-=0.3")
+        // Subparagraph
+        const subPara = document.querySelector("#heroSection > div p.text-slate-500");
+        if (subPara) {
+            tl.fromTo(subPara, { y: 16, opacity: 0 }, { y: 0, opacity: 1, duration: 0.45 }, "-=0.3");
+        }
 
-            // Buttons
-            .fromTo("#heroSection button", { scale: 0.92, opacity: 0 }, { scale: 1, opacity: 1, stagger: 0.08, duration: 0.4 }, "-=0.2")
+        // Buttons
+        const buttons = document.querySelectorAll("#heroSection button");
+        if (buttons.length) {
+            tl.fromTo(buttons, { scale: 0.92, opacity: 0 }, { scale: 1, opacity: 1, stagger: 0.08, duration: 0.4 }, "-=0.2");
+        }
 
-            // Trust bar
-            .fromTo("#heroSection .flex.-space-x-2.5 > *", { scale: 0, opacity: 0 }, { scale: 1, opacity: 1, stagger: 0.07, duration: 0.3, ease: "back.out(2)" }, "-=0.15")
+        // Trust bar
+        const avatars = document.querySelectorAll("#heroAvatars > *");
+        if (avatars.length) {
+            tl.fromTo(avatars, { scale: 0, opacity: 0 }, { scale: 1, opacity: 1, stagger: 0.07, duration: 0.3, ease: "back.out(2)" }, "-=0.15");
+        }
 
-            // Stat cards — lift in with stagger
-            .fromTo("#heroSection .grid.grid-cols-2 > div", { y: 24, opacity: 0, scale: 0.96 }, { y: 0, opacity: 1, scale: 1, stagger: 0.09, duration: 0.45 }, "-=0.2")
+        // Stat cards — lift in with stagger
+        const statCards = document.querySelectorAll("#heroSection .grid.grid-cols-2 > div");
+        if (statCards.length) {
+            tl.fromTo(statCards, { y: 24, opacity: 0, scale: 0.96 }, { y: 0, opacity: 1, scale: 1, stagger: 0.09, duration: 0.45 }, "-=0.2");
+        }
 
-            // Live status bar
-            .fromTo("#heroSection .mt-4.bg-white", { y: 10, opacity: 0 }, { y: 0, opacity: 1, duration: 0.35 }, "-=0.1")
+        // Live status bar
+        const liveStatusBar = document.querySelector("#heroSection .mt-4.bg-white");
+        if (liveStatusBar) {
+            tl.fromTo(liveStatusBar, { y: 10, opacity: 0 }, { y: 0, opacity: 1, duration: 0.35 }, "-=0.1");
+        }
 
-            // Floating elements pop in after main content
-            .fromTo(".float-el, .float-el-slow, .float-el-reverse",
+        // Floating elements pop in after main content
+        const floatElements = document.querySelectorAll(".float-el, .float-el-slow, .float-el-reverse");
+        if (floatElements.length) {
+            tl.fromTo(floatElements,
                 { scale: 0.7, opacity: 0, y: 20 },
                 { scale: 1, opacity: 1, y: 0, stagger: 0.15, duration: 0.55, ease: "back.out(1.5)" },
                 "-=0.1"
             );
+        }
     } else {
         // Subtle fade entrance for sub-page page-sections
         const pageSec = document.querySelector('.page-section');
@@ -622,19 +657,186 @@ function initScrollAnimations() {
 
 // ==================== USER AUTH SYSTEM ====================
 function initUserSession() {
-    const savedRole = localStorage.getItem('currentRole');
-    const savedUser = localStorage.getItem('currentUser');
+    // 1. Try restoring from URL query parameters (cross-folder navigation fallback)
+    const urlParams = new URLSearchParams(window.location.search);
+    const paramRole = urlParams.get('sRole');
+    const paramUser = urlParams.get('sUser');
+    const paramEmail = urlParams.get('sEmail');
+
+    if (paramRole && paramUser && paramEmail) {
+        localStorage.setItem('currentRole', paramRole);
+        localStorage.setItem('currentUser', paramUser);
+        localStorage.setItem('currentUserEmail', paramEmail);
+        try {
+            window.name = JSON.stringify({ currentRole: paramRole, currentUser: paramUser, currentUserEmail: paramEmail });
+        } catch (e) {}
+    }
+
+    let savedRole = localStorage.getItem('currentRole');
+    let savedUser = localStorage.getItem('currentUser');
+    let savedEmail = localStorage.getItem('currentUserEmail');
+
+    // Fallback to window.name for file:// protocol origin isolation
+    if (!savedRole || !savedUser) {
+        try {
+            if (window.name && window.name.trim().startsWith('{')) {
+                const session = JSON.parse(window.name);
+                if (session.currentRole && session.currentUser) {
+                    savedRole = session.currentRole;
+                    savedUser = session.currentUser;
+                    savedEmail = session.currentUserEmail;
+                    // Restore back to this origin's local storage
+                    localStorage.setItem('currentRole', savedRole);
+                    localStorage.setItem('currentUser', savedUser);
+                    localStorage.setItem('currentUserEmail', savedEmail);
+                }
+            }
+        } catch (e) {
+            console.warn("Failed to restore window.name fallback session:", e);
+        }
+    }
 
     if (savedRole && savedUser) {
         currentRole = savedRole;
         currentUser = savedUser;
+        currentUserEmail = savedEmail;
         updateSessionUI();
+    }
+}
+
+function saveSession(role, name, email) {
+    currentRole = role;
+    currentUser = name;
+    currentUserEmail = email;
+
+    localStorage.setItem('currentRole', role);
+    localStorage.setItem('currentUser', name);
+    localStorage.setItem('currentUserEmail', email);
+
+    // Save to window.name for file:// protocol cross-folder sharing fallback
+    try {
+        window.name = JSON.stringify({ currentRole: role, currentUser: name, currentUserEmail: email });
+    } catch (e) {
+        console.warn("Failed to write session state to window.name:", e);
+    }
+}
+
+function clearSession() {
+    currentRole = null;
+    currentUser = null;
+    currentUserEmail = null;
+
+    localStorage.removeItem('currentRole');
+    localStorage.removeItem('currentUser');
+    localStorage.removeItem('currentUserEmail');
+
+    try {
+        window.name = '';
+    } catch (e) {
+        console.warn("Failed to clear session state from window.name:", e);
+    }
+}
+
+function injectLoginModalHTML() {
+    const modal = document.getElementById('loginModal');
+    if (!modal) return;
+
+    modal.innerHTML = `
+        <div class="modal-card w-full max-w-md bg-white border border-slate-200 rounded-3xl p-8 relative shadow-2xl">
+            <!-- Close Button -->
+            <button onclick="closeLoginModal()"
+                class="absolute top-6 right-6 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 border border-slate-200/80 flex items-center justify-center transition-colors duration-200">
+                <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+
+            <!-- LOGIN VIEW -->
+            <div id="loginFormView">
+                <div class="text-center mb-6">
+                    <div class="w-12 h-12 rounded-xl bg-brand-500/10 text-brand-600 flex items-center justify-center mx-auto mb-4">
+                        <i data-lucide="shield-check" class="w-6 h-6"></i>
+                    </div>
+                    <h3 class="text-xl font-extrabold text-slate-800 mb-2">Login / Register</h3>
+                    <p class="text-slate-500 text-xs leading-normal">Sign in to authenticate workspace controls</p>
+                </div>
+
+                <form onsubmit="handleLoginSubmit(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Email Address</label>
+                        <input type="email" id="loginEmail" required placeholder="name@example.com" 
+                            class="w-full px-4 py-3 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold text-slate-800 focus:outline-none focus:border-brand-500 focus:bg-white transition-all duration-200">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Password</label>
+                        <input type="password" id="loginPassword" required placeholder="••••••••" 
+                            class="w-full px-4 py-3 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold text-slate-800 focus:outline-none focus:border-brand-500 focus:bg-white transition-all duration-200">
+                    </div>
+                    <button type="submit" 
+                        class="w-full py-3.5 bg-brand-600 hover:bg-brand-500 text-white rounded-xl text-sm font-bold active:scale-95 transition-all duration-200 shadow-lg shadow-brand-500/15 flex items-center justify-center gap-2 mt-2">
+                        <i data-lucide="log-in" class="w-4 h-4"></i>
+                        <span>Authenticate</span>
+                    </button>
+                </form>
+
+                <div class="text-center mt-6 pt-4 border-t border-slate-100">
+                    <p class="text-xs text-slate-500 font-semibold">
+                        Don't have an account? 
+                        <a href="#" onclick="toggleAuthView('register'); return false;" class="text-brand-600 hover:underline font-bold">Register here</a>
+                    </p>
+                </div>
+            </div>
+
+            <!-- REGISTER VIEW -->
+            <div id="registerFormView" class="hidden">
+                <div class="text-center mb-6">
+                    <div class="w-12 h-12 rounded-xl bg-accent-500/10 text-accent-600 flex items-center justify-center mx-auto mb-4">
+                        <i data-lucide="user-plus" class="w-6 h-6"></i>
+                    </div>
+                    <h3 class="text-xl font-extrabold text-slate-800 mb-2">Create Account</h3>
+                    <p class="text-slate-500 text-xs leading-normal">Register to save collections and sync portfolios</p>
+                </div>
+
+                <form onsubmit="handleRegisterSubmit(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Full Name</label>
+                        <input type="text" id="registerName" required placeholder="John Doe" 
+                            class="w-full px-4 py-3 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold text-slate-800 focus:outline-none focus:border-brand-500 focus:bg-white transition-all duration-200">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Email Address</label>
+                        <input type="email" id="registerEmail" required placeholder="reader@gmail.com" 
+                            class="w-full px-4 py-3 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold text-slate-800 focus:outline-none focus:border-brand-500 focus:bg-white transition-all duration-200">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Password</label>
+                        <input type="password" id="registerPassword" required placeholder="••••••••" 
+                            class="w-full px-4 py-3 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold text-slate-800 focus:outline-none focus:border-brand-500 focus:bg-white transition-all duration-200">
+                    </div>
+                    <button type="submit" 
+                        class="w-full py-3.5 bg-accent-600 hover:bg-accent-500 text-white rounded-xl text-sm font-bold active:scale-95 transition-all duration-200 shadow-lg shadow-accent-600/15 flex items-center justify-center gap-2 mt-2">
+                        <i data-lucide="user-check" class="w-4 h-4"></i>
+                        <span>Register Account</span>
+                    </button>
+                </form>
+
+                <div class="text-center mt-6 pt-4 border-t border-slate-100">
+                    <p class="text-xs text-slate-500 font-semibold">
+                        Already have an account? 
+                        <a href="#" onclick="toggleAuthView('login'); return false;" class="text-brand-600 hover:underline font-bold">Sign In here</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    `;
+    if (window.lucide) {
+        lucide.createIcons();
     }
 }
 
 // Dialog selectors configurations
 function showLoginModal() {
     const modal = document.getElementById('loginModal');
+    if (!modal) return;
+    toggleAuthView('login');
     modal.classList.remove('hidden');
     modal.classList.add('flex');
     gsap.fromTo(modal.querySelector('.modal-card'),
@@ -645,6 +847,7 @@ function showLoginModal() {
 
 function closeLoginModal() {
     const modal = document.getElementById('loginModal');
+    if (!modal) return;
     gsap.to(modal.querySelector('.modal-card'), {
         scale: 0.85,
         opacity: 0,
@@ -657,30 +860,83 @@ function closeLoginModal() {
     });
 }
 
-function login(role) {
-    currentRole = role;
-    currentUser = role === 'admin' ? 'Admin Manager' : 'Academic Reader';
+function toggleAuthView(view) {
+    const loginView = document.getElementById('loginFormView');
+    const registerView = document.getElementById('registerFormView');
+    if (!loginView || !registerView) return;
 
-    localStorage.setItem('currentRole', currentRole);
-    localStorage.setItem('currentUser', currentUser);
-
-    updateSessionUI();
-    closeLoginModal();
-    showNotification(`Portal Authentication Verified: Welcome, ${currentUser}`, 'success');
-
-    if (role === 'admin') {
-        navigateTo('admin');
+    if (view === 'login') {
+        loginView.classList.remove('hidden');
+        registerView.classList.add('hidden');
     } else {
-        navigateTo('saved');
+        loginView.classList.add('hidden');
+        registerView.classList.remove('hidden');
+    }
+    if (window.lucide) {
+        lucide.createIcons();
     }
 }
 
-function logout() {
-    currentRole = null;
-    currentUser = null;
-    localStorage.removeItem('currentRole');
-    localStorage.removeItem('currentUser');
+function handleLoginSubmit(event) {
+    event.preventDefault();
+    const email = document.getElementById('loginEmail').value.trim().toLowerCase();
+    const pass = document.getElementById('loginPassword').value;
 
+    if (email === 'admin@gmail.com' && pass === 'admin1234') {
+        saveSession('admin', 'Admin Manager', 'admin@gmail.com');
+        updateSessionUI();
+        closeLoginModal();
+        showNotification("Portal Authentication Verified: Welcome, Admin Manager", "success");
+        navigateTo('admin');
+        return;
+    }
+
+    const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
+    const user = registeredUsers.find(u => u.email === email && u.password === pass);
+    if (user) {
+        saveSession('user', user.name, user.email);
+        updateSessionUI();
+        closeLoginModal();
+        showNotification(`Portal Authentication Verified: Welcome, ${user.name}`, "success");
+        navigateTo('saved');
+        return;
+    }
+
+    showNotification("Authentication Failed: Invalid email or password.", "error");
+}
+
+function handleRegisterSubmit(event) {
+    event.preventDefault();
+    const name = document.getElementById('registerName').value.trim();
+    const email = document.getElementById('registerEmail').value.trim().toLowerCase();
+    const pass = document.getElementById('registerPassword').value;
+
+    if (email === 'admin@gmail.com') {
+        showNotification("Registration Blocked: admin@gmail.com is reserved.", "error");
+        return;
+    }
+
+    const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
+    const exists = registeredUsers.some(u => u.email === email);
+    if (exists) {
+        showNotification("Registration Failed: Email already registered.", "error");
+        return;
+    }
+
+    registeredUsers.push({ name, email, password: pass });
+    localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
+
+    // Clear registration fields
+    document.getElementById('registerName').value = '';
+    document.getElementById('registerEmail').value = '';
+    document.getElementById('registerPassword').value = '';
+
+    showNotification("Registration Successful! Please sign in.", "success");
+    toggleAuthView('login');
+}
+
+function logout() {
+    clearSession();
     updateSessionUI();
     navigateTo('home');
     showNotification("Session closed successfully.", "info");
@@ -713,7 +969,17 @@ function updateSessionUI() {
 
         if (navUserName) navUserName.textContent = currentUser;
         if (navUserRole) navUserRole.textContent = currentRole.toUpperCase();
-        if (userAvatar) userAvatar.textContent = currentUser.charAt(0);
+        if (userAvatar) {
+            const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
+            const user = registeredUsers.find(u => u.email === currentUserEmail);
+            if (user && user.profileImage) {
+                userAvatar.innerHTML = `<img src="${user.profileImage}" class="w-full h-full object-cover rounded-lg" style="max-width: 100%; max-height: 100%;" />`;
+                userAvatar.textContent = '';
+            } else {
+                userAvatar.innerHTML = '';
+                userAvatar.textContent = currentUser.charAt(0);
+            }
+        }
         if (dropdownUserName) dropdownUserName.textContent = currentUser;
         if (dropdownUserRole) dropdownUserRole.textContent = currentRole.toUpperCase();
 
@@ -751,6 +1017,153 @@ function updateSessionUI() {
     }
 
     lucide.createIcons();
+}
+
+// ==================== PROFILE PAGE CONTROLLER ====================
+function initProfilePage() {
+    if (!currentUserEmail) {
+        // Redirect to homepage if not logged in
+        const isInPages = window.location.pathname.includes('/pages/');
+        const homeRedirect = isInPages ? '../index.html' : 'index.html';
+        window.location.href = homeRedirect;
+        return;
+    }
+
+    const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
+    let user = registeredUsers.find(u => u.email === currentUserEmail);
+
+    // If it's the admin logging in, they won't be in registeredUsers. Let's mock a user object for admin.
+    if (currentUserEmail === 'admin@gmail.com') {
+        user = {
+            name: currentUser || 'Admin Manager',
+            email: 'admin@gmail.com',
+            phone: localStorage.getItem('adminPhone') || '',
+            department: localStorage.getItem('adminDept') || 'Administration',
+            studentId: localStorage.getItem('adminId') || 'ADM-001',
+            bio: localStorage.getItem('adminBio') || 'System administrator for GBLMS database controls.',
+            profileImage: localStorage.getItem('adminAvatar') || ''
+        };
+    }
+
+    if (!user) return;
+
+    // Populating UI Elements
+    const pName = document.getElementById('profileName');
+    const pEmail = document.getElementById('profileEmail');
+    const pPhone = document.getElementById('profilePhone');
+    const pDept = document.getElementById('profileDept');
+    const pId = document.getElementById('profileId');
+    const pBio = document.getElementById('profileBio');
+    const pAvatarPreview = document.getElementById('profileAvatarPreview');
+    const pAvatarText = document.getElementById('profileAvatarText');
+    const pNameHeader = document.getElementById('profileNameHeader');
+    const pRoleHeader = document.getElementById('profileRoleHeader');
+
+    if (pName) pName.value = user.name || '';
+    if (pEmail) pEmail.value = user.email || '';
+    if (pPhone) pPhone.value = user.phone || '';
+    if (pDept) pDept.value = user.department || '';
+    if (pId) pId.value = user.studentId || '';
+    if (pBio) pBio.value = user.bio || '';
+    if (pNameHeader) pNameHeader.textContent = user.name || currentUser;
+    if (pRoleHeader) pRoleHeader.textContent = currentRole.toUpperCase();
+
+    // Render large profile avatar
+    if (pAvatarPreview) {
+        if (user.profileImage) {
+            pAvatarPreview.src = user.profileImage;
+            pAvatarPreview.classList.remove('hidden');
+            if (pAvatarText) pAvatarText.classList.add('hidden');
+        } else {
+            pAvatarPreview.classList.add('hidden');
+            if (pAvatarText) {
+                pAvatarText.textContent = (user.name || currentUser).charAt(0).toUpperCase();
+                pAvatarText.classList.remove('hidden');
+            }
+        }
+    }
+
+    // Set up file upload listener
+    const fileInput = document.getElementById('profileImageInput');
+    if (fileInput) {
+        fileInput.addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            // Enforce file size limit (e.g. 1.5MB to fit in localStorage safely)
+            if (file.size > 1.5 * 1024 * 1024) {
+                showNotification("Image too large. Please select an image under 1.5MB.", "error");
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function (event) {
+                const base64Data = event.target.result;
+                if (pAvatarPreview) {
+                    pAvatarPreview.src = base64Data;
+                    pAvatarPreview.classList.remove('hidden');
+                    if (pAvatarText) pAvatarText.classList.add('hidden');
+                }
+                // Temporarily store base64 in dataset to save on form submit
+                document.getElementById('profileCard').dataset.tempAvatar = base64Data;
+                showNotification("Image uploaded successfully. Click Save to persist.", "success");
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+}
+
+function saveUserProfile(event) {
+    if (event) event.preventDefault();
+
+    const name = document.getElementById('profileName').value.trim();
+    const phone = document.getElementById('profilePhone').value.trim();
+    const department = document.getElementById('profileDept').value.trim();
+    const studentId = document.getElementById('profileId').value.trim();
+    const bio = document.getElementById('profileBio').value.trim();
+    const tempAvatar = document.getElementById('profileCard')?.dataset.tempAvatar;
+
+    if (!name) {
+        showNotification("Name field cannot be empty.", "error");
+        return;
+    }
+
+    if (currentUserEmail === 'admin@gmail.com') {
+        localStorage.setItem('adminPhone', phone);
+        localStorage.setItem('adminDept', department);
+        localStorage.setItem('adminId', studentId);
+        localStorage.setItem('adminBio', bio);
+        if (tempAvatar) {
+            localStorage.setItem('adminAvatar', tempAvatar);
+        }
+        // Name update for admin
+        currentUser = name;
+        saveSession('admin', name, 'admin@gmail.com');
+    } else {
+        const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
+        const userIndex = registeredUsers.findIndex(u => u.email === currentUserEmail);
+        if (userIndex !== -1) {
+            registeredUsers[userIndex].name = name;
+            registeredUsers[userIndex].phone = phone;
+            registeredUsers[userIndex].department = department;
+            registeredUsers[userIndex].studentId = studentId;
+            registeredUsers[userIndex].bio = bio;
+            if (tempAvatar) {
+                registeredUsers[userIndex].profileImage = tempAvatar;
+            }
+            localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
+
+            currentUser = name;
+            saveSession(currentRole, name, currentUserEmail);
+        }
+    }
+
+    // Refresh layout display
+    const pNameHeader = document.getElementById('profileNameHeader');
+    if (pNameHeader) pNameHeader.textContent = name;
+
+    updateSessionUI();
+    showNotification("Profile updated successfully.", "success");
 }
 
 function toggleUserDropdown(event) {
@@ -888,6 +1301,7 @@ function getCurrentPageId() {
     if (path.endsWith('dashboard.html')) return 'dashboard';
     if (path.endsWith('admin.html')) return 'admin';
     if (path.endsWith('saved.html')) return 'saved';
+    if (path.endsWith('profile.html')) return 'profile';
     return 'home';
 }
 
@@ -950,6 +1364,13 @@ function checkPendingFilters() {
     }
 }
 
+function getSessionQueryString() {
+    if (currentUser && currentRole && currentUserEmail) {
+        return `?sRole=${encodeURIComponent(currentRole)}&sUser=${encodeURIComponent(currentUser)}&sEmail=${encodeURIComponent(currentUserEmail)}`;
+    }
+    return '';
+}
+
 function navigateTo(sectionId) {
     const currentPage = getCurrentPageId();
     if (sectionId === currentPage) return;
@@ -966,8 +1387,10 @@ function navigateTo(sectionId) {
     else if (sectionId === 'dashboard') targetPage = isInPages ? 'dashboard.html' : 'pages/dashboard.html';
     else if (sectionId === 'admin') targetPage = isInPages ? 'admin.html' : 'pages/admin.html';
     else if (sectionId === 'saved') targetPage = isInPages ? 'saved.html' : 'pages/saved.html';
+    else if (sectionId === 'profile') targetPage = isInPages ? 'profile.html' : 'pages/profile.html';
 
-    window.location.href = targetPage;
+    const queryString = getSessionQueryString();
+    window.location.href = targetPage + queryString;
 }
 
 function toggleMobileMenu() {
@@ -1275,10 +1698,13 @@ function renderCatalogGrid() {
         grid.appendChild(createBookCard(book));
     });
 
-    gsap.fromTo("#booksGrid > div",
-        { opacity: 0, y: 30 },
-        { opacity: 1, y: 0, duration: 0.5, stagger: 0.05, ease: "power2.out" }
-    );
+    const divs = grid.querySelectorAll(':scope > div');
+    if (divs.length) {
+        gsap.fromTo(divs,
+            { opacity: 0, y: 30 },
+            { opacity: 1, y: 0, duration: 0.5, stagger: 0.05, ease: "power2.out" }
+        );
+    }
 
     lucide.createIcons();
     updateCatalogStats();
@@ -1334,6 +1760,14 @@ function createBookCard(book) {
                 </span>
                 
                 <!-- Premium Toggle bookmark/save indicator -->
+                ${book.isCustom ? `
+                <button onclick="event.stopPropagation(); deleteCustomBook(${book.id});" 
+                        class="flex items-center gap-1.5 py-1.5 px-3 rounded-lg transition-all duration-200 select-none text-red-600 bg-red-50 hover:bg-red-100/80 border border-red-100" 
+                        title="Delete Custom Book">
+                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                    <span class="text-[10px] font-black uppercase tracking-wider">DELETE</span>
+                </button>
+                ` : `
                 <button onclick="event.stopPropagation(); quickBuffer(${book.id});" 
                         class="flex items-center gap-1.5 py-1.5 px-3 rounded-lg transition-all duration-200 select-none ${isSaved
             ? 'text-emerald-600 bg-emerald-50 hover:bg-emerald-100/80 border border-emerald-100'
@@ -1343,6 +1777,7 @@ function createBookCard(book) {
                     <i data-lucide="${isSaved ? 'check' : 'bookmark'}" class="w-3.5 h-3.5 ${isSaved ? 'stroke-[2.5]' : ''}"></i>
                     <span class="text-[10px] font-black uppercase tracking-wider">${isSaved ? 'SAVED' : 'SAVE'}</span>
                 </button>
+                `}
             </div>
         </div>
     `;
@@ -1425,10 +1860,13 @@ function filterBooks(resetPage = true) {
 
     paginated.forEach(book => { grid.appendChild(createBookCard(book)); });
 
-    gsap.fromTo("#booksGrid > div",
-        { opacity: 0, scale: 0.96 },
-        { opacity: 1, scale: 1, duration: 0.35, stagger: 0.03 }
-    );
+    const divs = grid.querySelectorAll(':scope > div');
+    if (divs.length) {
+        gsap.fromTo(divs,
+            { opacity: 0, scale: 0.96 },
+            { opacity: 1, scale: 1, duration: 0.35, stagger: 0.03 }
+        );
+    }
 
     renderPaginationBar('catalogPagination', catalogCurrentPage, totalPages, (p) => {
         catalogCurrentPage = p;
@@ -1543,6 +1981,115 @@ function clearAllFilters() {
 }
 
 // ==================== LIBRARY PORTFOLIO DASHBOARD ====================
+let addBookTempCover = '';
+
+function showAddBookModal() {
+    const modal = document.getElementById('addBookModal');
+    if (!modal) return;
+    addBookTempCover = '';
+    // reset form fields
+    const form = modal.querySelector('form');
+    if (form) form.reset();
+
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    gsap.fromTo(modal.querySelector('.modal-card'),
+        { scale: 0.85, opacity: 0 },
+        { scale: 1, opacity: 1, duration: 0.45, ease: "back.out(1.5)" }
+    );
+    if (window.lucide) lucide.createIcons();
+}
+
+function closeAddBookModal() {
+    const modal = document.getElementById('addBookModal');
+    if (!modal) return;
+    gsap.to(modal.querySelector('.modal-card'), {
+        scale: 0.85,
+        opacity: 0,
+        duration: 0.3,
+        ease: "power3.in",
+        onComplete: () => {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+    });
+}
+
+function initAddBookImageLoader() {
+    const uploader = document.getElementById('addBookCoverInput');
+    if (!uploader) return;
+
+    uploader.onchange = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        if (file.size > 1.5 * 1024 * 1024) {
+            showNotification("Image exceeds 1.5MB size quota limit.", "error");
+            uploader.value = '';
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            addBookTempCover = event.target.result;
+            showNotification("Book cover loaded successfully.", "success");
+        };
+        reader.readAsDataURL(file);
+    };
+}
+
+function handleAddBookSubmit(event) {
+    event.preventDefault();
+    if (!currentUserEmail) {
+        showNotification("Portal Sign In required.", "error");
+        return;
+    }
+
+    const title = document.getElementById('addBookTitle').value.trim();
+    const author = document.getElementById('addBookAuthor').value.trim();
+    const category = document.getElementById('addBookCategory').value;
+    const publisher = document.getElementById('addBookPublisher').value.trim() || 'Pearson';
+    const pages = Number(document.getElementById('addBookPages').value) || 300;
+    const year = Number(document.getElementById('addBookYear').value) || 2021;
+    const isbn = document.getElementById('addBookIsbn').value.trim() || '978-0000000000';
+    const description = document.getElementById('addBookDescription').value.trim() || 'No description provided for this custom volume.';
+
+    const newBook = {
+        id: Date.now() + Math.floor(Math.random() * 1000), // unique timestamp-based ID
+        title,
+        author,
+        category,
+        publisher,
+        pages,
+        yearPublished: year,
+        isbn,
+        description,
+        cover: addBookTempCover || "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?auto=format&fit=crop&w=400&q=80",
+        rating: 5.0,
+        isCustom: true
+    };
+
+    const customBooks = JSON.parse(localStorage.getItem(`customUserBooks_${currentUserEmail}`) || '[]');
+    customBooks.push(newBook);
+    localStorage.setItem(`customUserBooks_${currentUserEmail}`, JSON.stringify(customBooks));
+
+    closeAddBookModal();
+    showNotification(`Book "${title}" successfully added.`, "success");
+    renderDashboardPortfolio();
+}
+
+function deleteCustomBook(bookId) {
+    if (!currentUserEmail) return;
+    
+    if (confirm("Are you sure you want to delete this custom book entry?")) {
+        const customBooks = JSON.parse(localStorage.getItem(`customUserBooks_${currentUserEmail}`) || '[]');
+        const filtered = customBooks.filter(b => Number(b.id) !== Number(bookId));
+        localStorage.setItem(`customUserBooks_${currentUserEmail}`, JSON.stringify(filtered));
+        showNotification("Custom book entry removed.", "info");
+        renderDashboardPortfolio();
+    }
+}
+
 function renderDashboardPortfolio() {
     const userGrid = document.getElementById('userBooksGrid');
     const recGrid = document.getElementById('recommendationsGrid');
@@ -1557,7 +2104,7 @@ function renderDashboardPortfolio() {
                 <div>
                     <h3 class="text-lg font-black text-slate-800">Sign in to view your Library</h3>
                     <p class="text-slate-500 text-xs mt-1 mb-6">Authenticate as an Academic Reader to access your saved books and recommendations.</p>
-                    <button onclick="showLoginModal()" class="px-5 py-2.5 bg-brand-600 hover:bg-brand-500 text-white text-xs font-bold rounded-xl active:scale-95 transition-all">Portal Access</button>
+                    <button onclick="showLoginModal()" class="px-5 py-2.5 bg-brand-600 hover:bg-brand-500 text-white text-xs font-bold rounded-xl active:scale-95 transition-all">Login / Register</button>
                 </div>
             </div>
         `;
@@ -1569,29 +2116,43 @@ function renderDashboardPortfolio() {
 
     if (userGrid) {
         userGrid.innerHTML = '';
+        
+        // Load custom books
+        const customBooks = JSON.parse(localStorage.getItem(`customUserBooks_${currentUserEmail}`) || '[]');
+        customBooks.forEach(b => b.isCustom = true);
+        
+        // Load buffered catalog books
         const savedList = allBooks.filter(b => userDownloads.some(id => Number(id) === Number(b.id)));
+        
+        const combinedList = [...customBooks, ...savedList];
 
-        if (savedList.length === 0) {
+        if (combinedList.length === 0) {
             userGrid.innerHTML = `
                 <div class="col-span-full py-16 flex flex-col items-center justify-center text-center gap-4 bg-white border border-slate-200 rounded-3xl shadow-sm">
                     <div class="w-16 h-16 rounded-2xl bg-brand-50 text-brand-600 flex items-center justify-center mb-2">
                         <i data-lucide="cloud-lightning" class="w-8 h-8"></i>
                     </div>
                     <div>
-                        <h3 class="text-lg font-black text-slate-800">Offline database cache is empty</h3>
-                        <p class="text-slate-500 text-xs mt-1 mb-6">Buffer books from the discovery catalog to build your offline portfolio.</p>
-                        <button onclick="navigateTo('catalog')" class="px-5 py-2.5 bg-brand-600 hover:bg-brand-500 text-white text-xs font-bold rounded-xl active:scale-95 transition-all">Explore Catalog</button>
+                        <h3 class="text-lg font-black text-slate-800">Your Library is empty</h3>
+                        <p class="text-slate-500 text-xs mt-1 mb-6">Buffer books from the catalog or add your own custom books to start your collection.</p>
+                        <div class="flex justify-center gap-2">
+                            <button onclick="navigateTo('catalog')" class="px-5 py-2.5 bg-brand-600 hover:bg-brand-500 text-white text-xs font-bold rounded-xl active:scale-95 transition-all">Explore Catalog</button>
+                            <button onclick="showAddBookModal()" class="px-5 py-2.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold rounded-xl active:scale-95 transition-all">Add Custom Book</button>
+                        </div>
                     </div>
                 </div>
             `;
         } else {
-            savedList.forEach(book => {
+            combinedList.forEach(book => {
                 userGrid.appendChild(createBookCard(book));
             });
-            gsap.fromTo('#userBooksGrid > div',
-                { opacity: 0, y: 20, scale: 0.97 },
-                { opacity: 1, y: 0, scale: 1, duration: 0.4, stagger: 0.06, ease: 'power3.out' }
-            );
+            const divs = userGrid.querySelectorAll(':scope > div');
+            if (divs.length) {
+                gsap.fromTo(divs,
+                    { opacity: 0, y: 20, scale: 0.97 },
+                    { opacity: 1, y: 0, scale: 1, duration: 0.4, stagger: 0.06, ease: 'power3.out' }
+                );
+            }
         }
     }
 
@@ -1634,10 +2195,13 @@ function switchDashboardTab(tabId, tabBtn) {
         activePanel.classList.remove('hidden');
         activePanel.classList.add('active', 'block');
 
-        gsap.fromTo(activePanel.querySelectorAll('.books-grid > div'),
-            { opacity: 0, y: 15 },
-            { opacity: 1, y: 0, duration: 0.45, stagger: 0.05 }
-        );
+        const divs = activePanel.querySelectorAll('.books-grid > div');
+        if (divs.length) {
+            gsap.fromTo(divs,
+                { opacity: 0, y: 15 },
+                { opacity: 1, y: 0, duration: 0.45, stagger: 0.05 }
+            );
+        }
     }
 }
 
@@ -2008,7 +2572,13 @@ function saveBookEdit() {
 
 // ==================== SYSTEM MODAL: VOLUME INSPECTION ====================
 function openBookModal(bookId) {
-    selectedBookForModal = allBooks.find(b => b.id === bookId);
+    const bookIdNum = Number(bookId);
+    let book = allBooks.find(b => Number(b.id) === bookIdNum);
+    if (!book && currentUserEmail) {
+        const customBooks = JSON.parse(localStorage.getItem(`customUserBooks_${currentUserEmail}`) || '[]');
+        book = customBooks.find(b => Number(b.id) === bookIdNum);
+    }
+    selectedBookForModal = book;
     if (!selectedBookForModal) return;
 
     document.getElementById('modalBookTitle').textContent = selectedBookForModal.title;
@@ -2080,7 +2650,7 @@ function openBookModal(bookId) {
     // Update dynamic download button configuration
     const btn = document.getElementById('downloadBtn');
     if (btn) {
-        btn.innerHTML = `<i data-lucide="download" class="w-4 h-4"></i> <span>Buffer Offline</span>`;
+        btn.innerHTML = `<i data-lucide="download" class="w-4 h-4"></i> <span>Download</span>`;
         btn.disabled = false;
         btn.className = "flex items-center gap-2 px-6 py-3 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-bold text-sm active:scale-95 transition-all duration-200 shadow-lg shadow-brand-500/10";
     }
@@ -2196,7 +2766,7 @@ function renderSavedBooks() {
         grid.innerHTML = `<div class="col-span-full py-20 flex flex-col items-center justify-center text-center gap-4 bg-white border border-slate-200 rounded-3xl shadow-sm">
             <div class="w-16 h-16 rounded-2xl bg-brand-50 text-brand-600 flex items-center justify-center"><i data-lucide="shield-check" class="w-8 h-8"></i></div>
             <div><h3 class="text-lg font-black text-slate-800">Sign in to view your saved books</h3><p class="text-slate-500 text-xs mt-1 mb-6">Create an account or sign in to start saving books.</p>
-            <button onclick="showLoginModal()" class="px-6 py-2.5 bg-brand-600 hover:bg-brand-500 text-white text-xs font-bold rounded-xl active:scale-95 transition-all">Portal Access</button></div></div>`;
+            <button onclick="showLoginModal()" class="px-6 py-2.5 bg-brand-600 hover:bg-brand-500 text-white text-xs font-bold rounded-xl active:scale-95 transition-all">Login / Register</button></div></div>`;
         lucide.createIcons(); return;
     }
 
@@ -2236,10 +2806,13 @@ function renderSavedBooks() {
 
     list.forEach(book => grid.appendChild(createBookCard(book)));
 
-    gsap.fromTo('#savedBooksGrid > div',
-        { opacity: 0, y: 20, scale: 0.96 },
-        { opacity: 1, y: 0, scale: 1, duration: 0.4, stagger: 0.05, ease: 'power3.out' }
-    );
+    const divs = grid.querySelectorAll(':scope > div');
+    if (divs.length) {
+        gsap.fromTo(divs,
+            { opacity: 0, y: 20, scale: 0.96 },
+            { opacity: 1, y: 0, scale: 1, duration: 0.4, stagger: 0.05, ease: 'power3.out' }
+        );
+    }
     lucide.createIcons();
 }
 
@@ -2471,13 +3044,31 @@ function toggleFAQ(faqIndex) {
 
         gsap.to(icon, { rotate: 180, duration: 0.22 });
         if (card) {
-            card.classList.add('border-brand-500/35', 'bg-brand-50/5', 'shadow-md');
-            card.classList.remove('hover:bg-slate-50/30');
             const iconBox = card.querySelector('.faq-icon-box');
+            let borderClass = 'border-brand-500/35';
+            let bgClass = 'bg-brand-50/5';
+            if (iconBox) {
+                const originalBg = iconBox.dataset.originalBg || 'bg-brand-600';
+                if (originalBg.includes('accent')) {
+                    borderClass = 'border-accent-500/35';
+                    bgClass = 'bg-accent-50/5';
+                } else if (originalBg.includes('amber')) {
+                    borderClass = 'border-amber-500/35';
+                    bgClass = 'bg-amber-50/5';
+                } else if (originalBg.includes('emerald')) {
+                    borderClass = 'border-emerald-500/35';
+                    bgClass = 'bg-emerald-50/5';
+                } else if (originalBg.includes('rose')) {
+                    borderClass = 'border-rose-500/35';
+                    bgClass = 'bg-rose-50/5';
+                }
+            }
+            card.classList.add(borderClass, bgClass, 'shadow-md');
+            card.classList.remove('hover:bg-slate-50/30');
             if (iconBox) {
                 const expandedBg = iconBox.dataset.expandedBg || 'bg-brand-50';
                 const expandedText = iconBox.dataset.expandedText || 'text-brand-600';
-                iconBox.classList.remove('bg-brand-600', 'bg-cyan-600', 'bg-violet-600', 'bg-emerald-600', 'bg-amber-600', 'bg-rose-600', 'text-white');
+                iconBox.classList.remove('bg-brand-600', 'bg-accent-600', 'bg-amber-600', 'bg-emerald-600', 'bg-rose-600', 'text-white');
                 iconBox.classList.add(expandedBg, expandedText);
             }
         }
@@ -2493,7 +3084,14 @@ function toggleFAQ(faqIndex) {
 
         gsap.to(icon, { rotate: 0, duration: 0.2 });
         if (card) {
-            card.classList.remove('border-brand-500/35', 'bg-brand-50/5', 'shadow-md');
+            card.classList.remove(
+                'border-brand-500/35', 'bg-brand-50/5',
+                'border-accent-500/35', 'bg-accent-50/5',
+                'border-amber-500/35', 'bg-amber-50/5',
+                'border-emerald-500/35', 'bg-emerald-50/5',
+                'border-rose-500/35', 'bg-rose-50/5',
+                'shadow-md'
+            );
             card.classList.add('hover:bg-slate-50/30');
             const iconBox = card.querySelector('.faq-icon-box');
             if (iconBox) {
