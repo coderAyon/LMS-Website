@@ -1,0 +1,457 @@
+﻿diff --git a/index.html b/index.html
+index a59491e..f5979c6 100644
+--- a/index.html
++++ b/index.html
+@@ -79,17 +79,29 @@
+             transform-style: preserve-3d;
+         }
+ 
++        .book-shift-wrapper {
++            width: 100%;
++            height: 100%;
++            position: relative;
++            transform-style: preserve-3d;
++            transition: transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
++        }
++
++        .book-floater:hover .book-shift-wrapper {
++            transform: translateX(85px);
++        }
++
+         .book-container {
+             width: 260px;
+             height: 385px;
+             position: relative;
+             transform-style: preserve-3d;
+             transform: rotateY(-22deg) rotateX(10deg);
+-            transition: transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
++            transition: transform 1.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+         }
+ 
+         .book-floater:hover .book-container {
+-            transform: rotateY(-4deg) rotateX(4deg) scale(1.06);
++            transform: rotateY(10deg) rotateX(10deg) scale(1.1);
+         }
+ 
+         .book-back {
+@@ -124,53 +136,194 @@
+             border-radius: 0 6px 6px 0;
+             box-shadow: inset -3px 0 6px rgba(0, 0, 0, 0.05), -2px 0 5px rgba(0, 0, 0, 0.08);
+             transform-origin: left center;
+-            transition: transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
++            transition: transform 1.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+         }
+ 
+         .book-page-1 {
+-            transform: translateZ(9px);
+-            z-index: 4;
++            transform: translateZ(10px);
++            z-index: 6;
++            transition-delay: 0.8s;
+         }
+ 
+         .book-page-2 {
++            transform: translateZ(8px);
++            z-index: 5;
++            transition-delay: 0.6s;
++        }
++
++        .book-page-3 {
+             transform: translateZ(6px);
++            z-index: 4;
++            transition-delay: 0.4s;
++        }
++
++        .book-page-4 {
++            transform: translateZ(4px);
+             z-index: 3;
++            transform-style: preserve-3d;
++            background: none;
++            box-shadow: none;
++            transition-delay: 0.2s;
+         }
+ 
+-        .book-page-3 {
+-            transform: translateZ(3px);
++        .book-page-4-front,
++        .book-page-4-back {
++            position: absolute;
++            inset: 0;
++            width: 100%;
++            height: 100%;
++            backface-visibility: hidden;
++        }
++
++        .book-page-4-front {
++            background: #fafafa;
++            border-radius: 0 6px 6px 0;
++            box-shadow: inset -3px 0 6px rgba(0, 0, 0, 0.05);
++            z-index: 2;
++            transform: rotateY(0deg);
++        }
++
++        .book-page-4-back {
++            background: #fcfbfa;
++            background-image: radial-gradient(#efece6 1px, transparent 1px);
++            background-size: 10px 10px;
++            border-radius: 6px 0 0 6px;
++            box-shadow: inset 3px 0 6px rgba(0, 0, 0, 0.05);
++            z-index: 1;
++            transform: rotateY(180deg);
++        }
++
++        .book-page-5 {
++            transform: translateZ(2px);
+             z-index: 2;
++            background: #fcfbfa;
++            background-image: radial-gradient(#efece6 1px, transparent 1px);
++            background-size: 10px 10px;
++            transition-delay: 0s;
+         }
+ 
+-        /* Fan pages on hover */
++        /* Fan pages on hover with sequential opening delays */
+         .book-floater:hover .book-page-1 {
+-            transform: rotateY(-24deg) translateZ(9px);
++            transform: rotateY(-135deg) translateZ(10px);
++            transition-delay: 0.15s;
+         }
+ 
+         .book-floater:hover .book-page-2 {
+-            transform: rotateY(-15deg) translateZ(6px);
++            transform: rotateY(-126deg) translateZ(8px);
++            transition-delay: 0.3s;
+         }
+ 
+         .book-floater:hover .book-page-3 {
+-            transform: rotateY(-6deg) translateZ(3px);
++            transform: rotateY(-117deg) translateZ(6px);
++            transition-delay: 0.45s;
++        }
++
++        .book-floater:hover .book-page-4 {
++            transform: rotateY(-108deg) translateZ(4px);
++            transition-delay: 0.6s;
++        }
++
++        .book-floater:hover .book-page-5 {
++            transform: rotateY(-15deg) translateZ(2px);
++            transition-delay: 0.75s;
+         }
+ 
+         .book-front {
+             position: absolute;
+             width: 100%;
+             height: 100%;
+-            background: linear-gradient(135deg, #4f46e5 0%, #312e81 100%);
+-            border-radius: 4px 12px 12px 4px;
+-            box-shadow: inset 3px 0 8px rgba(255, 255, 255, 0.15);
+             transform-origin: left center;
+             transform: rotateY(0deg) translateZ(12px);
+-            transition: transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+-            overflow: hidden;
++            transition: transform 1.2s cubic-bezier(0.2, 0.8, 0.2, 1);
++            transition-delay: 1.0s;
+             z-index: 5;
++            transform-style: preserve-3d;
+         }
+ 
+         .book-floater:hover .book-front {
+-            transform: rotateY(-36deg) translateZ(12px);
++            transform: rotateY(-142deg) translateZ(12px);
++            transition-delay: 0s;
++        }
++
++        /* Double-sided cover setup */
++        .book-cover-exterior,
++        .book-cover-interior {
++            position: absolute;
++            inset: 0;
++            width: 100%;
++            height: 100%;
++            backface-visibility: hidden;
++            border-radius: 4px 12px 12px 4px;
++            display: flex;
++            flex-direction: column;
++            justify-content: space-between;
++        }
++
++        .book-cover-exterior {
++            background: linear-gradient(135deg, #4f46e5 0%, #312e81 100%);
++            box-shadow: inset 3px 0 8px rgba(255, 255, 255, 0.15);
++            z-index: 2;
++            transform: rotateY(0deg);
++        }
++
++        .book-cover-interior {
++            background: linear-gradient(135deg, #16143c 0%, #0a091d 100%);
++            box-shadow: inset -3px 0 8px rgba(255, 255, 255, 0.08);
++            z-index: 1;
++            transform: rotateY(180deg);
++            border-radius: 12px 4px 4px 12px;
++        }
++
++        /* Telemetry Animations */
++        .telemetry-graph-path {
++            stroke-dasharray: 250;
++            stroke-dashoffset: 250;
++            transition: stroke-dashoffset 1.8s cubic-bezier(0.4, 0, 0.2, 1);
++        }
++
++        .book-floater:hover .telemetry-graph-path {
++            stroke-dashoffset: 0;
++        }
++
++        .telemetry-radial-circle {
++            stroke-dasharray: 138;
++            stroke-dashoffset: 138;
++            transition: stroke-dashoffset 1.8s cubic-bezier(0.4, 0, 0.2, 1);
++        }
++
++        .book-floater:hover .telemetry-radial-circle {
++            stroke-dashoffset: 16;
++        }
++
++        .live-dot {
++            position: relative;
++        }
++
++        .live-dot::after {
++            content: '';
++            position: absolute;
++            inset: -4px;
++            border-radius: 50%;
++            background: rgba(16, 185, 129, 0.4);
++            animation: livePulse 2s infinite;
++        }
++
++        @keyframes livePulse {
++            0% {
++                transform: scale(0.8);
++                opacity: 0.8;
++                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.6);
++            }
++            70% {
++                transform: scale(1.8);
++                opacity: 0;
++                box-shadow: 0 0 0 6px rgba(16, 185, 129, 0);
++            }
++            100% {
++                transform: scale(0.8);
++                opacity: 0;
++                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
++            }
+         }
+ 
+         .book-shadow {
+@@ -423,7 +576,7 @@
+                         class="w-full flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-10 xl:gap-16">
+ 
+                         <!-- ── LEFT: Hero Copy ── -->
+-                        <div class="flex-1 text-center lg:text-left max-w-lg w-full mx-auto lg:mx-0">
++                        <div class="flex-1 text-center lg:text-left max-w-xl lg:max-w-2xl w-full mx-auto lg:mx-0">
+ 
+                             <!-- Eyebrow badge -->
+                             <div
+@@ -436,11 +589,9 @@
+                             <h1
+                                 class="text-4xl sm:text-5xl md:text-6xl font-black tracking-tight leading-tight mb-4 md:mb-5 text-slate-900">
+                                 <span class="hero-title-line block overflow-hidden"><span
+-                                        class="inline-block">Discover</span></span>
+-                                <span class="hero-title-line block overflow-hidden"><span class="inline-block">&amp;
+-                                        Control</span></span>
++                                        class="inline-block">Discover &amp; Control</span></span>
+                                 <span class="hero-title-line block overflow-hidden pb-3 overflow-visible"><span
+-                                        class="text-brand-600 font-serif italic font-semibold inline-block">Intelligent
++                                        class="text-brand-600 font-serif italic font-semibold inline-block whitespace-nowrap">Intelligent
+                                         Knowledge</span></span>
+                             </h1>
+ 
+@@ -492,64 +643,10 @@
+                             class="hidden lg:flex flex-1 justify-center items-center relative min-h-[420px] book-perspective">
+                             <!-- Book Floater container -->
+                             <div class="book-floater select-none">
+-                                <!-- Book Shadow -->
+-                                <div class="book-shadow"></div>
+-
+-                                <!-- 3D Book Container -->
+-                                <div class="book-container">
+-                                    <!-- Back Cover -->
+-                                    <div class="book-back"></div>
+-
+-                                    <!-- Pages fanning out inside -->
+-                                    <div class="book-page book-page-3"></div>
+-                                    <div class="book-page book-page-2"></div>
+-
+-                                    <!-- Bookmark Ribbon -->
+-                                    <div class="absolute top-0 left-12 w-3.5 h-[395px] bg-accent-600 shadow-md origin-top transform translateZ(8px) rounded-b pointer-events-none"
+-                                        style="clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 92%, 0 100%);"></div>
+-
+-                                    <!-- Page 1 (Visible title page with console info) -->
+-                                    <div class="book-page book-page-1 flex flex-col justify-between p-5 text-slate-800">
+-                                        <div
+-                                            class="border-2 border-brand-100/80 rounded-xl p-3 h-full flex flex-col justify-between bg-slate-50/50">
+-                                            <div class="text-center">
+-                                                <span
+-                                                    class="text-[8px] font-black tracking-widest text-brand-600 uppercase block mb-1">Catalog
+-                                                    Guide</span>
+-                                                <h4
+-                                                    class="font-serif font-bold text-xs text-slate-900 border-b border-slate-200 pb-2 mb-3 leading-tight">
+-                                                    CONSOLE PROFILE</h4>
+-                                                <ul
+-                                                    class="text-left space-y-2.5 text-[9px] font-bold text-slate-650 mt-4">
+-                                                    <li class="flex items-center gap-1.5">
+-                                                        <span
+-                                                            class="w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>
+-                                                        <span>1.8K+ Active Readers</span>
+-                                                    </li>
+-                                                    <li class="flex items-center gap-1.5">
+-                                                        <span
+-                                                            class="w-1.5 h-1.5 rounded-full bg-accent-500 shrink-0"></span>
+-                                                        <span>Admin Control Panel</span>
+-                                                    </li>
+-                                                    <li class="flex items-center gap-1.5">
+-                                                        <span
+-                                                            class="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"></span>
+-                                                        <span>Zero-Lag Sync Engine</span>
+-                                                    </li>
+-                                                </ul>
+-                                            </div>
+-                                            <div class="text-center pt-2 border-t border-slate-200">
+-                                                <span class="text-[8px] font-black text-slate-400 tracking-wider">GBLMS
+-                                                    SYSTEM</span>
+-                                            </div>
+-                                        </div>
+-                                    </div>
++                                <div class="book-shift-wrapper">
++                                    <!-- Book Shadow -->
++                                    <div class="book-shadow"></div>
+ 
+-                                    <!-- Spine -->
+-                                    <div
+-                                        class="book-spine flex flex-col justify-between py-8 items-center text-white/35">
+-                                        <div class="w-full flex flex-col items-center gap-1.5">
+-                                            <div class="w-3/4 h-[1px] bg-white/20"></div>
+                                             <div class="w-3/4 h-[1px] bg-white/10"></div>
+                                         </div>
+                                         <span
+@@ -562,50 +659,86 @@
+                                     </div>
+ 
+                                     <!-- Front Cover -->
+-                                    <div class="book-front flex flex-col justify-between p-6">
+-                                        <!-- Top branding -->
+-                                        <div class="flex items-center justify-between">
+-                                            <span
+-                                                class="text-[9px] font-black text-white/50 tracking-widest uppercase">GBLMS
+-                                                Edition</span>
+-                                            <div
+-                                                class="w-6 h-6 rounded-lg bg-white/10 flex items-center justify-center">
+-                                                <i data-lucide="library" class="w-3.5 h-3.5 text-brand-300"></i>
++                                    <div class="book-front">
++                                        <!-- Exterior Face -->
++                                        <div class="book-cover-exterior flex flex-col justify-between p-6">
++                                            <!-- Top branding -->
++                                            <div class="flex items-center justify-between">
++                                                <span
++                                                    class="text-[9px] font-black text-white/50 tracking-widest uppercase">GBLMS
++                                                    Edition</span>
++                                                <div
++                                                    class="w-6 h-6 rounded-lg bg-white/10 flex items-center justify-center">
++                                                    <i data-lucide="library" class="w-3.5 h-3.5 text-brand-300"></i>
++                                                </div>
+                                             </div>
+-                                        </div>
+-
+-                                        <!-- Spine line decoration on front cover -->
+-                                        <div class="absolute left-1.5 inset-y-0 w-[2px] bg-white/20"></div>
+-                                        <div class="absolute left-[8px] inset-y-0 w-[1px] bg-white/10"></div>
+ 
+-                                        <!-- Book Title/Author -->
+-                                        <div class="text-left relative z-10">
+-                                            <h3
+-                                                class="text-2xl font-black text-white leading-tight font-serif mb-2 tracking-wide">
+-                                                Intelligent<br>Knowledge<br>Management</h3>
+-                                            <p
+-                                                class="text-[10px] font-bold text-brand-200 tracking-wider uppercase mb-6">
+-                                                Antigravity LMS Core</p>
++                                            <!-- Spine line decoration on front cover -->
++                                            <div class="absolute left-1.5 inset-y-0 w-[2px] bg-white/20 pointer-events-none"></div>
++                                            <div class="absolute left-[8px] inset-y-0 w-[1px] bg-white/10 pointer-events-none"></div>
++
++                                            <!-- Book Title/Author -->
++                                            <div class="text-left relative z-10">
++                                                <h3
++                                                    class="text-2xl font-black text-white leading-tight font-serif mb-2 tracking-wide">
++                                                    Intelligent<br>Knowledge<br>Management</h3>
++                                                <p
++                                                    class="text-[10px] font-bold text-brand-200 tracking-wider uppercase mb-6">
++                                                    Antigravity LMS Core</p>
++
++                                                <!-- Mini status/details badge -->
++                                                <div
++                                                    class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/10 backdrop-blur-md border border-white/10 text-[9px] font-bold text-white shadow-sm">
++                                                    <span
++                                                        class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
++                                                    <span>Live Sync v3.5</span>
++                                                </div>
++                                            </div>
+ 
+-                                            <!-- Mini status/details badge -->
++                                            <!-- Bottom branding -->
+                                             <div
+-                                                class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/10 backdrop-blur-md border border-white/10 text-[9px] font-bold text-white shadow-sm">
+-                                                <span
+-                                                    class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+-                                                <span>Live Sync v3.5</span>
++                                                class="flex justify-between items-center text-white/45 text-[8px] font-bold uppercase tracking-widest">
++                                                <span>Universal Core</span>
++                                                <span>2026</span>
+                                             </div>
+                                         </div>
+-
+-                                        <!-- Bottom branding -->
+-                                        <div
+-                                            class="flex justify-between items-center text-white/45 text-[8px] font-bold uppercase tracking-widest">
+-                                            <span>Universal Core</span>
+-                                            <span>2026</span>
++                                        
++                                        <!-- Interior Face (shown when open) -->
++                                        <div class="book-cover-interior flex flex-col justify-between p-6">
++                                            <div class="flex justify-between items-center">
++                                                <span class="text-[7px] font-black text-amber-500/40 tracking-widest uppercase">INSIDE COVER</span>
++                                                <span class="text-[7px] font-black text-amber-500/40 tracking-widest uppercase">GBLMS ARCHIVE</span>
++                                            </div>
++                                            
++                                            <div class="flex items-center justify-center flex-col gap-3 py-6 my-auto border border-amber-500/10 rounded-2xl bg-amber-500/[0.02] backdrop-blur-[1px]">
++                                                <div class="w-12 h-14 opacity-75">
++                                                    <svg viewBox="0 0 100 120" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
++                                                        <!-- Shield Outline & Background in gold -->
++                                                        <path d="M 15 28 L 85 28 L 85 75 Q 85 98 50 108 Q 15 98 15 75 Z" fill="none" stroke="#d97706" stroke-width="3" stroke-linejoin="round" />
++                                                        <!-- Central Hexagon -->
++                                                        <polygon points="50,34 65,42.5 65,60 50,68.5 35,60 35,42.5" fill="none" stroke="#d97706" stroke-width="2" />
++                                                        <!-- Stylized Water Lily -->
++                                                        <path d="M 40 58 Q 45 56 50 59 Q 55 56 60 58" fill="none" stroke="#d97706" stroke-width="2" />
++                                                        <path d="M 50 38 Q 47 46 50 53 Q 53 46 50 38 Z" fill="#d97706" />
++                                                    </svg>
++                                                </div>
++                                                <div class="text-center px-4">
++                                                    <h4 class="font-serif text-amber-500/90 font-extrabold text-xs uppercase tracking-widest leading-none">Ex Libris</h4>
++                                                    <p class="text-[7px] font-black text-amber-500/50 tracking-wider uppercase mt-1.5 leading-normal">
++                                                        Gono Bishwabidyalay<br>Library Portal
++                                                    </p>
++                                                </div>
++                                            </div>
++                                            
++                                            <div class="flex justify-center items-center text-amber-500/30 text-[6px] font-bold uppercase tracking-widest">
++                                                <span>SYSTEM PROTOCOL v3.5.2</span>
++                                            </div>
+                                         </div>
+                                     </div>
+                                 </div>
+                             </div>
+                         </div>
++                        </div>
+                     </div>
+                 </div>
+ 

@@ -2,6 +2,7 @@
 html {
     font-size: 16px;
     background-color: #f8fafc;
+    overflow-y: scroll; /* Always show scrollbar track to prevent flicker during routing */
 }
 
 /* Custom premium light-themed scrollbar styling */
@@ -1032,11 +1033,31 @@ html {
     opacity: 1;
 }
 
-stroke-dasharray: 220;
-stroke-dashoffset: 220;
-transition: stroke-dashoffset 2s cubic-bezier(0.16, 1, 0.3, 1);
+.circle-progress-bar {
+    stroke-dasharray: 220;
+    stroke-dashoffset: 220;
+    transition: stroke-dashoffset 2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .circle-progress-container:hover .circle-progress-bar {
     stroke: #1d4ed8;
+}
+
+/* Make navbar user avatar circular and enforce image display styles */
+#userAvatar {
+    position: relative !important;
+    border-radius: 9999px !important;
+    overflow: hidden !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+#userAvatar img {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    border-radius: 9999px !important;
 }

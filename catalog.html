@@ -151,7 +151,7 @@
                     <button onclick="toggleUserDropdown(event)" id="userDropdownBtn"
                         class="flex items-center gap-2.5 bg-slate-100/80 hover:bg-slate-200/50 border border-slate-200/80 px-3 py-1.5 rounded-xl active:scale-95 transition-all duration-200 focus:outline-none select-none">
                         <div id="userAvatar"
-                            class="w-8 h-8 rounded-lg bg-brand-600 flex items-center justify-center text-xs font-bold text-white uppercase shrink-0">
+                            class="w-8 h-8 rounded-full bg-brand-600 flex items-center justify-center text-xs font-bold text-white uppercase shrink-0">
                             A
                         </div>
                         <div class="hidden lg:flex flex-col text-left">
@@ -160,9 +160,9 @@
                             <span id="navUserRole"
                                 class="text-[9px] font-semibold text-accent-600 uppercase tracking-wider leading-none">ADMIN</span>
                         </div>
-                        <i data-lucide="chevron-down"
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                             class="w-3.5 h-3.5 text-slate-500 shrink-0 hidden lg:block transition-transform duration-200"
-                            id="dropdownChevron"></i>
+                            id="dropdownChevron"><path d="m6 9 6 6 6-6"/></svg>
                     </button>
 
                     <!-- Premium Dropdown Menu Panel -->
@@ -222,6 +222,60 @@
             </div>
         </div>
     </header>
+
+    <!-- Prevent navbar flickering by checking session synchronously on parser pass -->
+    <script>
+        (function() {
+            var role = localStorage.getItem('currentRole');
+            var user = localStorage.getItem('currentUser');
+            if (role && user) {
+                var saved = document.getElementById('savedNavLink');
+                var dash = document.getElementById('dashboardLink');
+                var admin = document.getElementById('adminLink');
+                var login = document.getElementById('loginBtn');
+                var navUser = document.getElementById('navUser');
+                
+                var mobSaved = document.getElementById('mobileSavedNavLink');
+                var mobDash = document.getElementById('mobileDashboardLink');
+                var mobAdmin = document.getElementById('mobileAdminLink');
+
+                if (saved) saved.classList.remove('hidden');
+                if (mobSaved) mobSaved.classList.remove('hidden');
+
+                if (role === 'admin') {
+                    if (admin) admin.classList.remove('hidden');
+                    if (mobAdmin) mobAdmin.classList.remove('hidden');
+                } else {
+                    if (dash) dash.classList.remove('hidden');
+                    if (mobDash) mobDash.classList.remove('hidden');
+                }
+
+                if (login) login.classList.add('hidden');
+                if (navUser) {
+                    navUser.classList.remove('hidden');
+                    navUser.classList.add('flex');
+                    var nameEl = document.getElementById('navUserName');
+                    var roleEl = document.getElementById('navUserRole');
+                    if (nameEl) nameEl.textContent = user;
+                    if (roleEl) roleEl.textContent = role.toUpperCase();
+
+                    // Instantly set correct user initial or avatar image to prevent avatar flickering
+                    var avatarEl = document.getElementById('userAvatar');
+                    if (avatarEl) {
+                        var registered = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
+                        var email = localStorage.getItem('currentUserEmail');
+                        var matchedUser = registered.find(function(u) { return u.email === email; });
+                        if (matchedUser && matchedUser.profileImage) {
+                            avatarEl.innerHTML = '<img src="' + matchedUser.profileImage + '" class="w-full h-full object-cover rounded-full" style="max-width: 100%; max-height: 100%;" />';
+                        } else {
+                            avatarEl.innerHTML = '';
+                            avatarEl.textContent = user.charAt(0).toUpperCase();
+                        }
+                    }
+                }
+            }
+        })();
+    </script>
 
     <!-- Mobile Navigation Drawer -->
     <div id="mobileDrawer"

@@ -103,12 +103,12 @@
                 </button>
                 <div id="navUser" class="hidden relative">
                     <button onclick="toggleUserDropdown(event)" id="userDropdownBtn" class="flex items-center gap-2.5 bg-slate-100/80 hover:bg-slate-200/50 border border-slate-200/80 px-3 py-1.5 rounded-xl active:scale-95 transition-all duration-200 focus:outline-none select-none">
-                        <div id="userAvatar" class="w-8 h-8 rounded-lg bg-brand-600 flex items-center justify-center text-xs font-bold text-white uppercase shrink-0">A</div>
+                        <div id="userAvatar" class="w-8 h-8 rounded-full bg-brand-600 flex items-center justify-center text-xs font-bold text-white uppercase shrink-0">A</div>
                         <div class="hidden lg:flex flex-col text-left">
                             <span id="navUserName" class="text-xs font-bold text-slate-800 leading-tight">User</span>
                             <span id="navUserRole" class="text-[9px] font-semibold text-accent-600 uppercase tracking-wider leading-none">READER</span>
                         </div>
-                        <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-500 shrink-0 hidden lg:block" id="dropdownChevron"></i>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5 text-slate-500 shrink-0 hidden lg:block" id="dropdownChevron"><path d="m6 9 6 6 6-6"/></svg>
                     </button>
                     <div id="userDropdownMenu" class="absolute right-0 top-full mt-2 w-56 bg-white border border-slate-200/80 rounded-2xl shadow-xl py-1.5 hidden flex-col z-[70]">
                         <div class="px-4 py-3 border-b border-slate-100 flex flex-col text-left">
@@ -155,6 +155,46 @@
             </div>
         </div>
     </header>
+
+    <!-- Prevent navbar flickering by checking session synchronously on parser pass -->
+    <script>
+        (function() {
+            var role = localStorage.getItem('currentRole');
+            var user = localStorage.getItem('currentUser');
+            if (role && user) {
+                var saved = document.getElementById('savedNavLink');
+                var dash = document.getElementById('dashboardLink');
+                var admin = document.getElementById('adminLink');
+                var login = document.getElementById('loginBtn');
+                var navUser = document.getElementById('navUser');
+                
+                var mobSaved = document.getElementById('mobileSavedNavLink');
+                var mobDash = document.getElementById('mobileDashboardLink');
+                var mobAdmin = document.getElementById('mobileAdminLink');
+
+                if (saved) saved.classList.remove('hidden');
+                if (mobSaved) mobSaved.classList.remove('hidden');
+
+                if (role === 'admin') {
+                    if (admin) admin.classList.remove('hidden');
+                    if (mobAdmin) mobAdmin.classList.remove('hidden');
+                } else {
+                    if (dash) dash.classList.remove('hidden');
+                    if (mobDash) mobDash.classList.remove('hidden');
+                }
+
+                if (login) login.classList.add('hidden');
+                if (navUser) {
+                    navUser.classList.remove('hidden');
+                    navUser.classList.add('flex');
+                    var nameEl = document.getElementById('navUserName');
+                    var roleEl = document.getElementById('navUserRole');
+                    if (nameEl) nameEl.textContent = user;
+                    if (roleEl) roleEl.textContent = role.toUpperCase();
+                }
+            }
+        })();
+    </script>
 
     <!-- Mobile Drawer -->
     <div id="mobileDrawer" class="fixed inset-0 bg-white/95 backdrop-blur-2xl z-40 hidden flex-col justify-center items-center gap-8 px-8">

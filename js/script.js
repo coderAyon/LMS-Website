@@ -399,10 +399,7 @@ function initializeApp() {
 function animateIntro() {
     const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
 
-    // Header slides in
-    if (document.querySelector("header")) {
-        tl.fromTo("header", { y: -20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.45 });
-    }
+
 
     const pageId = getCurrentPageId();
     if (pageId === 'home') {
@@ -592,14 +589,13 @@ function initScrollAnimations() {
     }
 
     // ── SVG sparklines: draw-on path animation ────────────────
-    document.querySelectorAll('[data-animate="stagger-cards"] svg path').forEach((path, i) => {
+    document.querySelectorAll('[data-animate="stagger-cards"] svg path').forEach((path) => {
         const length = path.getTotalLength ? path.getTotalLength() : 200;
         gsap.set(path, { strokeDasharray: length, strokeDashoffset: length });
         gsap.to(path, {
             strokeDashoffset: 0,
             duration: 1.2,
             ease: "power2.inOut",
-            delay: i * 0.15,
             scrollTrigger: {
                 trigger: path.closest('[data-animate="stagger-cards"]'),
                 start: "top 85%",
@@ -668,7 +664,7 @@ function initUserSession() {
         localStorage.setItem('currentUserEmail', paramEmail);
         try {
             window.name = JSON.stringify({ currentRole: paramRole, currentUser: paramUser, currentUserEmail: paramEmail });
-        } catch (e) {}
+        } catch (e) { }
     }
 
     let savedRole = localStorage.getItem('currentRole');
@@ -982,8 +978,7 @@ function updateSessionUI() {
             const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
             const user = registeredUsers.find(u => u.email === currentUserEmail);
             if (user && user.profileImage) {
-                userAvatar.innerHTML = `<img src="${user.profileImage}" class="w-full h-full object-cover rounded-lg" style="max-width: 100%; max-height: 100%;" />`;
-                userAvatar.textContent = '';
+                userAvatar.innerHTML = `<img src="${user.profileImage}" class="w-full h-full object-cover rounded-full" style="max-width: 100%; max-height: 100%;" />`;
             } else {
                 userAvatar.innerHTML = '';
                 userAvatar.textContent = currentUser.charAt(0);
@@ -992,7 +987,6 @@ function updateSessionUI() {
         if (dropdownUserName) dropdownUserName.textContent = currentUser;
         if (dropdownUserRole) dropdownUserRole.textContent = currentRole.toUpperCase();
 
-        // Saved Books link visible for ALL logged-in users
         if (savedNavLink) savedNavLink.classList.remove('hidden');
         if (dropdownSavedLink) dropdownSavedLink.classList.remove('hidden');
 
@@ -1025,7 +1019,10 @@ function updateSessionUI() {
         if (dropdownSavedLink) dropdownSavedLink.classList.add('hidden');
     }
 
-    lucide.createIcons();
+    // NOTE: Do NOT call lucide.createIcons() here — it destroys and
+    // rebuilds every SVG icon on the page, causing the dropdown chevron
+    // and other header icons to momentarily vanish (flicker).
+    // Icons are already initialised in initializeApp().
 }
 
 // ==================== PROFILE PAGE CONTROLLER ====================
@@ -1260,13 +1257,11 @@ function toggleActionDropdown(event, bookId) {
     document.body.appendChild(portal);
     lucide.createIcons();
 
-    // Animate in
     gsap.fromTo(portal,
         { scale: 0.95, opacity: 0, y: -4 },
         { scale: 1, opacity: 1, y: 0, duration: 0.18, ease: "power2.out" }
     );
 
-    // Adjust position if dropdown goes off-screen
     requestAnimationFrame(() => {
         const portalRect = portal.getBoundingClientRect();
         if (portalRect.bottom > window.innerHeight - 10) {
@@ -1316,15 +1311,11 @@ function checkPageSecurity() {
     const pageId = getCurrentPageId();
     const homeRedirect = 'index.html';
 
-    // Only hard-redirect admins away from admin panel if they lack the role
     if (pageId === 'admin' && currentRole !== 'admin') {
         window.location.href = homeRedirect;
         localStorage.setItem('securityAlert', 'Admin privileges required.');
     }
-    // Dashboard: both 'user' and 'admin' roles may view it.
-    // If not logged in at all, we stay on the page but render a sign-in prompt (handled in renderDashboardPortfolio).
 
-    // Display pending security notifications
     const pendingAlert = localStorage.getItem('securityAlert');
     if (pendingAlert) {
         setTimeout(() => {
@@ -1381,7 +1372,6 @@ function navigateTo(sectionId) {
     const currentPage = getCurrentPageId();
     if (sectionId === currentPage) return;
 
-    // Deactivate mobile drawer if active
     const drawer = document.getElementById('mobileDrawer');
     if (drawer && !drawer.classList.contains('hidden')) {
         toggleMobileMenu();
@@ -1410,7 +1400,6 @@ function toggleMobileMenu() {
     if (menuIcon) {
         const isOpen = drawer.classList.contains('flex');
 
-        // Premium rotate-pop transition using GSAP
         gsap.fromTo(menuIcon,
             { rotation: 0, scale: 0.8 },
             {
@@ -1458,7 +1447,6 @@ function renderFeaturedSlider() {
     wrapper.innerHTML = '';
     if (indicators) indicators.innerHTML = '';
 
-    // Build coverflow cards from books
     coverflowBooks = allBooks.slice(0, Math.min(allBooks.length, 8));
     currentCoverflowIndex = Math.floor(coverflowBooks.length / 2);
 
@@ -1468,8 +1456,26 @@ function renderFeaturedSlider() {
         card.dataset.index = index;
         card.innerHTML = `
             <div class="coverflow-book-cover">
-                <img src="${book.cover}" alt="${book.title}"
-                     onerror="this.src='https://picsum.photos/seed/${encodeURIComponent(book.title)}/300/450';">
+                <!-- 1. Pulsing Loading Skeleton -->
+                <div class="skeleton-loader absolute inset-0 bg-slate-300 animate-pulse flex items-center justify-center">
+                    <i data-lucide="book-open" class="w-8 h-8 text-slate-400 animate-bounce"></i>
+                </div>
+
+                <!-- 2. Real Image -->
+                <img src="${book.cover}" alt="${book.title}" class="opacity-0 transition-opacity duration-500"
+                     onload="handleImageLoad(this)"
+                     onerror="handleImageError(this)">
+
+                <!-- 3. Fallback Cover Container -->
+                <div class="fallback-cover absolute inset-0 hidden flex flex-col justify-between p-4 bg-gradient-to-br from-slate-50 to-slate-100 border border-slate-200/60 text-center select-none rounded-2xl">
+                    <div class="flex-grow flex flex-col items-center justify-center gap-2">
+                        <i data-lucide="book-open" class="w-8 h-8 text-slate-400"></i>
+                        <div class="text-[11px] font-black text-slate-700 leading-snug px-1 line-clamp-3">${book.title}</div>
+                        <div class="text-[9px] font-bold text-slate-400 truncate w-full">by ${book.author}</div>
+                    </div>
+                    <div class="text-[8px] font-extrabold uppercase tracking-widest text-slate-400 mt-2">${book.category}</div>
+                </div>
+
                 <div class="mw-card-overlay"></div>
                 <div class="mw-card-meta-row">
                     <span class="mw-card-badge">${book.category}</span>
@@ -1715,13 +1721,42 @@ function renderCatalogGrid() {
     updateCatalogStats();
 }
 
+// ==================== IMAGE LOADING & FALLBACK HANDLERS ====================
+function handleImageLoad(img) {
+    img.classList.remove('opacity-0');
+    const parent = img.parentElement;
+    if (parent) {
+        const skeleton = parent.querySelector('.skeleton-loader');
+        if (skeleton) {
+            skeleton.classList.add('hidden');
+        }
+    }
+}
+
+function handleImageError(img) {
+    img.style.display = 'none';
+    const parent = img.parentElement;
+    if (parent) {
+        const skeleton = parent.querySelector('.skeleton-loader');
+        if (skeleton) {
+            skeleton.classList.add('hidden');
+        }
+        const fallback = parent.querySelector('.fallback-cover');
+        if (fallback) {
+            fallback.classList.remove('hidden');
+            if (window.lucide) {
+                window.lucide.createIcons();
+            }
+        }
+    }
+}
+
 function createBookCard(book) {
     const bookIdNum = Number(book.id);
     const isSaved = userDownloads.some(id => Number(id) === bookIdNum);
     const card = document.createElement('div');
     card.className = "bg-white border border-slate-200 rounded-3xl overflow-hidden hover:border-brand-500/25 hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between group shadow-sm p-3 relative text-left";
 
-    // Choose dynamic text color based on category for enhanced micro-aesthetics
     const categoryTextColors = {
         "Technology": "text-brand-600",
         "Science": "text-accent-600",
@@ -1734,7 +1769,28 @@ function createBookCard(book) {
     card.innerHTML = `
         <!-- Book Cover with Premium Hover Overlay -->
         <div class="relative w-full aspect-[3/4] bg-slate-50 rounded-2xl overflow-hidden shadow-sm group-hover:shadow-md transition-shadow duration-300">
-            <img src="${book.cover}" alt="${book.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onerror="this.src='https://picsum.photos/seed/${encodeURIComponent(book.title)}/300/400';">
+            <!-- 1. Pulsing Loading Skeleton -->
+            <div class="skeleton-loader absolute inset-0 bg-slate-300 animate-pulse flex items-center justify-center">
+                <i data-lucide="book-open" class="w-8 h-8 text-slate-400 animate-bounce"></i>
+            </div>
+            
+            <!-- 2. Real Image (initially opacity-0, becomes opacity-100 on load) -->
+            <img src="${book.cover}" alt="${book.title}" 
+                 class="w-full h-full object-cover group-hover:scale-105 transition-all duration-500 opacity-0"
+                 onload="handleImageLoad(this)"
+                 onerror="handleImageError(this)">
+
+            <!-- 3. Fallback Cover Container -->
+            <div class="fallback-cover absolute inset-0 hidden flex flex-col justify-between p-4 bg-gradient-to-br from-slate-50 to-slate-100 border border-slate-200/60 text-center select-none rounded-2xl">
+                <div class="flex-grow flex flex-col items-center justify-center gap-2">
+                    <i data-lucide="book-open" class="w-8 h-8 text-slate-400"></i>
+                    <div class="text-[13px] font-black text-slate-700 leading-snug px-1 line-clamp-3">${book.title}</div>
+                    <div class="text-[10px] font-bold text-slate-400 truncate w-full">by ${book.author}</div>
+                </div>
+                <div class="text-[9px] font-extrabold uppercase tracking-widest text-slate-400 mt-2">${book.category}</div>
+            </div>
+
+            <!-- 4. Hover Overlay -->
             <div class="absolute inset-0 bg-slate-950/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center p-4 backdrop-blur-[2px]">
                 <button onclick="openBookModal(${book.id})" class="px-6 py-2.5 bg-white/95 text-slate-900 rounded-xl text-xs font-extrabold active:scale-95 transition-transform shadow-md hover:bg-white hover:text-brand-600 flex items-center gap-1.5">
                     <i data-lucide="eye" class="w-3.5 h-3.5"></i>
@@ -2085,7 +2141,7 @@ function handleAddBookSubmit(event) {
 
 function deleteCustomBook(bookId) {
     if (!currentUserEmail) return;
-    
+
     if (confirm("Are you sure you want to delete this custom book entry?")) {
         const customBooks = JSON.parse(localStorage.getItem(`customUserBooks_${currentUserEmail}`) || '[]');
         const filtered = customBooks.filter(b => Number(b.id) !== Number(bookId));
@@ -2121,14 +2177,14 @@ function renderDashboardPortfolio() {
 
     if (userGrid) {
         userGrid.innerHTML = '';
-        
+
         // Load custom books
         const customBooks = JSON.parse(localStorage.getItem(`customUserBooks_${currentUserEmail}`) || '[]');
         customBooks.forEach(b => b.isCustom = true);
-        
+
         // Load buffered catalog books
         const savedList = allBooks.filter(b => userDownloads.some(id => Number(id) === Number(b.id)));
-        
+
         const combinedList = [...customBooks, ...savedList];
 
         if (combinedList.length === 0) {

@@ -149,7 +149,7 @@
                     <button onclick="toggleUserDropdown(event)" id="userDropdownBtn"
                         class="flex items-center gap-2.5 bg-slate-100/80 hover:bg-slate-200/50 border border-slate-200/80 px-3 py-1.5 rounded-xl active:scale-95 transition-all duration-200 focus:outline-none select-none">
                         <div id="userAvatar"
-                            class="w-8 h-8 rounded-lg bg-brand-600 flex items-center justify-center text-xs font-bold text-white uppercase shrink-0">
+                            class="w-8 h-8 rounded-full bg-brand-600 flex items-center justify-center text-xs font-bold text-white uppercase shrink-0">
                             A
                         </div>
                         <div class="hidden lg:flex flex-col text-left">
@@ -157,7 +157,7 @@
                             <span id="navUserRole"
                                 class="text-[9px] font-semibold text-accent-600 uppercase tracking-wider leading-none">ADMIN</span>
                         </div>
-                        <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-500 shrink-0 hidden lg:block transition-transform duration-200" id="dropdownChevron"></i>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5 text-slate-500 shrink-0 hidden lg:block transition-transform duration-200" id="dropdownChevron"><path d="m6 9 6 6 6-6"/></svg>
                     </button>
                     
                     <!-- Premium Dropdown Menu Panel -->
@@ -216,6 +216,60 @@
             </div>
         </div>
     </header>
+
+    <!-- Prevent navbar flickering by checking session synchronously on parser pass -->
+    <script>
+        (function() {
+            var role = localStorage.getItem('currentRole');
+            var user = localStorage.getItem('currentUser');
+            if (role && user) {
+                var saved = document.getElementById('savedNavLink');
+                var dash = document.getElementById('dashboardLink');
+                var admin = document.getElementById('adminLink');
+                var login = document.getElementById('loginBtn');
+                var navUser = document.getElementById('navUser');
+                
+                var mobSaved = document.getElementById('mobileSavedNavLink');
+                var mobDash = document.getElementById('mobileDashboardLink');
+                var mobAdmin = document.getElementById('mobileAdminLink');
+
+                if (saved) saved.classList.remove('hidden');
+                if (mobSaved) mobSaved.classList.remove('hidden');
+
+                if (role === 'admin') {
+                    if (admin) admin.classList.remove('hidden');
+                    if (mobAdmin) mobAdmin.classList.remove('hidden');
+                } else {
+                    if (dash) dash.classList.remove('hidden');
+                    if (mobDash) mobDash.classList.remove('hidden');
+                }
+
+                if (login) login.classList.add('hidden');
+                if (navUser) {
+                    navUser.classList.remove('hidden');
+                    navUser.classList.add('flex');
+                    var nameEl = document.getElementById('navUserName');
+                    var roleEl = document.getElementById('navUserRole');
+                    if (nameEl) nameEl.textContent = user;
+                    if (roleEl) roleEl.textContent = role.toUpperCase();
+
+                    // Instantly set correct user initial or avatar image to prevent avatar flickering
+                    var avatarEl = document.getElementById('userAvatar');
+                    if (avatarEl) {
+                        var registered = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
+                        var email = localStorage.getItem('currentUserEmail');
+                        var matchedUser = registered.find(function(u) { return u.email === email; });
+                        if (matchedUser && matchedUser.profileImage) {
+                            avatarEl.innerHTML = '<img src="' + matchedUser.profileImage + '" class="w-full h-full object-cover rounded-full" style="max-width: 100%; max-height: 100%;" />';
+                        } else {
+                            avatarEl.innerHTML = '';
+                            avatarEl.textContent = user.charAt(0).toUpperCase();
+                        }
+                    }
+                }
+            }
+        })();
+    </script>
 
     <!-- Mobile Navigation Drawer -->
     <div id="mobileDrawer"
@@ -404,35 +458,6 @@
                                         <div class="px-3.5 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-50 hover:text-brand-600 rounded-lg mx-1 cursor-pointer transition-colors duration-150" data-value="8th Semester">8th Semester</div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="flex flex-col gap-2">
-                                <label class="text-xs font-extrabold tracking-wider text-slate-500 uppercase">Availability Status</label>
-                                <select id="bookStatus" class="hidden">
-                                    <option value="Available">Available</option>
-                                    <option value="Reserved">Reserved</option>
-                                    <option value="Out of Stock">Out of Stock</option>
-                                </select>
-                                <div class="relative custom-select-container" data-select-id="bookStatus">
-                                    <button type="button" class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-800 text-sm focus:outline-none focus:border-brand-500 flex items-center justify-between transition-all duration-200 cursor-pointer shadow-sm">
-                                        <span class="custom-select-label">Available</span>
-                                        <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transition-transform duration-200 select-chevron"></i>
-                                    </button>
-                                    <div class="absolute w-full mt-1.5 bg-white border border-slate-200 rounded-xl shadow-xl py-1.5 z-[70] hidden opacity-0 scale-95 origin-top transition-all duration-200 select-options-menu">
-                                        <div class="px-3.5 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-50 hover:text-brand-600 rounded-lg mx-1 cursor-pointer transition-colors duration-150" data-value="Available">Available</div>
-                                        <div class="px-3.5 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-50 hover:text-brand-600 rounded-lg mx-1 cursor-pointer transition-colors duration-150" data-value="Reserved">Reserved</div>
-                                        <div class="px-3.5 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-50 hover:text-brand-600 rounded-lg mx-1 cursor-pointer transition-colors duration-150" data-value="Out of Stock">Out of Stock</div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="flex flex-col gap-2">
-                                <label class="text-xs font-extrabold tracking-wider text-slate-500 uppercase">Total Copies Stocked</label>
-                                <input type="number" id="bookCopiesTotal" value="5" min="1" max="100"
-                                    class="px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-800 text-sm focus:outline-none focus:border-brand-500 transition-colors duration-200">
-                            </div>
-                            <div class="flex flex-col gap-2">
-                                <label class="text-xs font-extrabold tracking-wider text-slate-500 uppercase">Available Copies</label>
-                                <input type="number" id="bookCopiesAvailable" value="5" min="0" max="100"
-                                    class="px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-800 text-sm focus:outline-none focus:border-brand-500 transition-colors duration-200">
                             </div>
                             <div class="flex flex-col gap-2 md:col-span-2 lg:col-span-3">
                                 <label class="text-xs font-extrabold tracking-wider text-slate-500 uppercase">Cover Illustration Link</label>
@@ -755,71 +780,36 @@
                                 <div class="px-3.5 py-2.5 text-[11px] font-extrabold text-slate-650 hover:bg-slate-50 hover:text-brand-600 rounded-lg mx-1 cursor-pointer transition-colors duration-150" data-value="Liberal Arts">Liberal Arts</div>
                                 <div class="px-3.5 py-2.5 text-[11px] font-extrabold text-slate-650 hover:bg-slate-50 hover:text-brand-600 rounded-lg mx-1 cursor-pointer transition-colors duration-150" data-value="General Education">General Education</div>
                             </div>
-                        </div>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="flex flex-col gap-1.5">
-                        <label class="text-[10px] font-extrabold tracking-wider text-slate-500 uppercase">Semester</label>
-                        <select id="editBookSemester" class="hidden">
-                            <option value="1st Semester">1st Semester</option>
-                            <option value="2nd Semester">2nd Semester</option>
-                            <option value="3rd Semester">3rd Semester</option>
-                            <option value="4th Semester">4th Semester</option>
-                            <option value="5th Semester">5th Semester</option>
-                            <option value="6th Semester">6th Semester</option>
-                            <option value="7th Semester">7th Semester</option>
-                            <option value="8th Semester">8th Semester</option>
-                        </select>
-                        <div class="relative custom-select-container" data-select-id="editBookSemester">
-                            <button type="button" class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-800 text-xs font-bold focus:outline-none focus:border-brand-500 flex items-center justify-between transition-all duration-200 cursor-pointer shadow-sm">
-                                <span class="custom-select-label">1st Semester</span>
-                                <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transition-transform duration-200 select-chevron"></i>
-                            </button>
-                            <div class="absolute w-full mt-1.5 bg-white border border-slate-200 rounded-xl shadow-xl py-1.5 z-[70] hidden opacity-0 scale-95 origin-top transition-all duration-200 select-options-menu max-h-52 overflow-y-auto scrollbar-thin">
-                                <div class="px-3.5 py-2.5 text-[11px] font-extrabold text-slate-650 hover:bg-slate-50 hover:text-brand-600 rounded-lg mx-1 cursor-pointer transition-colors duration-150" data-value="1st Semester">1st Semester</div>
-                                <div class="px-3.5 py-2.5 text-[11px] font-extrabold text-slate-650 hover:bg-slate-50 hover:text-brand-600 rounded-lg mx-1 cursor-pointer transition-colors duration-150" data-value="2nd Semester">2nd Semester</div>
-                                <div class="px-3.5 py-2.5 text-[11px] font-extrabold text-slate-650 hover:bg-slate-50 hover:text-brand-600 rounded-lg mx-1 cursor-pointer transition-colors duration-150" data-value="3rd Semester">3rd Semester</div>
-                                <div class="px-3.5 py-2.5 text-[11px] font-extrabold text-slate-650 hover:bg-slate-50 hover:text-brand-600 rounded-lg mx-1 cursor-pointer transition-colors duration-150" data-value="4th Semester">4th Semester</div>
-                                <div class="px-3.5 py-2.5 text-[11px] font-extrabold text-slate-650 hover:bg-slate-50 hover:text-brand-600 rounded-lg mx-1 cursor-pointer transition-colors duration-150" data-value="5th Semester">5th Semester</div>
-                                <div class="px-3.5 py-2.5 text-[11px] font-extrabold text-slate-650 hover:bg-slate-50 hover:text-brand-600 rounded-lg mx-1 cursor-pointer transition-colors duration-150" data-value="6th Semester">6th Semester</div>
-                                <div class="px-3.5 py-2.5 text-[11px] font-extrabold text-slate-650 hover:bg-slate-50 hover:text-brand-600 rounded-lg mx-1 cursor-pointer transition-colors duration-150" data-value="7th Semester">7th Semester</div>
-                                <div class="px-3.5 py-2.5 text-[11px] font-extrabold text-slate-650 hover:bg-slate-50 hover:text-brand-600 rounded-lg mx-1 cursor-pointer transition-colors duration-150" data-value="8th Semester">8th Semester</div>
-                            </div>
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-[10px] font-extrabold tracking-wider text-slate-500 uppercase">Semester</label>
+                    <select id="editBookSemester" class="hidden">
+                        <option value="1st Semester">1st Semester</option>
+                        <option value="2nd Semester">2nd Semester</option>
+                        <option value="3rd Semester">3rd Semester</option>
+                        <option value="4th Semester">4th Semester</option>
+                        <option value="5th Semester">5th Semester</option>
+                        <option value="6th Semester">6th Semester</option>
+                        <option value="7th Semester">7th Semester</option>
+                        <option value="8th Semester">8th Semester</option>
+                    </select>
+                    <div class="relative custom-select-container" data-select-id="editBookSemester">
+                        <button type="button" class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-800 text-xs font-bold focus:outline-none focus:border-brand-500 flex items-center justify-between transition-all duration-200 cursor-pointer shadow-sm">
+                            <span class="custom-select-label">1st Semester</span>
+                            <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transition-transform duration-200 select-chevron"></i>
+                        </button>
+                        <div class="absolute w-full mt-1.5 bg-white border border-slate-200 rounded-xl shadow-xl py-1.5 z-[70] hidden opacity-0 scale-95 origin-top transition-all duration-200 select-options-menu max-h-52 overflow-y-auto scrollbar-thin">
+                            <div class="px-3.5 py-2.5 text-[11px] font-extrabold text-slate-650 hover:bg-slate-50 hover:text-brand-600 rounded-lg mx-1 cursor-pointer transition-colors duration-150" data-value="1st Semester">1st Semester</div>
+                            <div class="px-3.5 py-2.5 text-[11px] font-extrabold text-slate-650 hover:bg-slate-50 hover:text-brand-600 rounded-lg mx-1 cursor-pointer transition-colors duration-150" data-value="2nd Semester">2nd Semester</div>
+                            <div class="px-3.5 py-2.5 text-[11px] font-extrabold text-slate-650 hover:bg-slate-50 hover:text-brand-600 rounded-lg mx-1 cursor-pointer transition-colors duration-150" data-value="3rd Semester">3rd Semester</div>
+                            <div class="px-3.5 py-2.5 text-[11px] font-extrabold text-slate-650 hover:bg-slate-50 hover:text-brand-600 rounded-lg mx-1 cursor-pointer transition-colors duration-150" data-value="4th Semester">4th Semester</div>
+                            <div class="px-3.5 py-2.5 text-[11px] font-extrabold text-slate-650 hover:bg-slate-50 hover:text-brand-600 rounded-lg mx-1 cursor-pointer transition-colors duration-150" data-value="5th Semester">5th Semester</div>
+                            <div class="px-3.5 py-2.5 text-[11px] font-extrabold text-slate-650 hover:bg-slate-50 hover:text-brand-600 rounded-lg mx-1 cursor-pointer transition-colors duration-150" data-value="6th Semester">6th Semester</div>
+                            <div class="px-3.5 py-2.5 text-[11px] font-extrabold text-slate-650 hover:bg-slate-50 hover:text-brand-600 rounded-lg mx-1 cursor-pointer transition-colors duration-150" data-value="7th Semester">7th Semester</div>
+                            <div class="px-3.5 py-2.5 text-[11px] font-extrabold text-slate-650 hover:bg-slate-50 hover:text-brand-600 rounded-lg mx-1 cursor-pointer transition-colors duration-150" data-value="8th Semester">8th Semester</div>
                         </div>
-                    </div>
-
-                    <div class="flex flex-col gap-1.5">
-                        <label class="text-[10px] font-extrabold tracking-wider text-slate-500 uppercase">Availability Status</label>
-                        <select id="editBookStatus" class="hidden">
-                            <option value="Available">Available</option>
-                            <option value="Reserved">Reserved</option>
-                            <option value="Out of Stock">Out of Stock</option>
-                        </select>
-                        <div class="relative custom-select-container" data-select-id="editBookStatus">
-                            <button type="button" class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-800 text-xs font-bold focus:outline-none focus:border-brand-500 flex items-center justify-between transition-all duration-200 cursor-pointer shadow-sm">
-                                <span class="custom-select-label">Available</span>
-                                <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transition-transform duration-200 select-chevron"></i>
-                            </button>
-                            <div class="absolute w-full mt-1.5 bg-white border border-slate-200 rounded-xl shadow-xl py-1.5 z-[70] hidden opacity-0 scale-95 origin-top transition-all duration-200 select-options-menu">
-                                <div class="px-3.5 py-2.5 text-[11px] font-extrabold text-slate-650 hover:bg-slate-50 hover:text-brand-600 rounded-lg mx-1 cursor-pointer transition-colors duration-150" data-value="Available">Available</div>
-                                <div class="px-3.5 py-2.5 text-[11px] font-extrabold text-slate-650 hover:bg-slate-50 hover:text-brand-600 rounded-lg mx-1 cursor-pointer transition-colors duration-150" data-value="Reserved">Reserved</div>
-                                <div class="px-3.5 py-2.5 text-[11px] font-extrabold text-slate-650 hover:bg-slate-50 hover:text-brand-600 rounded-lg mx-1 cursor-pointer transition-colors duration-150" data-value="Out of Stock">Out of Stock</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="flex flex-col gap-1.5">
-                        <label class="text-[10px] font-extrabold tracking-wider text-slate-500 uppercase">Total Copies</label>
-                        <input type="number" id="editBookCopiesTotal" min="1" max="100" class="px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-800 text-xs font-bold focus:outline-none focus:border-brand-500 transition-colors duration-200">
-                    </div>
-
-                    <div class="flex flex-col gap-1.5">
-                        <label class="text-[10px] font-extrabold tracking-wider text-slate-500 uppercase">Available Copies</label>
-                        <input type="number" id="editBookCopiesAvailable" min="0" max="100" class="px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-800 text-xs font-bold focus:outline-none focus:border-brand-500 transition-colors duration-200">
                     </div>
                 </div>
 
