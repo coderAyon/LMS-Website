@@ -339,8 +339,24 @@ async function fetchCatalogDatabase() {
 }
 
 function saveDatabase() {
-    localStorage.setItem('libraryBooks', JSON.stringify(allBooks));
-    updateLibraryStats();
+    try {
+        console.log('Saving to localStorage...', allBooks);
+        localStorage.setItem('libraryBooks', JSON.stringify(allBooks));
+        console.log('localStorage saved successfully');
+        
+        // Verify it was saved
+        const saved = localStorage.getItem('libraryBooks');
+        console.log('Verification - data in storage:', saved ? JSON.parse(saved).length + ' books' : 'FAILED');
+        
+        try {
+            updateLibraryStats();
+        } catch (err) {
+            console.error('updateLibraryStats error (non-critical):', err);
+        }
+    } catch (err) {
+        console.error('CRITICAL: saveDatabase failed:', err);
+        alert('Error saving to browser storage: ' + err.message);
+    }
 }
 
 async function factoryResetDatabase() {
@@ -2292,13 +2308,20 @@ function switchAdminTab(tabId, tabBtn) {
 }
 
 function updateAdminTable() {
+    console.log('updateAdminTable called with allBooks length:', allBooks.length);
+    
     const tbody = document.getElementById('adminBooksTable');
-    if (!tbody) return;
+    if (!tbody) {
+        console.error('adminBooksTable element not found!');
+        return;
+    }
 
     const totalPages = Math.ceil(allBooks.length / ADMIN_PER_PAGE);
     if (adminCurrentPage > totalPages) adminCurrentPage = 1;
     const start = (adminCurrentPage - 1) * ADMIN_PER_PAGE;
     const pageBooks = allBooks.slice(start, start + ADMIN_PER_PAGE);
+
+    console.log('Rendering', pageBooks.length, 'books on page', adminCurrentPage);
 
     tbody.innerHTML = '';
     const countEl = document.getElementById('adminTotalCount');
@@ -2330,6 +2353,8 @@ function updateAdminTable() {
         `;
         tbody.appendChild(tr);
     });
+
+    console.log('Table rendered with', pageBooks.length, 'books');
 
     renderPaginationBar('adminPagination', adminCurrentPage, totalPages, (p) => {
         adminCurrentPage = p;
@@ -2377,77 +2402,200 @@ function renderPaginationBar(containerId, currentPage, totalPages, onPageChange)
     lucide.createIcons();
 }
 
-function addBook() {
-    const title = document.getElementById('bookTitle').value.trim();
-    const author = document.getElementById('bookAuthor').value.trim();
-    const category = document.getElementById('bookCategory').value;
-    const department = document.getElementById('bookDept').value;
-    const semester = document.getElementById('bookSemester').value;
-    const status = document.getElementById('bookStatus').value;
-    const copiesTotal = parseInt(document.getElementById('bookCopiesTotal').value) || 5;
-    const copiesAvailable = parseInt(document.getElementById('bookCopiesAvailable').value) || 5;
-    const isbn = document.getElementById('bookISBN').value.trim();
-    const cover = document.getElementById('bookCover').value.trim();
-    const description = document.getElementById('bookDescription').value.trim();
+let isSubmittingBook = false;
 
-    if (!title || !author || !isbn || !description) {
-        showNotification("Indexing error: Please fill all metadata fields.", "error");
+function addBook(event) {
+    console.log('=== addBook CALLED ===');
+    
+    // Prevent duplicate submissions
+    if (isSubmittingBook) {
+        console.warn('Submission already in progress');
         return;
     }
-
+    
+    if (event) {
+        event.preventDefault();
+    }
+    
+    const bookTitleEl = document.getElementById('bookTitle');
+    const bookAuthorEl = document.getElementById('bookAuthor');
+    const bookISBNEl = document.getElementById('bookISBN');
+    const bookDescriptionEl = document.getElementById('bookDescription');
+    const bookCoverEl = document.getElementById('bookCover');
+    const bookCategorySelect = document.getElementById('bookCategory');
+    const bookDeptSelect = document.getElementById('bookDept');
+    const bookSemesterSelect = document.getElementById('bookSemester');
+    const saveBookBtn = document.getElementById('saveBookBtn');
+    
+    const title = bookTitleEl?.value?.trim() || '';
+    const author = bookAuthorEl?.value?.trim() || '';
+    const isbn = bookISBNEl?.value?.trim() || '';
+    const description = bookDescriptionEl?.value?.trim() || '';
+    const cover = bookCoverEl?.value?.trim() || '';
+    const category = bookCategorySelect?.value || 'Technology';
+    const department = bookDeptSelect?.value || 'Computer Science';
+    const semester = bookSemesterSelect?.value || '1st Semester';
+    
+    console.log('Form values:', { title, author, isbn });
+    
+    // Validate required fields
+    if (!title) {
+        console.warn('Missing title');
+        showNotification("Error: Please enter a Volume Title.", "error");
+        return;
+    }
+    if (!author) {
+        console.warn('Missing author');
+        showNotification("Error: Please enter an Author Name.", "error");
+        return;
+    }
+    if (!isbn) {
+        console.warn('Missing isbn');
+        showNotification("Error: Please enter an ISBN Index ID.", "error");
+        return;
+    }
+    if (!description) {
+        console.warn('Missing description');
+        showNotification("Error: Please enter a Volume Abstract Summary.", "error");
+        return;
+    }
+    
+    console.log('Validation passed');
+    
+    // ─────────── SET LOADING STATE ───────────
+    isSubmittingBook = true;
+    if (saveBookBtn) {
+        saveBookBtn.disabled = true;
+        const originalHTML = saveBookBtn.innerHTML;
+        saveBookBtn.innerHTML = `<i data-lucide="loader-circle" class="w-4 h-4 animate-spin"></i><span>Saving...</span>`;
+        lucide.createIcons();
+    }
+    
+    // Create record
     const finalCover = cover || "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?auto=format&fit=crop&w=400&q=80";
-
+    
     const newRecord = {
         id: Date.now(),
-        title,
-        author,
-        category,
-        department,
-        semester,
-        status,
-        copiesTotal,
-        copiesAvailable,
-        isbn,
+        title: title,
+        author: author,
+        category: category,
+        department: department,
+        semester: semester,
+        status: 'Available',
+        copiesTotal: 5,
+        copiesAvailable: 5,
+        isbn: isbn,
         cover: finalCover,
-        description,
+        description: description,
         rating: 4.5,
         yearPublished: new Date().getFullYear(),
         pages: 380,
         publisher: "GBLMS Press"
     };
-
-    allBooks.push(newRecord);
-    saveDatabase();
-
-    // Reset forms
-    document.getElementById('bookTitle').value = '';
-    document.getElementById('bookAuthor').value = '';
-    document.getElementById('bookISBN').value = '';
-    document.getElementById('bookCover').value = '';
-    document.getElementById('bookDescription').value = '';
-    document.getElementById('bookCopiesTotal').value = '5';
-    document.getElementById('bookCopiesAvailable').value = '5';
-
-    // Reset selects to defaults
-    document.getElementById('bookCategory').value = 'Technology';
-    document.getElementById('bookDept').value = 'Computer Science';
-    document.getElementById('bookSemester').value = '1st Semester';
-    document.getElementById('bookStatus').value = 'Available';
-
-    syncCustomSelects();
-
+    
+    console.log('New record created:', newRecord);
+    console.log('allBooks before push:', allBooks.length);
+    
+    // Save to database
+    try {
+        if (!Array.isArray(allBooks)) {
+            console.warn('allBooks not array, initializing');
+            window.allBooks = [];
+        }
+        allBooks.push(newRecord);
+        console.log('allBooks after push:', allBooks.length);
+        
+        saveDatabase();
+        console.log('saveDatabase() completed');
+    } catch (err) {
+        console.error('ERROR in save:', err);
+        isSubmittingBook = false;
+        if (saveBookBtn) {
+            saveBookBtn.disabled = false;
+            saveBookBtn.innerHTML = `<i data-lucide="check-circle" class="w-4 h-4"></i><span>Save System Record</span>`;
+            lucide.createIcons();
+        }
+        showNotification('Error saving: ' + err.message, 'error');
+        return;
+    }
+    
+    // Reset form
+    try {
+        if (bookTitleEl) bookTitleEl.value = '';
+        if (bookAuthorEl) bookAuthorEl.value = '';
+        if (bookISBNEl) bookISBNEl.value = '';
+        if (bookCoverEl) bookCoverEl.value = '';
+        if (bookDescriptionEl) bookDescriptionEl.value = '';
+        if (bookCategorySelect) bookCategorySelect.value = 'Technology';
+        if (bookDeptSelect) bookDeptSelect.value = 'Computer Science';
+        if (bookSemesterSelect) bookSemesterSelect.value = '1st Semester';
+        
+        syncCustomSelects();
+        console.log('Form reset');
+    } catch (err) {
+        console.error('Form reset error:', err);
+    }
+    
+    // Show success
     showNotification(`Volume "${title}" successfully cataloged.`, "success");
-
-    // Switch to database list view
-    switchAdminTab('manageBooks', document.querySelector('.admin-tab'));
-    renderFeaturedCarousel();
+    console.log('=== addBook COMPLETE ===');
+    
+    try {
+        updateAdminTable();
+        console.log('Table updated');
+    } catch (err) {
+        console.error('Table update error:', err);
+    }
+    
+    // Refresh category displays so new book appears in catalog
+    try {
+        if (typeof renderKnowledgeAreas === 'function') {
+            renderKnowledgeAreas();
+            console.log('Category displays refreshed');
+        }
+        if (typeof renderFeaturedCarousel === 'function') {
+            renderFeaturedCarousel();
+            console.log('Featured carousel refreshed');
+        }
+        if (typeof displayCatalogBooks === 'function') {
+            displayCatalogBooks();
+            console.log('Catalog books refreshed');
+        }
+    } catch (err) {
+        console.error('Catalog refresh error (non-critical):', err);
+    }
+    
+    // Reset button state and auto-redirect after brief delay
+    setTimeout(() => {
+        isSubmittingBook = false;
+        if (saveBookBtn) {
+            saveBookBtn.disabled = false;
+            saveBookBtn.innerHTML = `<i data-lucide="check-circle" class="w-4 h-4"></i><span>Save System Record</span>`;
+            lucide.createIcons();
+        }
+        
+        // Auto-redirect to database list view after 2 seconds
+        setTimeout(() => {
+            const dbListBtn = document.getElementById('databaseListTabBtn');
+            if (dbListBtn) {
+                dbListBtn.click();
+                console.log('Auto-redirected to database list view');
+            }
+        }, 1500);
+    }, 500);
 }
 
 let bookIdToDelete = null;
 
 function deleteBookRecord(bookId) {
+    console.log('deleteBookRecord called with bookId:', bookId);
+    
     const record = allBooks.find(b => String(b.id) === String(bookId));
-    if (!record) return;
+    console.log('Record found:', record);
+    if (!record) {
+        console.error('Record not found for bookId:', bookId);
+        return;
+    }
 
     // Dismiss administrative edit drawer if open to prevent UI overlapping
     closeEditDrawer(true);
@@ -2480,6 +2628,7 @@ function deleteBookRecord(bookId) {
 
         // Refresh Lucide icons inside the modal
         lucide.createIcons();
+        console.log('Delete confirmation modal opened');
     }
 
 }
@@ -2526,21 +2675,33 @@ function closeDeleteModal() {
 }
 
 function editBookRecord(bookId) {
+    console.log('editBookRecord called with bookId:', bookId);
+    
     const record = allBooks.find(b => String(b.id) === String(bookId));
-    if (!record) return;
+    console.log('Record found:', record);
+    if (!record) {
+        console.error('Record not found for bookId:', bookId);
+        return;
+    }
 
-    document.getElementById('editBookId').value = record.id;
-    document.getElementById('editBookTitle').value = record.title;
-    document.getElementById('editBookAuthor').value = record.author;
-    document.getElementById('editBookCategory').value = record.category;
-    document.getElementById('editBookDept').value = record.department || "General Education";
-    document.getElementById('editBookSemester').value = record.semester || "1st Semester";
-    document.getElementById('editBookStatus').value = record.status || "Available";
-    document.getElementById('editBookCopiesTotal').value = record.copiesTotal !== undefined ? record.copiesTotal : 5;
-    document.getElementById('editBookCopiesAvailable').value = record.copiesAvailable !== undefined ? record.copiesAvailable : 5;
-    document.getElementById('editBookISBN').value = record.isbn;
-    document.getElementById('editBookCover').value = record.cover;
-    document.getElementById('editBookDescription').value = record.description;
+    // Set form values safely with optional chaining and nullish coalescing
+    const setVal = (id, val) => {
+        const el = document.getElementById(id);
+        if (el) el.value = val;
+    };
+
+    setVal('editBookId', record.id);
+    setVal('editBookTitle', record.title);
+    setVal('editBookAuthor', record.author);
+    setVal('editBookISBN', record.isbn);
+    setVal('editBookCover', record.cover);
+    setVal('editBookDescription', record.description);
+    setVal('editBookCategory', record.category);
+    setVal('editBookDept', record.department || "Computer Science");
+    setVal('editBookSemester', record.semester || "1st Semester");
+    setVal('editBookStatus', record.status || "Available");
+    setVal('editBookCopiesTotal', record.copiesTotal || 5);
+    setVal('editBookCopiesAvailable', record.copiesAvailable || 5);
 
     syncCustomSelects();
 
@@ -2554,6 +2715,7 @@ function editBookRecord(bookId) {
 
         // Refresh icons inside drawer
         lucide.createIcons();
+        console.log('Edit drawer opened for bookId:', bookId);
     }
 }
 

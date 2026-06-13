@@ -301,7 +301,7 @@
                     <!-- Tab bar — scrollable on mobile, normal on md+ -->
                     <div class="overflow-x-auto pb-1 -mx-1 px-1">
                         <div class="flex gap-2 bg-slate-100 p-1.5 rounded-xl border border-slate-200 shadow-sm w-max min-w-full sm:w-auto sm:min-w-0">
-                            <button onclick="switchAdminTab('manageBooks', this)"
+                            <button id="databaseListTabBtn" onclick="switchAdminTab('manageBooks', this)"
                                 class="admin-tab active flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg text-xs font-bold text-brand-600 transition-all duration-200 whitespace-nowrap">
                                 <i data-lucide="database" class="w-3.5 h-3.5 shrink-0"></i>
                                 <span>Database Grid</span>
@@ -368,6 +368,7 @@
                             <span>Structural Metadata Indexing</span>
                         </h3>
 
+                        <form id="addBookForm" onsubmit="addBook(event)">
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
                             <div class="flex flex-col gap-2">
                                 <label class="text-xs font-extrabold tracking-wider text-slate-500 uppercase">Volume Title</label>
@@ -472,13 +473,18 @@
                             </div>
                         </div>
 
+                        <input type="hidden" id="bookStatus" value="Available">
+                        <input type="hidden" id="bookCopiesTotal" value="5">
+                        <input type="hidden" id="bookCopiesAvailable" value="5">
+
                         <div class="flex gap-4">
-                            <button onclick="addBook()"
+                            <button id="saveBookBtn" type="button" onclick="addBook()"
                                 class="flex items-center gap-2 px-6 py-3.5 bg-brand-600 hover:bg-brand-500 text-white font-bold rounded-xl active:scale-95 transition-all duration-200 shadow-lg shadow-brand-500/10">
                                 <i data-lucide="check-circle" class="w-4 h-4"></i>
                                 <span>Save System Record</span>
                             </button>
                         </div>
+                        </form>
                     </div>
                 </div>
 
@@ -780,6 +786,7 @@
                                 <div class="px-3.5 py-2.5 text-[11px] font-extrabold text-slate-650 hover:bg-slate-50 hover:text-brand-600 rounded-lg mx-1 cursor-pointer transition-colors duration-150" data-value="Liberal Arts">Liberal Arts</div>
                                 <div class="px-3.5 py-2.5 text-[11px] font-extrabold text-slate-650 hover:bg-slate-50 hover:text-brand-600 rounded-lg mx-1 cursor-pointer transition-colors duration-150" data-value="General Education">General Education</div>
                             </div>
+                        </div>
                     </div>
                 </div>
 
@@ -811,6 +818,38 @@
                             <div class="px-3.5 py-2.5 text-[11px] font-extrabold text-slate-650 hover:bg-slate-50 hover:text-brand-600 rounded-lg mx-1 cursor-pointer transition-colors duration-150" data-value="8th Semester">8th Semester</div>
                         </div>
                     </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="flex flex-col gap-1.5">
+                        <label class="text-[10px] font-extrabold tracking-wider text-slate-500 uppercase">Availability Status</label>
+                        <select id="editBookStatus" class="hidden">
+                            <option value="Available">Available</option>
+                            <option value="Reserved">Reserved</option>
+                            <option value="Unavailable">Unavailable</option>
+                        </select>
+                        <div class="relative custom-select-container" data-select-id="editBookStatus">
+                            <button type="button" class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-800 text-xs font-bold focus:outline-none focus:border-brand-500 flex items-center justify-between transition-all duration-200 cursor-pointer shadow-sm">
+                                <span class="custom-select-label">Available</span>
+                                <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transition-transform duration-200 select-chevron"></i>
+                            </button>
+                            <div class="absolute w-full mt-1.5 bg-white border border-slate-200 rounded-xl shadow-xl py-1.5 z-[70] hidden opacity-0 scale-95 origin-top transition-all duration-200 select-options-menu">
+                                <div class="px-3.5 py-2.5 text-[11px] font-extrabold text-slate-650 hover:bg-slate-50 hover:text-brand-600 rounded-lg mx-1 cursor-pointer transition-colors duration-150" data-value="Available">Available</div>
+                                <div class="px-3.5 py-2.5 text-[11px] font-extrabold text-slate-650 hover:bg-slate-50 hover:text-brand-600 rounded-lg mx-1 cursor-pointer transition-colors duration-150" data-value="Reserved">Reserved</div>
+                                <div class="px-3.5 py-2.5 text-[11px] font-extrabold text-slate-650 hover:bg-slate-50 hover:text-brand-600 rounded-lg mx-1 cursor-pointer transition-colors duration-150" data-value="Unavailable">Unavailable</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col gap-1.5">
+                        <label class="text-[10px] font-extrabold tracking-wider text-slate-500 uppercase">Total Copies</label>
+                        <input type="number" id="editBookCopiesTotal" min="1" value="5" class="px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-800 text-xs font-bold focus:outline-none focus:border-brand-500 transition-colors duration-200">
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-[10px] font-extrabold tracking-wider text-slate-500 uppercase">Available Copies</label>
+                    <input type="number" id="editBookCopiesAvailable" min="0" value="5" class="px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-800 text-xs font-bold focus:outline-none focus:border-brand-500 transition-colors duration-200">
                 </div>
 
                 <div class="flex flex-col gap-1.5">
