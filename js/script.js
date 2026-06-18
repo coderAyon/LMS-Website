@@ -72,6 +72,7 @@ let featuredStartIndex = 0;
 let selectedBookForModal = null;
 
 const MEMBERSHIP_APPLICATIONS_KEY = 'libraryMemberApplications';
+const CUSTOM_BOOK_APPLICATIONS_KEY = 'customBookApplications';
 
 // ==================== PAGINATION STATE ====================
 let catalogCurrentPage = 1;
@@ -208,7 +209,7 @@ async function fetchCatalogDatabase() {
 
         // Deterministic mock enterprise field injection
         allBooks = allBooks.map(book => {
-            if (true) { // Re-inject or override semesters to get perfect 1st-8th Semester coverage
+            if (!book.isCustom) { // Re-inject or override semesters to get perfect 1st-8th Semester coverage
                 const semesters = [
                     "1st Semester", "2nd Semester", "3rd Semester", "4th Semester",
                     "5th Semester", "6th Semester", "7th Semester", "8th Semester"
@@ -239,6 +240,7 @@ async function fetchCatalogDatabase() {
             return book;
         });
 
+        mergeApprovedCustomBooksIntoCatalog();
         localStorage.setItem('libraryBooks', JSON.stringify(allBooks));
 
         // Update home stats UI
@@ -384,6 +386,7 @@ async function fetchCatalogDatabase() {
             }
         ];
 
+        mergeApprovedCustomBooksIntoCatalog();
         localStorage.setItem('libraryBooks', JSON.stringify(allBooks));
 
         const heroBookCount2 = document.getElementById('heroBookCount');
@@ -484,6 +487,92 @@ function updateMemberApprovalBadges(applications = getMemberApplications()) {
     if (pendingCountEl) pendingCountEl.textContent = pendingCount;
     if (approvedCountEl) approvedCountEl.textContent = approvedCount;
     if (rejectedCountEl) rejectedCountEl.textContent = rejectedCount;
+}
+
+function getCustomBookApplications() {
+    try {
+        const parsed = JSON.parse(localStorage.getItem(CUSTOM_BOOK_APPLICATIONS_KEY) || '[]');
+        return Array.isArray(parsed) ? parsed : [];
+    } catch (error) {
+        console.error('Failed to parse custom book applications:', error);
+        return [];
+    }
+}
+
+function saveCustomBookApplications(applications) {
+    localStorage.setItem(CUSTOM_BOOK_APPLICATIONS_KEY, JSON.stringify(applications));
+    updateCustomBookApprovalBadges(applications);
+}
+
+function updateCustomBookApprovalBadges(applications = getCustomBookApplications()) {
+    const pendingCount = applications.filter(app => app.approvalStatus === 'pending').length;
+    const approvedCount = applications.filter(app => app.approvalStatus === 'approved').length;
+    const rejectedCount = applications.filter(app => app.approvalStatus === 'rejected').length;
+
+    const pendingBadge = document.getElementById('pendingBooksBadge');
+    const pendingCountEl = document.getElementById('bookPendingCount');
+    const approvedCountEl = document.getElementById('bookApprovedCount');
+    const rejectedCountEl = document.getElementById('bookRejectedCount');
+
+    if (pendingBadge) {
+        pendingBadge.textContent = pendingCount;
+        pendingBadge.classList.toggle('hidden', pendingCount === 0);
+        pendingBadge.classList.toggle('inline-flex', pendingCount > 0);
+    }
+    if (pendingCountEl) pendingCountEl.textContent = pendingCount;
+    if (approvedCountEl) approvedCountEl.textContent = approvedCount;
+    if (rejectedCountEl) rejectedCountEl.textContent = rejectedCount;
+}
+
+function getBookApprovalStatusClasses(status) {
+    if (status === 'approved') return 'bg-emerald-50 text-emerald-700 border-emerald-200';
+    if (status === 'rejected') return 'bg-rose-50 text-rose-700 border-rose-200';
+    return 'bg-amber-50 text-amber-700 border-amber-200';
+}
+
+function mergeApprovedCustomBooksIntoCatalog({ persist = false } = {}) {
+    const approvedBooks = getCustomBookApplications()
+        .filter(app => app.approvalStatus === 'approved')
+        .map(app => ({
+            ...app,
+            isCustom: true,
+            approvalStatus: 'approved',
+            reviewStatus: 'approved',
+            status: 'Available',
+            copiesTotal: app.copiesTotal || 1,
+            copiesAvailable: app.copiesAvailable || 1,
+            publisher: app.publisher || 'Custom Reader Entry',
+            pages: app.pages || 300,
+            yearPublished: app.yearPublished || new Date().getFullYear(),
+            rating: app.rating || 5.0
+        }));
+
+    if (!approvedBooks.length) return false;
+
+    let changed = false;
+    approvedBooks.forEach(approvedBook => {
+        const existingIndex = allBooks.findIndex(book =>
+            String(book.id) === String(approvedBook.id) ||
+            ((book.isbn || '').toLowerCase() === (approvedBook.isbn || '').toLowerCase())
+        );
+
+        if (existingIndex === -1) {
+            allBooks.push(approvedBook);
+            changed = true;
+        } else {
+            allBooks[existingIndex] = {
+                ...allBooks[existingIndex],
+                ...approvedBook
+            };
+            changed = true;
+        }
+    });
+
+    if (changed && persist) {
+        localStorage.setItem('libraryBooks', JSON.stringify(allBooks));
+    }
+
+    return changed;
 }
 
 function getMemberStatusClasses(status) {
@@ -658,6 +747,189 @@ function rejectMemberApplication(applicationId) {
     saveMemberApplications(applications);
     renderMemberApprovals();
     showNotification(`${applications[appIndex].name}'s membership application was rejected.`, "info");
+}
+
+function upsertUserCustomBook(ownerEmail, bookRecord) {
+    if (!ownerEmail) return;
+    const storageKey = `customUserBooks_${ownerEmail}`;
+    const customBooks = JSON.parse(localStorage.getItem(storageKey) || '[]');
+    const existingIndex = customBooks.findIndex(book => String(book.id) === String(bookRecord.id));
+
+    if (existingIndex === -1) {
+        customBooks.push(bookRecord);
+    } else {
+        customBooks[existingIndex] = {
+            ...customBooks[existingIndex],
+            ...bookRecord
+        };
+    }
+
+    localStorage.setItem(storageKey, JSON.stringify(customBooks));
+}
+
+function renderCustomBookApprovals() {
+    const container = document.getElementById('customBookApplicationsList');
+    const applications = getCustomBookApplications().sort((a, b) => new Date(b.submittedAt || 0) - new Date(a.submittedAt || 0));
+    updateCustomBookApprovalBadges(applications);
+
+    if (!container) return;
+
+    if (!applications.length) {
+        container.innerHTML = `
+            <div class="p-10 text-center">
+                <div class="w-14 h-14 mx-auto rounded-2xl bg-slate-50 text-slate-400 border border-slate-100 flex items-center justify-center mb-4">
+                    <i data-lucide="book-plus" class="w-6 h-6"></i>
+                </div>
+                <h4 class="text-sm font-black text-slate-800 mb-1">No custom book submissions yet</h4>
+                <p class="text-xs font-semibold text-slate-400">Reader-created books will appear here before entering the catalog.</p>
+            </div>
+        `;
+        lucide.createIcons();
+        return;
+    }
+
+    container.innerHTML = applications.map(app => {
+        const status = app.approvalStatus || 'pending';
+        const statusClasses = getBookApprovalStatusClasses(status);
+        const submitted = app.submittedAt ? new Date(app.submittedAt).toLocaleString() : 'Unknown';
+        const reviewed = app.reviewedAt ? new Date(app.reviewedAt).toLocaleString() : '';
+        const safe = {
+            id: escapeHTML(app.id),
+            title: escapeHTML(app.title || 'Untitled Book'),
+            author: escapeHTML(app.author || 'Unknown Author'),
+            isbn: escapeHTML(app.isbn || '-'),
+            category: escapeHTML(app.category || '-'),
+            department: escapeHTML(app.department || '-'),
+            semester: escapeHTML(app.semester || '-'),
+            description: escapeHTML(app.description || 'No summary provided.'),
+            ownerEmail: escapeHTML(app.submittedByEmail || app.ownerEmail || '-'),
+            ownerName: escapeHTML(app.submittedBy || 'Reader'),
+            cover: escapeHTML(app.cover || ''),
+            status: escapeHTML(status),
+            submitted: escapeHTML(submitted),
+            reviewed: escapeHTML(reviewed || 'Completed')
+        };
+        const actions = status === 'pending' ? `
+            <div class="flex flex-wrap gap-2 justify-end">
+                <button onclick="approveCustomBookApplication('${safe.id}')" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-black active:scale-95 transition-all duration-200">
+                    <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                    <span>Approve</span>
+                </button>
+                <button onclick="rejectCustomBookApplication('${safe.id}')" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-[11px] font-black active:scale-95 transition-all duration-200">
+                    <i data-lucide="x" class="w-3.5 h-3.5"></i>
+                    <span>Reject</span>
+                </button>
+            </div>
+        ` : `
+            <div class="text-right">
+                <span class="block text-[10px] font-black uppercase tracking-wider text-slate-400">Reviewed</span>
+                <span class="block text-[11px] font-bold text-slate-500">${safe.reviewed}</span>
+            </div>
+        `;
+
+        return `
+            <article class="p-5 md:p-6 hover:bg-slate-50/60 transition-colors duration-150">
+                <div class="flex flex-col xl:flex-row xl:items-start gap-5 justify-between">
+                    <div class="flex flex-col sm:flex-row gap-4 min-w-0 flex-1">
+                        <div class="w-20 h-28 rounded-xl bg-slate-50 border border-slate-200 overflow-hidden shrink-0 shadow-sm">
+                            ${safe.cover ? `<img src="${safe.cover}" alt="${safe.title}" class="w-full h-full object-cover">` : `<div class="w-full h-full flex items-center justify-center text-slate-300"><i data-lucide="book-open" class="w-7 h-7"></i></div>`}
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <div class="flex flex-wrap items-center gap-2 mb-3">
+                                <h4 class="text-sm font-black text-slate-850">${safe.title}</h4>
+                                <span class="px-2.5 py-0.5 rounded-full border text-[10px] font-black uppercase tracking-wider ${statusClasses}">${safe.status}</span>
+                                <span class="text-[10px] font-bold text-slate-400">Submitted ${safe.submitted}</span>
+                            </div>
+                            <p class="text-xs font-bold text-slate-500 mb-3">by ${safe.author}</p>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 text-xs mb-3">
+                                <div><span class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-0.5">Reader</span><span class="font-bold text-slate-700 break-all">${safe.ownerName} (${safe.ownerEmail})</span></div>
+                                <div><span class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-0.5">ISBN</span><span class="font-bold text-slate-700">${safe.isbn}</span></div>
+                                <div><span class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-0.5">Category</span><span class="font-bold text-slate-700">${safe.category}</span></div>
+                                <div><span class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-0.5">Semester</span><span class="font-bold text-slate-700">${safe.semester}</span></div>
+                                <div><span class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-0.5">Department</span><span class="font-bold text-slate-700">${safe.department}</span></div>
+                            </div>
+                            <p class="text-xs leading-relaxed text-slate-500 font-medium max-w-3xl">${safe.description}</p>
+                        </div>
+                    </div>
+                    <div class="xl:w-44 shrink-0">${actions}</div>
+                </div>
+            </article>
+        `;
+    }).join('');
+
+    lucide.createIcons();
+}
+
+function approveCustomBookApplication(applicationId) {
+    const applications = getCustomBookApplications();
+    const appIndex = applications.findIndex(app => String(app.id) === String(applicationId));
+    if (appIndex === -1) {
+        showNotification("Custom book submission not found.", "error");
+        return;
+    }
+
+    const application = applications[appIndex];
+    const approvedBook = {
+        ...application,
+        approvalStatus: 'approved',
+        reviewStatus: 'approved',
+        status: 'Available',
+        copiesTotal: application.copiesTotal || 1,
+        copiesAvailable: application.copiesAvailable || 1,
+        approvedAt: new Date().toISOString(),
+        reviewedAt: new Date().toISOString(),
+        reviewedBy: currentUserEmail || 'admin@gmail.com'
+    };
+
+    const existingIndex = allBooks.findIndex(book =>
+        String(book.id) === String(approvedBook.id) ||
+        ((book.isbn || '').toLowerCase() === (approvedBook.isbn || '').toLowerCase())
+    );
+    if (existingIndex === -1) {
+        allBooks.push(approvedBook);
+    } else {
+        allBooks[existingIndex] = {
+            ...allBooks[existingIndex],
+            ...approvedBook
+        };
+    }
+
+    applications[appIndex] = approvedBook;
+    saveCustomBookApplications(applications);
+    saveDatabase();
+    upsertUserCustomBook(application.submittedByEmail || application.ownerEmail, approvedBook);
+    renderCustomBookApprovals();
+    updateAdminTable();
+    if (typeof renderCatalogGrid === 'function') renderCatalogGrid();
+    showNotification(`"${application.title}" has been approved and published.`, "success");
+}
+
+function rejectCustomBookApplication(applicationId) {
+    const applications = getCustomBookApplications();
+    const appIndex = applications.findIndex(app => String(app.id) === String(applicationId));
+    if (appIndex === -1) {
+        showNotification("Custom book submission not found.", "error");
+        return;
+    }
+
+    const application = applications[appIndex];
+    const rejectedBook = {
+        ...application,
+        approvalStatus: 'rejected',
+        reviewStatus: 'rejected',
+        status: 'Rejected',
+        reviewedAt: new Date().toISOString(),
+        reviewedBy: currentUserEmail || 'admin@gmail.com'
+    };
+
+    applications[appIndex] = rejectedBook;
+    allBooks = allBooks.filter(book => String(book.id) !== String(application.id));
+    saveCustomBookApplications(applications);
+    saveDatabase();
+    upsertUserCustomBook(application.submittedByEmail || application.ownerEmail, rejectedBook);
+    renderCustomBookApprovals();
+    updateAdminTable();
+    showNotification(`"${application.title}" was rejected.`, "info");
 }
 
 function getRegisteredUserByEmail(email) {
@@ -841,6 +1113,7 @@ function updateLibraryStats() {
     if (adminTotalCount) adminTotalCount.textContent = allBooks.length;
     if (heroBookCount) heroBookCount.textContent = allBooks.length;
     updateMemberApprovalBadges();
+    updateCustomBookApprovalBadges();
 }
 
 // ==================== APP BOOTSTRAPPING ====================
@@ -2261,6 +2534,7 @@ function renderCatalogGrid() {
     const grid = document.getElementById('booksGrid');
     if (!grid) return;
 
+    mergeApprovedCustomBooksIntoCatalog({ persist: true });
     grid.innerHTML = '';
 
     allBooks.forEach(book => {
@@ -2309,7 +2583,7 @@ function handleImageError(img) {
     }
 }
 
-function createBookCard(book) {
+function createBookCard(book, options = {}) {
     const bookIdNum = Number(book.id);
     const isSaved = userDownloads.some(id => Number(id) === bookIdNum);
     const card = document.createElement('div');
@@ -2323,6 +2597,42 @@ function createBookCard(book) {
         "Business": "text-emerald-600"
     };
     const categoryTextColor = categoryTextColors[book.category] || "text-slate-400";
+    const approvalStatus = book.approvalStatus || '';
+    const canManageCustomBook = Boolean(options.allowCustomManagement) &&
+        book.isCustom &&
+        (!book.ownerEmail || !currentUserEmail || (book.ownerEmail || '').toLowerCase() === currentUserEmail.toLowerCase());
+    const approvalBadge = canManageCustomBook && approvalStatus ? `
+        <span class="inline-flex items-center gap-1.5 text-[9px] font-black tracking-widest uppercase px-2 py-1 rounded-lg border mb-2 ${getBookApprovalStatusClasses(approvalStatus)}">
+            <i data-lucide="${approvalStatus === 'approved' ? 'check-circle' : approvalStatus === 'rejected' ? 'x-circle' : 'clock'}" class="w-3 h-3"></i>
+            ${approvalStatus === 'approved' ? 'Approved' : approvalStatus === 'rejected' ? 'Rejected' : 'Pending Review'}
+        </span>
+    ` : '';
+    const customBookActions = canManageCustomBook ? `
+        <div class="flex items-center justify-end gap-2 flex-wrap">
+            ${approvalStatus !== 'approved' ? `
+            <button onclick="event.stopPropagation(); editCustomBook(${book.id});" 
+                    class="flex items-center gap-1.5 py-1.5 px-3 rounded-lg transition-all duration-200 select-none text-slate-600 bg-slate-50 hover:bg-slate-100/80 border border-slate-200" 
+                    title="Edit Before Approval">
+                <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
+                <span class="text-[10px] font-black uppercase tracking-wider">EDIT</span>
+            </button>
+            ` : ''}
+            ${(!approvalStatus || approvalStatus === 'rejected') ? `
+            <button onclick="event.stopPropagation(); publishCustomBook(${book.id});" 
+                    class="flex items-center gap-1.5 py-1.5 px-3 rounded-lg transition-all duration-200 select-none text-brand-600 bg-brand-50 hover:bg-brand-100/80 border border-brand-100" 
+                    title="Publish for Admin Approval">
+                <i data-lucide="send" class="w-3.5 h-3.5"></i>
+                <span class="text-[10px] font-black uppercase tracking-wider">${approvalStatus === 'rejected' ? 'PUBLISH AGAIN' : 'PUBLISH'}</span>
+            </button>
+            ` : ''}
+            <button onclick="event.stopPropagation(); deleteCustomBook(${book.id});" 
+                    class="flex items-center gap-1.5 py-1.5 px-3 rounded-lg transition-all duration-200 select-none text-red-600 bg-red-50 hover:bg-red-100/80 border border-red-100" 
+                    title="Delete Custom Book">
+                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                <span class="text-[10px] font-black uppercase tracking-wider">DELETE</span>
+            </button>
+        </div>
+    ` : '';
 
     card.innerHTML = `
         <!-- Book Cover with Premium Hover Overlay -->
@@ -2360,6 +2670,7 @@ function createBookCard(book) {
         <!-- Book Details context block -->
         <div class="pt-3 px-1 flex-grow flex flex-col justify-between text-left">
             <div>
+                ${approvalBadge}
                 <!-- Curated Category Tag -->
                 <span class="text-[9px] font-black tracking-widest ${categoryTextColor} uppercase block mb-1.5">${book.category}</span>
                 
@@ -2379,14 +2690,7 @@ function createBookCard(book) {
                 </span>
                 
                 <!-- Premium Toggle bookmark/save indicator -->
-                ${book.isCustom ? `
-                <button onclick="event.stopPropagation(); deleteCustomBook(${book.id});" 
-                        class="flex items-center gap-1.5 py-1.5 px-3 rounded-lg transition-all duration-200 select-none text-red-600 bg-red-50 hover:bg-red-100/80 border border-red-100" 
-                        title="Delete Custom Book">
-                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-                    <span class="text-[10px] font-black uppercase tracking-wider">DELETE</span>
-                </button>
-                ` : `
+                ${canManageCustomBook ? customBookActions : `
                 <button onclick="event.stopPropagation(); quickBuffer(${book.id});" 
                         class="flex items-center gap-1.5 py-1.5 px-3 rounded-lg transition-all duration-200 select-none ${isSaved
             ? 'text-emerald-600 bg-emerald-50 hover:bg-emerald-100/80 border border-emerald-100'
@@ -2601,10 +2905,53 @@ function clearAllFilters() {
 
 // ==================== LIBRARY PORTFOLIO DASHBOARD ====================
 let addBookTempCover = '';
+let editingCustomBookId = null;
+
+function setCustomBookFormMode(mode = 'create') {
+    const isEditing = mode === 'edit';
+    const title = document.getElementById('addBookFormTitle');
+    const hint = document.getElementById('addBookFormHint');
+    const submitText = document.getElementById('customBookSubmitText');
+    const submitIcon = document.getElementById('customBookSubmitIcon');
+
+    if (title) title.textContent = isEditing ? 'Edit Custom Book' : 'Add Custom Book';
+    if (hint) {
+        hint.textContent = isEditing
+            ? 'Update this book while it is still waiting for admin approval.'
+            : 'Create a personal book entry and publish it to admins for catalog approval.';
+    }
+    if (submitText) submitText.textContent = isEditing ? 'Save Changes' : 'Publish for Approval';
+    if (submitIcon) submitIcon.setAttribute('data-lucide', isEditing ? 'save' : 'send');
+    if (window.lucide) lucide.createIcons();
+}
+
+function resetCustomBookFormMode() {
+    editingCustomBookId = null;
+    addBookTempCover = '';
+    const form = document.getElementById('customBookForm');
+    if (form) form.reset();
+
+    const categoryEl = document.getElementById('addBookCategory');
+    const departmentEl = document.getElementById('addBookDept');
+    const semesterEl = document.getElementById('addBookSemester');
+    if (categoryEl) categoryEl.value = 'Technology';
+    if (departmentEl) departmentEl.value = 'Computer Science';
+    if (semesterEl) semesterEl.value = '1st Semester';
+
+    syncCustomSelects();
+    setCustomBookFormMode('create');
+}
 
 function showAddBookModal() {
     const modal = document.getElementById('addBookModal');
-    if (!modal) return;
+    if (!modal) {
+        resetCustomBookFormMode();
+        const addTabButton = Array.from(document.querySelectorAll('.dash-tab'))
+            .find(btn => btn.textContent.trim().includes('Add Custom Book'));
+        switchDashboardTab('addBook', addTabButton || document.querySelector('.dash-tab'));
+        document.getElementById('addBookTitle')?.focus();
+        return;
+    }
     addBookTempCover = '';
     // reset form fields
     const form = modal.querySelector('form');
@@ -2617,6 +2964,51 @@ function showAddBookModal() {
         { scale: 1, opacity: 1, duration: 0.45, ease: "back.out(1.5)" }
     );
     if (window.lucide) lucide.createIcons();
+}
+
+function editCustomBook(bookId) {
+    if (!currentUserEmail) {
+        showNotification("Portal Sign In required.", "error");
+        return;
+    }
+
+    const customBooks = JSON.parse(localStorage.getItem(`customUserBooks_${currentUserEmail}`) || '[]');
+    const book = customBooks.find(item => Number(item.id) === Number(bookId));
+
+    if (!book) {
+        showNotification("Custom book entry not found.", "error");
+        return;
+    }
+    if (book.approvalStatus === 'approved') {
+        showNotification("Approved books can no longer be edited.", "info");
+        return;
+    }
+
+    editingCustomBookId = Number(bookId);
+    addBookTempCover = '';
+
+    const addTabButton = Array.from(document.querySelectorAll('.dash-tab'))
+        .find(btn => btn.textContent.trim().includes('Add Custom Book'));
+    switchDashboardTab('addBook', addTabButton || document.querySelector('.dash-tab'));
+
+    const setValue = (id, value) => {
+        const el = document.getElementById(id);
+        if (el) el.value = value || '';
+    };
+
+    setValue('addBookTitle', book.title);
+    setValue('addBookAuthor', book.author);
+    setValue('addBookISBN', book.isbn);
+    setValue('addBookCover', book.cover);
+    setValue('addBookDescription', book.description);
+    setValue('addBookCategory', book.category || 'Technology');
+    setValue('addBookDept', book.department || 'Computer Science');
+    setValue('addBookSemester', book.semester || '1st Semester');
+
+    syncCustomSelects();
+    setCustomBookFormMode('edit');
+    document.getElementById('addBookTitle')?.focus();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function closeAddBookModal() {
@@ -2664,37 +3056,244 @@ function handleAddBookSubmit(event) {
         return;
     }
 
-    const title = document.getElementById('addBookTitle').value.trim();
-    const author = document.getElementById('addBookAuthor').value.trim();
-    const category = document.getElementById('addBookCategory').value;
-    const publisher = document.getElementById('addBookPublisher').value.trim() || 'Pearson';
-    const pages = Number(document.getElementById('addBookPages').value) || 300;
-    const year = Number(document.getElementById('addBookYear').value) || 2021;
-    const isbn = document.getElementById('addBookIsbn').value.trim() || '978-0000000000';
-    const description = document.getElementById('addBookDescription').value.trim() || 'No description provided for this custom volume.';
+    const form = event.target;
+    const titleEl = document.getElementById('addBookTitle');
+    const authorEl = document.getElementById('addBookAuthor');
+    const isbnEl = document.getElementById('addBookISBN');
+    const coverEl = document.getElementById('addBookCover');
+    const descriptionEl = document.getElementById('addBookDescription');
+    const categoryEl = document.getElementById('addBookCategory');
+    const departmentEl = document.getElementById('addBookDept');
+    const semesterEl = document.getElementById('addBookSemester');
+    const submitButton = form.querySelector('button[type="submit"]');
+
+    const title = titleEl?.value.trim() || '';
+    const author = authorEl?.value.trim() || '';
+    const isbn = isbnEl?.value.trim() || '';
+    const category = categoryEl?.value || 'Technology';
+    const department = departmentEl?.value || 'Computer Science';
+    const semester = semesterEl?.value || '1st Semester';
+    const cover = coverEl?.value.trim() || addBookTempCover || "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?auto=format&fit=crop&w=400&q=80";
+    const description = descriptionEl?.value.trim() || '';
+
+    if (!title || !author || !isbn || !description) {
+        showNotification("Please complete title, author, ISBN and summary.", "error");
+        return;
+    }
+
+    const isEditing = editingCustomBookId !== null;
+    const customBooks = JSON.parse(localStorage.getItem(`customUserBooks_${currentUserEmail}`) || '[]');
+    const submittedBooks = getCustomBookApplications();
+    const editingIndex = isEditing
+        ? customBooks.findIndex(book => Number(book.id) === Number(editingCustomBookId))
+        : -1;
+
+    if (isEditing && editingIndex === -1) {
+        showNotification("Custom book entry not found.", "error");
+        resetCustomBookFormMode();
+        return;
+    }
+    if (isEditing && customBooks[editingIndex].approvalStatus === 'approved') {
+        showNotification("Approved books can no longer be edited.", "info");
+        resetCustomBookFormMode();
+        renderDashboardPortfolio();
+        return;
+    }
+
+    const duplicate = [
+        ...allBooks,
+        ...customBooks.filter(book => book.approvalStatus !== 'rejected'),
+        ...submittedBooks.filter(book => book.approvalStatus !== 'rejected')
+    ].some(book =>
+        Number(book.id) !== Number(editingCustomBookId) &&
+        (book.isbn || '').toLowerCase() === isbn.toLowerCase()
+    );
+
+    if (duplicate) {
+        showNotification("A book with this ISBN already exists or is waiting for approval.", "error");
+        return;
+    }
+
+    const originalButtonHtml = submitButton ? submitButton.innerHTML : '';
+    if (submitButton) {
+        submitButton.disabled = true;
+        submitButton.innerHTML = `<i data-lucide="loader-circle" class="w-4 h-4 animate-spin"></i><span>${isEditing ? 'Saving...' : 'Publishing...'}</span>`;
+        lucide.createIcons();
+    }
+
+    const now = new Date().toISOString();
+    if (isEditing) {
+        const existingBook = customBooks[editingIndex];
+        const updatedBook = {
+            ...existingBook,
+            title,
+            author,
+            category,
+            department,
+            semester,
+            isbn,
+            description,
+            cover,
+            isCustom: true,
+            ownerEmail: currentUserEmail,
+            submittedByEmail: currentUserEmail,
+            submittedBy: currentUser || currentUserEmail,
+            updatedAt: now
+        };
+
+        customBooks[editingIndex] = updatedBook;
+        localStorage.setItem(`customUserBooks_${currentUserEmail}`, JSON.stringify(customBooks));
+
+        const appIndex = submittedBooks.findIndex(app => Number(app.id) === Number(editingCustomBookId));
+        if (appIndex !== -1) {
+            submittedBooks[appIndex] = {
+                ...submittedBooks[appIndex],
+                ...updatedBook,
+                updatedAt: now
+            };
+            saveCustomBookApplications(submittedBooks);
+        } else if (updatedBook.approvalStatus === 'pending') {
+            submittedBooks.push(updatedBook);
+            saveCustomBookApplications(submittedBooks);
+        }
+
+        allBooks = allBooks.filter(item => Number(item.id) !== Number(editingCustomBookId));
+        saveDatabase();
+        resetCustomBookFormMode();
+        showNotification(`Book "${title}" updated.`, "success");
+        renderDashboardPortfolio();
+        const myBooksButton = Array.from(document.querySelectorAll('.dash-tab'))
+            .find(btn => btn.textContent.trim().includes('Offline Cache'));
+        switchDashboardTab('myBooks', myBooksButton || document.querySelector('.dash-tab'));
+
+        if (submitButton) {
+            submitButton.disabled = false;
+            lucide.createIcons();
+        }
+        return;
+    }
 
     const newBook = {
         id: Date.now() + Math.floor(Math.random() * 1000), // unique timestamp-based ID
         title,
         author,
         category,
-        publisher,
-        pages,
-        yearPublished: year,
+        department,
+        semester,
+        status: 'Pending Review',
+        copiesTotal: 1,
+        copiesAvailable: 0,
+        publisher: 'Custom Reader Entry',
+        pages: 300,
+        yearPublished: new Date().getFullYear(),
         isbn,
         description,
-        cover: addBookTempCover || "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?auto=format&fit=crop&w=400&q=80",
+        cover,
         rating: 5.0,
-        isCustom: true
+        isCustom: true,
+        ownerEmail: currentUserEmail,
+        submittedByEmail: currentUserEmail,
+        submittedBy: currentUser || currentUserEmail,
+        approvalStatus: 'pending',
+        reviewStatus: 'pending',
+        createdAt: now,
+        submittedAt: now,
+        updatedAt: now
     };
 
-    const customBooks = JSON.parse(localStorage.getItem(`customUserBooks_${currentUserEmail}`) || '[]');
     customBooks.push(newBook);
     localStorage.setItem(`customUserBooks_${currentUserEmail}`, JSON.stringify(customBooks));
 
-    closeAddBookModal();
-    showNotification(`Book "${title}" successfully added.`, "success");
+    submittedBooks.push(newBook);
+    saveCustomBookApplications(submittedBooks);
+
+    form.reset();
+    if (categoryEl) categoryEl.value = 'Technology';
+    if (departmentEl) departmentEl.value = 'Computer Science';
+    if (semesterEl) semesterEl.value = '1st Semester';
+    addBookTempCover = '';
+    syncCustomSelects();
+
+    showNotification(`Book "${title}" submitted for admin approval.`, "success");
     renderDashboardPortfolio();
+    const myBooksButton = Array.from(document.querySelectorAll('.dash-tab'))
+        .find(btn => btn.textContent.trim().includes('Offline Cache'));
+    switchDashboardTab('myBooks', myBooksButton || document.querySelector('.dash-tab'));
+
+    if (submitButton) {
+        submitButton.disabled = false;
+        submitButton.innerHTML = originalButtonHtml;
+        lucide.createIcons();
+    }
+}
+
+function publishCustomBook(bookId) {
+    if (!currentUserEmail) {
+        showNotification("Portal Sign In required.", "error");
+        return;
+    }
+
+    const storageKey = `customUserBooks_${currentUserEmail}`;
+    const customBooks = JSON.parse(localStorage.getItem(storageKey) || '[]');
+    const bookIndex = customBooks.findIndex(book => Number(book.id) === Number(bookId));
+
+    if (bookIndex === -1) {
+        showNotification("Custom book entry not found.", "error");
+        return;
+    }
+
+    const book = customBooks[bookIndex];
+    if (book.approvalStatus === 'pending') {
+        showNotification(`"${book.title}" is already waiting for admin approval.`, "info");
+        return;
+    }
+    if (book.approvalStatus === 'approved') {
+        showNotification(`"${book.title}" is already approved.`, "success");
+        return;
+    }
+
+    const now = new Date().toISOString();
+    const pendingBook = {
+        ...book,
+        isCustom: true,
+        ownerEmail: currentUserEmail,
+        submittedByEmail: currentUserEmail,
+        submittedBy: currentUser || currentUserEmail,
+        approvalStatus: 'pending',
+        reviewStatus: 'pending',
+        status: 'Pending Review',
+        copiesAvailable: 0,
+        submittedAt: book.submittedAt || now,
+        updatedAt: now
+    };
+
+    customBooks[bookIndex] = pendingBook;
+    localStorage.setItem(storageKey, JSON.stringify(customBooks));
+
+    const applications = getCustomBookApplications();
+    const appIndex = applications.findIndex(app =>
+        Number(app.id) === Number(bookId) ||
+        (
+            (app.isbn || '').toLowerCase() === (book.isbn || '').toLowerCase() &&
+            (app.submittedByEmail || app.ownerEmail || '').toLowerCase() === currentUserEmail.toLowerCase()
+        )
+    );
+
+    if (appIndex === -1) {
+        applications.push(pendingBook);
+    } else {
+        applications[appIndex] = {
+            ...applications[appIndex],
+            ...pendingBook,
+            id: pendingBook.id
+        };
+    }
+
+    allBooks = allBooks.filter(item => Number(item.id) !== Number(bookId));
+    saveCustomBookApplications(applications);
+    saveDatabase();
+    renderDashboardPortfolio();
+    showNotification(`"${book.title}" sent to admins for approval.`, "success");
 }
 
 function deleteCustomBook(bookId) {
@@ -2704,6 +3303,10 @@ function deleteCustomBook(bookId) {
         const customBooks = JSON.parse(localStorage.getItem(`customUserBooks_${currentUserEmail}`) || '[]');
         const filtered = customBooks.filter(b => Number(b.id) !== Number(bookId));
         localStorage.setItem(`customUserBooks_${currentUserEmail}`, JSON.stringify(filtered));
+        allBooks = allBooks.filter(b => Number(b.id) !== Number(bookId));
+        const applications = getCustomBookApplications();
+        saveCustomBookApplications(applications.filter(app => Number(app.id) !== Number(bookId)));
+        saveDatabase();
         showNotification("Custom book entry removed.", "info");
         renderDashboardPortfolio();
     }
@@ -2763,7 +3366,9 @@ function renderDashboardPortfolio() {
             `;
         } else {
             combinedList.forEach(book => {
-                userGrid.appendChild(createBookCard(book));
+                const isOwnCustomBook = book.isCustom &&
+                    (!book.ownerEmail || !currentUserEmail || (book.ownerEmail || '').toLowerCase() === currentUserEmail.toLowerCase());
+                userGrid.appendChild(createBookCard(book, { allowCustomManagement: isOwnCustomBook }));
             });
             const divs = userGrid.querySelectorAll(':scope > div');
             if (divs.length) {
@@ -2848,6 +3453,9 @@ function switchAdminTab(tabId, tabBtn) {
         }
         if (tabId === 'memberApprovals') {
             renderMemberApprovals();
+        }
+        if (tabId === 'bookApprovals') {
+            renderCustomBookApprovals();
         }
     }
 }
