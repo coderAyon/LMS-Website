@@ -316,6 +316,12 @@
                                 <i data-lucide="plus-circle" class="w-3.5 h-3.5 shrink-0"></i>
                                 <span>Upload Volume</span>
                             </button>
+                            <button id="memberApprovalsTabBtn" onclick="switchAdminTab('memberApprovals', this)"
+                                class="admin-tab flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg text-xs font-bold text-slate-500 hover:text-slate-700 transition-all duration-200 whitespace-nowrap">
+                                <i data-lucide="user-check" class="w-3.5 h-3.5 shrink-0"></i>
+                                <span>Member Approvals</span>
+                                <span id="pendingMembersBadge" class="hidden min-w-5 h-5 px-1.5 rounded-full bg-accent-600 text-white text-[10px] font-black items-center justify-center">0</span>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -485,6 +491,32 @@
                             </button>
                         </div>
                         </form>
+                    </div>
+                </div>
+
+                <!-- Admin Tab Content: Member Approval Queue -->
+                <div id="memberApprovalsTab" class="admin-panel hidden">
+                    <div class="bg-white border border-slate-200/80 rounded-2xl overflow-hidden shadow-sm">
+                        <div class="p-6 border-b border-slate-200 bg-slate-50/50 flex flex-wrap justify-between items-center gap-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-xl bg-brand-50 text-brand-600 border border-brand-100 flex items-center justify-center">
+                                    <i data-lucide="users-round" class="w-5 h-5"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-black text-slate-800 text-base">Library Member Applications</h3>
+                                    <p class="text-[11px] font-bold text-slate-400 mt-0.5">Review registrations before accounts can sign in.</p>
+                                </div>
+                            </div>
+                            <div class="flex flex-wrap gap-2 text-[10px] font-black uppercase tracking-wider">
+                                <span class="px-2.5 py-1 rounded-md bg-amber-50 text-amber-700 border border-amber-100"><span id="memberPendingCount">0</span> Pending</span>
+                                <span class="px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-100"><span id="memberApprovedCount">0</span> Approved</span>
+                                <span class="px-2.5 py-1 rounded-md bg-rose-50 text-rose-700 border border-rose-100"><span id="memberRejectedCount">0</span> Rejected</span>
+                            </div>
+                        </div>
+
+                        <div id="memberApplicationsList" class="divide-y divide-slate-100">
+                            <!-- Dynamic member applications -->
+                        </div>
                     </div>
                 </div>
 

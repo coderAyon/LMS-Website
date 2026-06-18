@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gono Bishwabidyalay Library Membership Form</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/member-form.css" />
+  <script defer src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <script defer src="js/member-form.js"></script>
+</head>
+<body>
+  <svg class="svg-defs" aria-hidden="true" focusable="false">
+    <symbol id="gblms-logo-symbol" viewBox="0 0 100 120">
+      <path d="M 50 15 L 50 2" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" />
+      <path d="M 38 18 L 26 8" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" />
+      <path d="M 62 18 L 74 8" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" />
+      <path d="M 29 26 L 15 19" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" />
+      <path d="M 71 26 L 85 19" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" />
+      <path d="M 32 28 A 18 18 0 0 1 68 28 Z" fill="#dc2626" />
+      <path d="M 15 28 L 85 28 L 85 75 Q 85 98 50 108 Q 15 98 15 75 Z" fill="#1e3a8a" stroke="#d97706" stroke-width="3" stroke-linejoin="round" />
+      <line x1="15" y1="36" x2="35" y2="46" stroke="#d97706" stroke-width="1.5" opacity="0.8" />
+      <line x1="85" y1="36" x2="65" y2="46" stroke="#d97706" stroke-width="1.5" opacity="0.8" />
+      <line x1="15" y1="68" x2="35" y2="58" stroke="#d97706" stroke-width="1.5" opacity="0.8" />
+      <line x1="85" y1="68" x2="65" y2="58" stroke="#d97706" stroke-width="1.5" opacity="0.8" />
+      <polygon points="50,34 65,42.5 65,60 50,68.5 35,60 35,42.5" fill="#ffffff" stroke="#d97706" stroke-width="2" />
+      <path d="M 40 58 Q 45 56 50 59 Q 55 56 60 58 L 60 54 Q 55 52 50 55 Q 45 52 40 54 Z" fill="#dc2626" />
+      <line x1="50" y1="55" x2="50" y2="59" stroke="#ffffff" stroke-width="1" />
+      <path d="M 50 38 Q 47 46 50 53 Q 53 46 50 38 Z" fill="#dc2626" />
+      <path d="M 50 53 Q 41 45 42 42 Q 47 43 50 51 Z" fill="#dc2626" />
+      <path d="M 50 53 Q 36 51 38 48 Q 43 47 50 52 Z" fill="#dc2626" />
+      <path d="M 50 53 Q 59 45 58 42 Q 53 43 50 51 Z" fill="#dc2626" />
+      <path d="M 50 53 Q 64 51 62 48 Q 57 47 50 52 Z" fill="#dc2626" />
+      <path d="M 28 80 Q 50 67 72 80 Q 50 93 28 80 Z" fill="#ffffff" />
+      <circle cx="50" cy="80" r="7" fill="#1e3a8a" />
+      <circle cx="50" cy="80" r="7" fill="none" stroke="#ffffff" stroke-width="0.8" />
+      <ellipse cx="50" cy="80" rx="3" ry="7" fill="none" stroke="#ffffff" stroke-width="0.8" />
+      <line x1="43" y1="80" x2="57" y2="80" stroke="#ffffff" stroke-width="0.8" />
+      <path d="M 8 102 L 20 95 L 80 95 L 92 102 L 86 112 L 50 114 L 14 112 Z" fill="#d97706" stroke="#b45309" stroke-width="1" />
+      <path d="M 8 102 L 14 112 L 14 100 Z" fill="#92400e" />
+      <path d="M 92 102 L 86 112 L 86 100 Z" fill="#92400e" />
+      <text x="50" y="108" font-family="Inter, sans-serif" font-weight="900" font-size="8" fill="#dc2626" text-anchor="middle" letter-spacing="1">GBLMS</text>
+    </symbol>
+  </svg>
+
+  <header class="topbar portal-navbar">
+    <div class="portal-nav-shell">
+      <a class="brand portal-brand-link" href="index.html" data-portal-nav="home" aria-label="GBLMS GB Library Portal">
+        <span class="gblms-logo-mark brand-logo" aria-hidden="true">
+          <svg viewBox="0 0 100 120" focusable="false">
+            <use href="#gblms-logo-symbol"></use>
+          </svg>
+        </span>
+        <span>
+          <strong>GBLMS</strong>
+          <small>GB Library Portal</small>
+        </span>
+      </a>
+
+      <nav class="portal-nav-links" aria-label="Primary navigation">
+        <a href="index.html" data-portal-nav="home">Home</a>
+        <a href="catalog.html" data-portal-nav="catalog">Catalog</a>
+        <a class="hidden" href="saved.html" data-portal-nav="saved" id="savedNavLink">Saved Books</a>
+        <a class="hidden" href="dashboard.html" data-portal-nav="dashboard" id="dashboardLink">My Library</a>
+        <a class="hidden" href="admin.html" data-portal-nav="admin" id="adminLink">Admin Panel</a>
+      </nav>
+
+      <div class="portal-actions">
+        <button class="portal-login-btn" type="button" id="loginBtn">
+          <i data-lucide="log-in" aria-hidden="true"></i>
+          <span>Login / Register</span>
+        </button>
+
+        <div class="portal-user hidden" id="navUser">
+          <button class="portal-user-btn" type="button" id="userDropdownBtn" aria-haspopup="menu" aria-expanded="false">
+            <span class="portal-avatar" id="userAvatar">A</span>
+            <span class="portal-user-copy">
+              <strong id="navUserName">Admin User</strong>
+              <small id="navUserRole">ADMIN</small>
+            </span>
+            <i data-lucide="chevron-down" aria-hidden="true"></i>
+          </button>
+
+          <div class="portal-user-menu hidden" id="userDropdownMenu" role="menu">
+            <div class="portal-user-menu-head">
+              <strong id="dropdownUserName">Admin User</strong>
+              <small id="dropdownUserRole">ADMIN</small>
+            </div>
+            <a href="profile.html" data-portal-nav="profile" role="menuitem">
+              <i data-lucide="user" aria-hidden="true"></i>
+              <span>My Profile</span>
+            </a>
+            <a class="hidden" href="saved.html" data-portal-nav="saved" id="dropdownSavedLink" role="menuitem">
+              <i data-lucide="bookmark" aria-hidden="true"></i>
+              <span>Saved Books</span>
+            </a>
+            <a href="dashboard.html" data-portal-nav="dashboard" id="dropdownDashboardLink" role="menuitem">
+              <i data-lucide="layout-dashboard" aria-hidden="true"></i>
+              <span>Reader Dashboard</span>
+            </a>
+            <a href="admin.html" data-portal-nav="admin" id="dropdownAdminLink" role="menuitem">
+              <i data-lucide="shield" aria-hidden="true"></i>
+              <span>System Admin</span>
+            </a>
+            <button type="button" id="portalLogoutBtn" role="menuitem">
+              <i data-lucide="log-out" aria-hidden="true"></i>
+              <span>Portal Sign Out</span>
+            </button>
+          </div>
+        </div>
+
+        <button class="portal-mobile-toggle" type="button" id="hamburger" aria-label="Open menu" aria-expanded="false">
+          <i data-lucide="menu" aria-hidden="true"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <nav class="portal-mobile-drawer hidden" id="mobileDrawer" aria-label="Mobile navigation">
+    <a href="index.html" data-portal-nav="home">Home</a>
+    <a href="catalog.html" data-portal-nav="catalog">Catalog</a>
+    <a class="hidden" href="saved.html" data-portal-nav="saved" id="mobileSavedNavLink">Saved Books</a>
+    <a class="hidden" href="dashboard.html" data-portal-nav="dashboard" id="mobileDashboardLink">My Library</a>
+    <a class="hidden" href="admin.html" data-portal-nav="admin" id="mobileAdminLink">Admin Panel</a>
+  </nav>
+
+  <main class="page-shell">
+    <section class="visual-pane" aria-label="Gono Bishwabidyalay library membership">
+      <img src="https://images.unsplash.com/photo-1521587760476-6c12a4b040da?auto=format&fit=crop&w=1100&q=80" alt="Illustration of a Gono Bishwabidyalay library reading desk and membership card" />
+      <div class="visual-copy">
+        <div class="visual-heading">
+          <p class="eyebrow">Gono Bishwabidyalay Central Library</p>
+          <h1>Library Membership Form</h1>
+        </div>
+
+        <dl class="benefit-grid">
+          <div>
+            <dt>Borrow</dt>
+            <dd>Books, journals, and reference materials</dd>
+          </div>
+          <div>
+            <dt>Reserve</dt>
+            <dd>Study rooms and research desks</dd>
+          </div>
+          <div>
+            <dt>Access</dt>
+            <dd>Digital archives and campus resources</dd>
+          </div>
+        </dl>
+      </div>
+    </section>
+
+    <section class="form-pane" aria-labelledby="form-title">
+      <div class="form-header">
+        <div class="form-title-block">
+          <span class="gblms-logo-mark form-logo" aria-hidden="true">
+            <svg viewBox="0 0 100 120" focusable="false">
+              <use href="#gblms-logo-symbol"></use>
+            </svg>
+          </span>
+          <div>
+            <p class="section-kicker">Gono Bishwabidyalay</p>
+            <h2 id="form-title">Library Membership Registration</h2>
+          </div>
+        </div>
+        <div class="header-tools">
+          <figure class="photo-stamp" id="photo-stamp" aria-label="Uploaded student photo preview">
+            <div class="photo-frame">
+              <img id="student-photo-preview" alt="Uploaded student photo preview" hidden />
+              <span id="photo-placeholder">Photo</span>
+            </div>
+            <figcaption>Stamp size photo</figcaption>
+          </figure>
+        </div>
+      </div>
+
+      <section class="member-approved-panel" id="approved-member-panel" hidden>
+        <div class="member-approved-copy">
+          <p class="section-kicker">Membership Approved</p>
+          <h3>Your library card is active</h3>
+          <p id="approved-member-message">Your GBLMS library membership has been approved by the admin office.</p>
+        </div>
+
+        <article class="library-member-card" aria-label="Approved library membership card">
+          <div class="library-card-top">
+            <span class="gblms-logo-mark library-card-logo" aria-hidden="true">
+              <svg viewBox="0 0 100 120" focusable="false">
+                <use href="#gblms-logo-symbol"></use>
+              </svg>
+            </span>
+            <div>
+              <span>GBLMS</span>
+              <strong>Library Membership Card</strong>
+            </div>
+            <mark>Approved</mark>
+          </div>
+
+          <div class="library-card-body">
+            <div class="library-card-avatar" id="approved-card-avatar">S</div>
+            <dl>
+              <div>
+                <dt>Name</dt>
+                <dd id="approved-card-name">-</dd>
+              </div>
+              <div>
+                <dt>Student ID</dt>
+                <dd id="approved-card-id">-</dd>
+              </div>
+              <div>
+                <dt>Program</dt>
+                <dd id="approved-card-program">-</dd>
+              </div>
+              <div>
+                <dt>Membership</dt>
+                <dd id="approved-card-type">-</dd>
+              </div>
+              <div>
+                <dt>Branch</dt>
+                <dd id="approved-card-branch">-</dd>
+              </div>
+              <div>
+                <dt>Approved</dt>
+                <dd id="approved-card-date">-</dd>
+              </div>
+            </dl>
+          </div>
+
+          <div class="library-card-footer">
+            <span id="approved-card-email">-</span>
+            <button class="button button-secondary" type="button" id="print-member-card">
+              <i data-lucide="printer" aria-hidden="true"></i>
+              <span>Print Card</span>
+            </button>
+          </div>
+        </article>
+      </section>
+
+      <form id="membership-form" novalidate>
+        <fieldset>
+          <legend>Student Information</legend>
+          <div class="field-grid">
+            <label class="field field-half">
+              <span>First Name <b aria-hidden="true">*</b></span>
+              <input type="text" name="firstName" autocomplete="given-name" required />
+            </label>
+
+            <label class="field field-half">
+              <span>Last Name <b aria-hidden="true">*</b></span>
+              <input type="text" name="lastName" autocomplete="family-name" required />
+            </label>
+
+            <label class="field field-third">
+              <span>Student ID <b aria-hidden="true">*</b></span>
+              <input type="text" name="studentId" placeholder="LIB-2026-001" required />
+            </label>
+
+            <label class="field field-third">
+              <span>University Email <b aria-hidden="true">*</b></span>
+              <input type="email" name="email" autocomplete="email" placeholder="name@university.edu" required />
+            </label>
+
+            <label class="field field-third">
+              <span>Phone Number</span>
+              <input type="tel" name="phone" autocomplete="tel" />
+            </label>
+
+            <label class="field field-third">
+              <span>Degree Level</span>
+              <select name="degreeLevel">
+                <option value="">Select level</option>
+                <option>Undergraduate</option>
+                <option>Graduate</option>
+                <option>Postgraduate</option>
+                <option>Diploma</option>
+                <option>Research Scholar</option>
+              </select>
+            </label>
+
+            <label class="field field-third">
+              <span>Faculty</span>
+              <input type="text" name="faculty" placeholder="Faculty of Science" />
+            </label>
+
+            <label class="field field-third">
+              <span>Department</span>
+              <input type="text" name="department" placeholder="Computer Science" />
+            </label>
+
+            <label class="field field-half">
+              <span>Program / Major</span>
+              <input type="text" name="program" placeholder="BSc in CSE" />
+            </label>
+
+            <label class="field field-quarter">
+              <span>Semester / Year</span>
+              <input type="text" name="semester" placeholder="5th" />
+            </label>
+
+            <label class="field field-quarter">
+              <span>Admission Session</span>
+              <input type="text" name="session" placeholder="2025-26" />
+            </label>
+
+            <label class="field field-half">
+              <span>Campus</span>
+              <select name="campus">
+                <option>Main Campus</option>
+                <option>City Campus</option>
+                <option>Medical Campus</option>
+                <option>Research Campus</option>
+              </select>
+            </label>
+
+            <label class="field field-half">
+              <span>Academic Advisor</span>
+              <input type="text" name="advisor" placeholder="Advisor name" />
+            </label>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Personal Information</legend>
+          <div class="field-grid">
+            <label class="field field-quarter">
+              <span>Date of Birth</span>
+              <input type="date" name="dateOfBirth" />
+            </label>
+
+            <label class="field field-quarter">
+              <span>Gender</span>
+              <select name="gender">
+                <option value="">Select</option>
+                <option>Female</option>
+                <option>Male</option>
+                <option>Non-binary</option>
+                <option>Prefer not to say</option>
+              </select>
+            </label>
+
+            <label class="field field-quarter">
+              <span>Blood Group</span>
+              <select name="bloodGroup">
+                <option value="">Select</option>
+                <option>A+</option>
+                <option>A-</option>
+                <option>B+</option>
+                <option>B-</option>
+                <option>AB+</option>
+                <option>AB-</option>
+                <option>O+</option>
+                <option>O-</option>
+              </select>
+            </label>
+
+            <label class="field field-quarter">
+              <span>Nationality</span>
+              <input type="text" name="nationality" />
+            </label>
+
+            <label class="field field-half">
+              <span>National ID / Passport</span>
+              <input type="text" name="identityNumber" placeholder="Optional identity reference" />
+            </label>
+
+            <label class="field field-half">
+              <span>Alternate Phone</span>
+              <input type="tel" name="alternatePhone" autocomplete="tel" />
+            </label>
+
+            <label class="field field-full">
+              <span>Present Address</span>
+              <textarea name="presentAddress" rows="3" autocomplete="street-address"></textarea>
+            </label>
+
+            <label class="field field-full">
+              <span>Permanent Address</span>
+              <textarea name="permanentAddress" rows="3"></textarea>
+            </label>
+
+            <label class="field field-third">
+              <span>City</span>
+              <input type="text" name="city" />
+            </label>
+
+            <label class="field field-third">
+              <span>Postcode</span>
+              <input type="text" name="postcode" />
+            </label>
+
+            <label class="field field-third">
+              <span>Country</span>
+              <input type="text" name="country" />
+            </label>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Emergency Contact</legend>
+          <div class="field-grid">
+            <label class="field field-third">
+              <span>Contact Name</span>
+              <input type="text" name="emergencyName" />
+            </label>
+
+            <label class="field field-third">
+              <span>Relationship</span>
+              <input type="text" name="emergencyRelationship" placeholder="Parent, guardian, spouse" />
+            </label>
+
+            <label class="field field-third">
+              <span>Contact Phone</span>
+              <input type="tel" name="emergencyPhone" />
+            </label>
+
+            <label class="field field-full">
+              <span>Contact Address</span>
+              <textarea name="emergencyAddress" rows="3"></textarea>
+            </label>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Membership Details</legend>
+          <div class="field-grid">
+            <label class="field field-third">
+              <span>Membership Type <b aria-hidden="true">*</b></span>
+              <select name="membershipType" required>
+                <option value="">Select type</option>
+                <option>Standard Student</option>
+                <option>Research Reader</option>
+                <option>Graduate Thesis</option>
+                <option>Short Course</option>
+              </select>
+            </label>
+
+            <label class="field field-third">
+              <span>Preferred Branch <b aria-hidden="true">*</b></span>
+              <select name="branch" required>
+                <option value="">Select branch</option>
+                <option>Central Library</option>
+                <option>Science Library</option>
+                <option>Law Library</option>
+                <option>Medical Library</option>
+                <option>Digital Resource Center</option>
+              </select>
+            </label>
+
+            <label class="field field-third">
+              <span>Borrowing Category</span>
+              <select name="borrowingCategory">
+                <option>General Collection</option>
+                <option>Reserved Course Materials</option>
+                <option>Reference Only</option>
+                <option>Interlibrary Loan</option>
+              </select>
+            </label>
+
+            <div class="field field-full">
+              <span class="group-label">Research Interests</span>
+              <div class="choice-grid">
+                <label><input type="checkbox" name="interest" value="Science" /> Science</label>
+                <label><input type="checkbox" name="interest" value="Technology" /> Technology</label>
+                <label><input type="checkbox" name="interest" value="Business" /> Business</label>
+                <label><input type="checkbox" name="interest" value="Arts" /> Arts</label>
+                <label><input type="checkbox" name="interest" value="Law" /> Law</label>
+                <label><input type="checkbox" name="interest" value="Medicine" /> Medicine</label>
+              </div>
+            </div>
+
+            <div class="field field-half">
+              <span class="group-label">Library Card Status <b aria-hidden="true">*</b></span>
+              <div class="radio-line">
+                <label><input type="radio" name="cardStatus" value="New" required /> New card</label>
+                <label><input type="radio" name="cardStatus" value="Renewal" /> Renewal</label>
+                <label><input type="radio" name="cardStatus" value="Replacement" /> Replacement</label>
+              </div>
+            </div>
+
+            <label class="field field-half">
+              <span>Preferred Contact Method</span>
+              <select name="contactMethod">
+                <option>Email</option>
+                <option>SMS</option>
+                <option>Phone Call</option>
+                <option>University Portal</option>
+              </select>
+            </label>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Documents & Declaration</legend>
+          <div class="field-grid">
+            <label class="field field-half file-field">
+              <span>Student Photo</span>
+              <input type="file" name="studentPhoto" accept="image/*" />
+              <small data-file-name="studentPhoto">No file selected</small>
+            </label>
+
+            <label class="field field-half file-field">
+              <span>Student ID / Enrollment Proof</span>
+              <input type="file" name="studentProof" accept=".pdf,image/*" />
+              <small data-file-name="studentProof">No file selected</small>
+            </label>
+
+            <label class="declaration field-full">
+              <input type="checkbox" name="declaration" required />
+              <span>I confirm that the information provided is accurate and I agree to follow Gono Bishwabidyalay library borrowing and conduct rules.</span>
+            </label>
+          </div>
+        </fieldset>
+
+        <aside class="summary-panel" aria-live="polite">
+          <div>
+            <p class="section-kicker">Live Summary</p>
+            <h3 id="summary-name">Applicant not named yet</h3>
+          </div>
+          <dl>
+            <div>
+              <dt>Student ID</dt>
+              <dd id="summary-id">-</dd>
+            </div>
+            <div>
+              <dt>Program</dt>
+              <dd id="summary-program">-</dd>
+            </div>
+            <div>
+              <dt>Membership</dt>
+              <dd id="summary-type">-</dd>
+            </div>
+            <div>
+              <dt>Branch</dt>
+              <dd id="summary-branch">-</dd>
+            </div>
+          </dl>
+        </aside>
+
+        <p class="form-status" id="form-status" role="status"></p>
+
+        <div class="form-actions">
+          <button class="button button-primary" type="submit">
+            <i data-lucide="send" aria-hidden="true"></i>
+            <span>Submit Application</span>
+          </button>
+          <button class="button button-secondary" type="reset">
+            <i data-lucide="rotate-ccw" aria-hidden="true"></i>
+            <span>Reset</span>
+          </button>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <section class="success-celebration" id="success-celebration" role="dialog" aria-modal="true" aria-labelledby="success-title" hidden>
+    <div class="celebration-stage" aria-hidden="true">
+      <span class="stage-beam beam-one"></span>
+      <span class="stage-beam beam-two"></span>
+      <span class="stage-beam beam-three"></span>
+      <span class="ribbon ribbon-one"></span>
+      <span class="ribbon ribbon-two"></span>
+      <span class="ribbon ribbon-three"></span>
+      <span class="spark spark-one"></span>
+      <span class="spark spark-two"></span>
+      <span class="spark spark-three"></span>
+      <span class="spark spark-four"></span>
+    </div>
+
+    <div class="confetti-layer" id="confetti-layer" aria-hidden="true"></div>
+
+    <div class="balloon-field" aria-hidden="true">
+      <span class="balloon balloon-primary"></span>
+      <span class="balloon balloon-gold"></span>
+      <span class="balloon balloon-brick"></span>
+      <span class="balloon balloon-blue"></span>
+      <span class="balloon balloon-violet"></span>
+      <span class="balloon balloon-cyan"></span>
+      <span class="balloon balloon-orange"></span>
+      <span class="balloon balloon-navy"></span>
+      <span class="balloon balloon-red"></span>
+      <span class="balloon balloon-sky"></span>
+      <span class="balloon balloon-royal"></span>
+      <span class="balloon balloon-amber"></span>
+      <span class="balloon balloon-deep-blue"></span>
+      <span class="balloon balloon-sun"></span>
+      <span class="balloon balloon-ruby"></span>
+      <span class="balloon balloon-ice"></span>
+      <span class="balloon balloon-indigo"></span>
+      <span class="balloon balloon-coral"></span>
+      <span class="balloon balloon-denim"></span>
+      <span class="balloon balloon-flame"></span>
+    </div>
+
+    <div class="success-card">
+      <div class="success-orbit" aria-hidden="true">
+        <span class="orbit-ring ring-one"></span>
+        <span class="orbit-ring ring-two"></span>
+        <span class="gblms-logo-mark success-logo">
+          <svg viewBox="0 0 100 120" focusable="false">
+            <use href="#gblms-logo-symbol"></use>
+          </svg>
+        </span>
+        <div class="success-icon">
+          <i data-lucide="badge-check"></i>
+        </div>
+      </div>
+      <p class="section-kicker">Application Submitted</p>
+      <h2 id="success-title">Welcome to the Library</h2>
+      <p id="success-message">Your Gono Bishwabidyalay library membership application is ready for office review.</p>
+      <div class="success-ticket" aria-hidden="true">
+        <span>GB Library</span>
+        <strong>Membership Review Pass</strong>
+      </div>
+      <div class="success-actions">
+        <button class="button button-primary" type="button" id="success-print">
+          <i data-lucide="printer" aria-hidden="true"></i>
+          <span>Print Form</span>
+        </button>
+        <button class="button button-secondary" type="button" id="success-close">
+          <i data-lucide="x" aria-hidden="true"></i>
+          <span>Close</span>
+        </button>
+      </div>
+    </div>
+  </section>
+</body>
+</html>

@@ -74,7 +74,7 @@
     </style>
 </head>
 
-<body class="bg-[#f8fafc] text-slate-900 font-sans min-h-screen flex items-center justify-center relative overflow-hidden select-none px-6 py-8 bg-hero-grid antialiased">
+<body class="bg-[#f8fafc] text-slate-900 font-sans min-h-screen flex items-center justify-center relative overflow-x-hidden overflow-y-auto select-none px-6 py-8 bg-hero-grid antialiased">
 
     <!-- Grid line overlay -->
     <div class="absolute inset-0 hero-grid-lines pointer-events-none"></div>
@@ -84,7 +84,7 @@
     <div class="absolute bottom-1/4 -right-32 w-[400px] h-[400px] rounded-full bg-accent-500/6 blur-[130px] glowing-orb-2 pointer-events-none"></div>
 
     <!-- Main Register Container -->
-    <div class="register-card w-full max-w-md bg-white/80 backdrop-blur-xl border border-slate-200/80 rounded-3xl p-8 relative shadow-2xl z-10 opacity-0 scale-90">
+    <div class="register-card w-full bg-white/80 backdrop-blur-xl border border-slate-200/80 rounded-3xl p-6 sm:p-7 relative shadow-2xl z-10 opacity-0 scale-90" style="max-width: 430px;">
         
         <!-- Back to Portal Button -->
         <a href="index.html" class="absolute top-6 left-6 text-slate-400 hover:text-slate-700 flex items-center gap-1.5 text-xs font-bold transition-all duration-200 select-none group">
@@ -194,7 +194,7 @@
                 <button type="submit"
                     class="w-full py-3 bg-accent-650 hover:bg-accent-500 bg-brand-600 hover:bg-brand-500 text-white rounded-xl text-sm font-bold active:scale-95 transition-all duration-200 shadow-lg shadow-brand-500/15 flex items-center justify-center gap-2">
                     <i data-lucide="user-check" class="w-4 h-4"></i>
-                    <span>Register Account</span>
+                    <span>Create Account</span>
                 </button>
             </div>
         </form>

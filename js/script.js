@@ -71,6 +71,8 @@ let currentSection = 'home';
 let featuredStartIndex = 0;
 let selectedBookForModal = null;
 
+const MEMBERSHIP_APPLICATIONS_KEY = 'libraryMemberApplications';
+
 // ==================== PAGINATION STATE ====================
 let catalogCurrentPage = 1;
 const CATALOG_PER_PAGE = 12;
@@ -442,12 +444,403 @@ function saveDownloads() {
     updateLibraryStats();
 }
 
+function getMemberApplications() {
+    try {
+        const parsed = JSON.parse(localStorage.getItem(MEMBERSHIP_APPLICATIONS_KEY) || '[]');
+        return Array.isArray(parsed) ? parsed : [];
+    } catch (error) {
+        console.error('Failed to parse member applications:', error);
+        return [];
+    }
+}
+
+function saveMemberApplications(applications) {
+    localStorage.setItem(MEMBERSHIP_APPLICATIONS_KEY, JSON.stringify(applications));
+    updateMemberApprovalBadges(applications);
+}
+
+function getLatestMemberApplication(email) {
+    const normalizedEmail = (email || '').trim().toLowerCase();
+    return getMemberApplications()
+        .filter(app => (app.email || '').toLowerCase() === normalizedEmail)
+        .sort((a, b) => new Date(b.submittedAt || 0) - new Date(a.submittedAt || 0))[0] || null;
+}
+
+function updateMemberApprovalBadges(applications = getMemberApplications()) {
+    const pendingCount = applications.filter(app => app.status === 'pending').length;
+    const approvedCount = applications.filter(app => app.status === 'approved').length;
+    const rejectedCount = applications.filter(app => app.status === 'rejected').length;
+
+    const pendingBadge = document.getElementById('pendingMembersBadge');
+    const pendingCountEl = document.getElementById('memberPendingCount');
+    const approvedCountEl = document.getElementById('memberApprovedCount');
+    const rejectedCountEl = document.getElementById('memberRejectedCount');
+
+    if (pendingBadge) {
+        pendingBadge.textContent = pendingCount;
+        pendingBadge.classList.toggle('hidden', pendingCount === 0);
+        pendingBadge.classList.toggle('inline-flex', pendingCount > 0);
+    }
+    if (pendingCountEl) pendingCountEl.textContent = pendingCount;
+    if (approvedCountEl) approvedCountEl.textContent = approvedCount;
+    if (rejectedCountEl) rejectedCountEl.textContent = rejectedCount;
+}
+
+function getMemberStatusClasses(status) {
+    if (status === 'approved') return 'bg-emerald-50 text-emerald-700 border-emerald-200';
+    if (status === 'rejected') return 'bg-rose-50 text-rose-700 border-rose-200';
+    return 'bg-amber-50 text-amber-700 border-amber-200';
+}
+
+function escapeHTML(value) {
+    return String(value ?? '').replace(/[&<>"']/g, char => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+    }[char]));
+}
+
+function renderMemberApprovals() {
+    const container = document.getElementById('memberApplicationsList');
+    const applications = getMemberApplications().sort((a, b) => new Date(b.submittedAt || 0) - new Date(a.submittedAt || 0));
+    updateMemberApprovalBadges(applications);
+
+    if (!container) return;
+
+    if (!applications.length) {
+        container.innerHTML = `
+            <div class="p-10 text-center">
+                <div class="w-14 h-14 mx-auto rounded-2xl bg-slate-50 text-slate-400 border border-slate-100 flex items-center justify-center mb-4">
+                    <i data-lucide="inbox" class="w-6 h-6"></i>
+                </div>
+                <h4 class="text-sm font-black text-slate-800 mb-1">No member applications yet</h4>
+                <p class="text-xs font-semibold text-slate-400">New registrations will appear here for approval.</p>
+            </div>
+        `;
+        lucide.createIcons();
+        return;
+    }
+
+    container.innerHTML = applications.map(app => {
+        const status = app.status || 'pending';
+        const statusClasses = getMemberStatusClasses(status);
+        const submitted = app.submittedAt ? new Date(app.submittedAt).toLocaleString() : 'Unknown';
+        const reviewed = app.reviewedAt ? new Date(app.reviewedAt).toLocaleString() : '';
+        const safe = {
+            id: escapeHTML(app.id),
+            name: escapeHTML(app.name || 'Unnamed Applicant'),
+            email: escapeHTML(app.email || '-'),
+            studentId: escapeHTML(app.studentId || '-'),
+            program: escapeHTML(app.program || '-'),
+            membershipType: escapeHTML(app.membershipType || '-'),
+            department: escapeHTML(app.department || '-'),
+            semester: escapeHTML(app.semester || '-'),
+            branch: escapeHTML(app.branch || '-'),
+            phone: escapeHTML(app.phone || '-'),
+            status: escapeHTML(status),
+            submitted: escapeHTML(submitted),
+            reviewed: escapeHTML(reviewed || 'Completed')
+        };
+        const actions = status === 'pending' ? `
+            <div class="flex flex-wrap gap-2 justify-end">
+                <button onclick="approveMemberApplication('${safe.id}')" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-black active:scale-95 transition-all duration-200">
+                    <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                    <span>Approve</span>
+                </button>
+                <button onclick="rejectMemberApplication('${safe.id}')" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-[11px] font-black active:scale-95 transition-all duration-200">
+                    <i data-lucide="x" class="w-3.5 h-3.5"></i>
+                    <span>Reject</span>
+                </button>
+            </div>
+        ` : `
+            <div class="text-right">
+                <span class="block text-[10px] font-black uppercase tracking-wider text-slate-400">Reviewed</span>
+                <span class="block text-[11px] font-bold text-slate-500">${safe.reviewed}</span>
+            </div>
+        `;
+
+        return `
+            <article class="p-5 md:p-6 hover:bg-slate-50/60 transition-colors duration-150">
+                <div class="flex flex-col lg:flex-row lg:items-start gap-5 justify-between">
+                    <div class="min-w-0 flex-1">
+                        <div class="flex flex-wrap items-center gap-2 mb-3">
+                            <h4 class="text-sm font-black text-slate-850">${safe.name}</h4>
+                            <span class="px-2.5 py-0.5 rounded-full border text-[10px] font-black uppercase tracking-wider ${statusClasses}">${safe.status}</span>
+                            <span class="text-[10px] font-bold text-slate-400">Submitted ${safe.submitted}</span>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 text-xs">
+                            <div><span class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-0.5">Email</span><span class="font-bold text-slate-700 break-all">${safe.email}</span></div>
+                            <div><span class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-0.5">Student ID</span><span class="font-bold text-slate-700">${safe.studentId}</span></div>
+                            <div><span class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-0.5">Program</span><span class="font-bold text-slate-700">${safe.program}</span></div>
+                            <div><span class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-0.5">Membership</span><span class="font-bold text-slate-700">${safe.membershipType}</span></div>
+                            <div><span class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-0.5">Department</span><span class="font-bold text-slate-700">${safe.department}</span></div>
+                            <div><span class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-0.5">Semester</span><span class="font-bold text-slate-700">${safe.semester}</span></div>
+                            <div><span class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-0.5">Branch</span><span class="font-bold text-slate-700">${safe.branch}</span></div>
+                            <div><span class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-0.5">Phone</span><span class="font-bold text-slate-700">${safe.phone}</span></div>
+                        </div>
+                    </div>
+                    <div class="lg:w-44 shrink-0">${actions}</div>
+                </div>
+            </article>
+        `;
+    }).join('');
+
+    lucide.createIcons();
+}
+
+function approveMemberApplication(applicationId) {
+    const applications = getMemberApplications();
+    const appIndex = applications.findIndex(app => String(app.id) === String(applicationId));
+    if (appIndex === -1) {
+        showNotification("Application not found.", "error");
+        return;
+    }
+
+    const application = applications[appIndex];
+    const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
+    const existingUserIndex = registeredUsers.findIndex(user => (user.email || '').toLowerCase() === application.email.toLowerCase());
+    const existingUser = existingUserIndex === -1 ? {} : registeredUsers[existingUserIndex];
+    const approvedPhoto = application.profileImage || application.memberPhoto || existingUser.profileImage || existingUser.memberPhoto || '';
+    const approvedUser = {
+        name: application.name,
+        email: application.email,
+        password: application.password || existingUser.password || '',
+        phone: application.phone || '',
+        department: application.department || '',
+        studentId: application.studentId || '',
+        program: application.program || '',
+        semester: application.semester || '',
+        degreeLevel: application.degreeLevel || '',
+        membershipType: application.membershipType || '',
+        branch: application.branch || '',
+        profileImage: approvedPhoto,
+        memberPhoto: approvedPhoto,
+        membershipStatus: 'approved',
+        approvedAt: new Date().toISOString()
+    };
+
+    if (existingUserIndex === -1) {
+        registeredUsers.push(approvedUser);
+    } else {
+        registeredUsers[existingUserIndex] = { ...registeredUsers[existingUserIndex], ...approvedUser };
+    }
+
+    localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
+    applications[appIndex] = {
+        ...application,
+        profileImage: approvedPhoto,
+        memberPhoto: approvedPhoto,
+        status: 'approved',
+        reviewedAt: new Date().toISOString(),
+        reviewedBy: currentUserEmail || 'admin@gmail.com'
+    };
+    saveMemberApplications(applications);
+    renderMemberApprovals();
+    showNotification(`${application.name} has been approved as a library member.`, "success");
+}
+
+function rejectMemberApplication(applicationId) {
+    const applications = getMemberApplications();
+    const appIndex = applications.findIndex(app => String(app.id) === String(applicationId));
+    if (appIndex === -1) {
+        showNotification("Application not found.", "error");
+        return;
+    }
+
+    applications[appIndex] = {
+        ...applications[appIndex],
+        status: 'rejected',
+        reviewedAt: new Date().toISOString(),
+        reviewedBy: currentUserEmail || 'admin@gmail.com'
+    };
+    saveMemberApplications(applications);
+    renderMemberApprovals();
+    showNotification(`${applications[appIndex].name}'s membership application was rejected.`, "info");
+}
+
+function getRegisteredUserByEmail(email) {
+    const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
+    return registeredUsers.find(user => (user.email || '').toLowerCase() === (email || '').toLowerCase()) || null;
+}
+
+function getMemberCardFormData() {
+    return {
+        name: document.getElementById('memberFullName')?.value.trim() || '',
+        email: document.getElementById('memberEmail')?.value.trim().toLowerCase() || '',
+        studentId: document.getElementById('memberStudentId')?.value.trim().toUpperCase() || '',
+        phone: document.getElementById('memberPhone')?.value.trim() || '',
+        degreeLevel: document.getElementById('memberDegreeLevel')?.value || '',
+        department: document.getElementById('memberDepartment')?.value.trim() || '',
+        program: document.getElementById('memberProgram')?.value.trim() || '',
+        semester: document.getElementById('memberSemester')?.value.trim() || '',
+        membershipType: document.getElementById('memberMembershipType')?.value || '',
+        branch: document.getElementById('memberBranch')?.value || '',
+        declarationAccepted: Boolean(document.getElementById('memberDeclaration')?.checked),
+        profileImage: document.getElementById('memberCardForm')?.dataset.memberPhoto || ''
+    };
+}
+
+function setMemberCardStatus(status, message) {
+    const statusEl = document.getElementById('memberCardStatus');
+    if (!statusEl) return;
+
+    const config = {
+        approved: ['check-circle', 'bg-emerald-50', 'border-emerald-200', 'text-emerald-700'],
+        pending: ['clock', 'bg-amber-50', 'border-amber-200', 'text-amber-700'],
+        rejected: ['x-circle', 'bg-rose-50', 'border-rose-200', 'text-rose-700'],
+        ready: ['id-card', 'bg-brand-50', 'border-brand-100', 'text-brand-700']
+    }[status] || ['info', 'bg-slate-50', 'border-slate-200', 'text-slate-500'];
+
+    statusEl.className = `inline-flex items-center gap-2 px-3 py-2 rounded-xl border text-xs font-black ${config.slice(1).join(' ')}`;
+    statusEl.innerHTML = `<i data-lucide="${config[0]}" class="w-4 h-4"></i><span>${escapeHTML(message)}</span>`;
+    lucide.createIcons();
+}
+
+function populateMemberCardForm() {
+    if (!currentUserEmail) return;
+
+    const registeredUser = getRegisteredUserByEmail(currentUserEmail) || {};
+    const latestApplication = getLatestMemberApplication(currentUserEmail) || {};
+    const source = { ...registeredUser, ...latestApplication };
+
+    const setValue = (id, value) => {
+        const el = document.getElementById(id);
+        if (el) el.value = value || '';
+    };
+
+    setValue('memberFullName', source.name || currentUser || '');
+    setValue('memberEmail', currentUserEmail || source.email || '');
+    setValue('memberStudentId', source.studentId || '');
+    setValue('memberPhone', source.phone || '');
+    setValue('memberDegreeLevel', source.degreeLevel || '');
+    setValue('memberDepartment', source.department || '');
+    setValue('memberProgram', source.program || '');
+    setValue('memberSemester', source.semester || '');
+    setValue('memberMembershipType', source.membershipType || '');
+    setValue('memberBranch', source.branch || '');
+
+    const photo = source.profileImage || source.memberPhoto || '';
+    if (photo) {
+        const preview = document.getElementById('memberPhotoPreview');
+        const placeholder = document.getElementById('memberPhotoPlaceholder');
+        const form = document.getElementById('memberCardForm');
+        if (preview) {
+            preview.src = photo;
+            preview.classList.remove('hidden');
+        }
+        if (placeholder) placeholder.classList.add('hidden');
+        if (form) form.dataset.memberPhoto = photo;
+    }
+
+    const status = latestApplication.status || registeredUser.membershipStatus || 'ready';
+    if (status === 'pending') {
+        setMemberCardStatus('pending', 'Waiting for admin approval');
+    } else if (status === 'approved' || registeredUser.membershipStatus === 'approved') {
+        setMemberCardStatus('approved', 'Member card approved');
+    } else if (status === 'rejected') {
+        setMemberCardStatus('rejected', 'Previous application rejected');
+    } else {
+        setMemberCardStatus('ready', 'Ready to submit');
+    }
+
+    if (typeof syncCustomSelects === 'function') {
+        syncCustomSelects();
+    }
+}
+
+function initMemberCardPage() {
+    if (!currentUserEmail) {
+        window.location.href = 'login.html?role=user&redirect=member.html';
+        return;
+    }
+
+    populateMemberCardForm();
+
+    const photoInput = document.getElementById('memberPhotoInput');
+    if (photoInput) {
+        photoInput.addEventListener('change', (event) => {
+            const file = event.target.files && event.target.files[0];
+            if (!file) return;
+            if (!file.type.startsWith('image/')) {
+                showNotification('Please select an image file for the member photo.', 'error');
+                return;
+            }
+            if (file.size > 1.5 * 1024 * 1024) {
+                showNotification('Image too large. Please select an image under 1.5MB.', 'error');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (loadEvent) => {
+                const photoData = loadEvent.target.result;
+                const preview = document.getElementById('memberPhotoPreview');
+                const placeholder = document.getElementById('memberPhotoPlaceholder');
+                const form = document.getElementById('memberCardForm');
+                if (preview) {
+                    preview.src = photoData;
+                    preview.classList.remove('hidden');
+                }
+                if (placeholder) placeholder.classList.add('hidden');
+                if (form) form.dataset.memberPhoto = photoData;
+                showNotification('Member photo attached.', 'success');
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+}
+
+function handleMemberCardSubmit(event) {
+    if (event) event.preventDefault();
+    if (!currentUserEmail) {
+        showNotification('Please sign in before submitting a member card.', 'error');
+        return;
+    }
+
+    const formData = getMemberCardFormData();
+    if (!formData.name || !formData.email || !formData.studentId || !formData.membershipType || !formData.branch || !formData.declarationAccepted) {
+        showNotification('Please complete all required member card fields.', 'error');
+        return;
+    }
+
+    const registeredUser = getRegisteredUserByEmail(currentUserEmail) || {};
+    const applications = getMemberApplications();
+    const pendingIndex = applications.findIndex(app =>
+        (app.email || '').toLowerCase() === currentUserEmail.toLowerCase() && app.status === 'pending'
+    );
+
+    const applicationRecord = {
+        id: pendingIndex === -1 ? `APP-${Date.now()}` : applications[pendingIndex].id,
+        ...formData,
+        password: registeredUser.password || '',
+        status: 'pending',
+        submittedAt: pendingIndex === -1 ? new Date().toISOString() : applications[pendingIndex].submittedAt,
+        updatedAt: new Date().toISOString(),
+        source: 'member-card'
+    };
+
+    if (pendingIndex === -1) {
+        applications.push(applicationRecord);
+    } else {
+        applications[pendingIndex] = {
+            ...applications[pendingIndex],
+            ...applicationRecord
+        };
+    }
+
+    saveMemberApplications(applications);
+    setMemberCardStatus('pending', 'Waiting for admin approval');
+    showNotification('Member card submitted for admin approval.', 'success');
+}
+
 function updateLibraryStats() {
     const adminTotalCount = document.getElementById('adminTotalCount');
     const heroBookCount = document.getElementById('heroBookCount');
 
     if (adminTotalCount) adminTotalCount.textContent = allBooks.length;
     if (heroBookCount) heroBookCount.textContent = allBooks.length;
+    updateMemberApprovalBadges();
 }
 
 // ==================== APP BOOTSTRAPPING ====================
@@ -480,6 +873,9 @@ function initializeApp() {
 
     if (getCurrentPageId() === 'profile') {
         initProfilePage();
+    }
+    if (getCurrentPageId() === 'member') {
+        initMemberCardPage();
     }
     if (getCurrentPageId() === 'dashboard') {
         initAddBookImageLoader();
@@ -1003,6 +1399,18 @@ function handleLoginSubmit(event) {
         return;
     }
 
+    const latestApplication = getLatestMemberApplication(email);
+    if (latestApplication && latestApplication.password === pass) {
+        if (latestApplication.status === 'pending') {
+            showNotification("Membership Pending: an admin must approve your application before sign in.", "info");
+            return;
+        }
+        if (latestApplication.status === 'rejected') {
+            showNotification("Membership Not Approved: please contact the library office.", "error");
+            return;
+        }
+    }
+
     showNotification("Authentication Failed: Invalid email or password.", "error");
 }
 
@@ -1030,7 +1438,12 @@ function handleRegisterSubmit(event) {
         return;
     }
 
-    registeredUsers.push({ name, email, password: pass });
+    registeredUsers.push({
+        name,
+        email,
+        password: pass,
+        createdAt: new Date().toISOString()
+    });
     localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
 
     // Clear registration fields
@@ -1039,7 +1452,7 @@ function handleRegisterSubmit(event) {
     document.getElementById('registerPassword').value = '';
     if (confirmPassEl) confirmPassEl.value = '';
 
-    showNotification("Registration Successful! Redirecting to sign in...", "success");
+    showNotification("Account Created: you can sign in now.", "success");
 
     const urlParams = new URLSearchParams(window.location.search);
     const redirectPage = urlParams.get('redirect');
@@ -1061,7 +1474,26 @@ function logout() {
     showNotification("Session closed successfully.", "info");
 }
 
+function ensureMemberCardDropdownLink() {
+    const menu = document.getElementById('userDropdownMenu');
+    const profileLink = document.getElementById('dropdownProfileLink');
+    if (!menu || !profileLink || document.getElementById('dropdownMemberCardLink')) return;
+
+    const link = document.createElement('a');
+    link.href = '#';
+    link.id = 'dropdownMemberCardLink';
+    link.className = 'flex items-center gap-3 px-4 py-2 text-xs font-bold text-slate-655 hover:text-slate-900 hover:bg-slate-50 transition-colors duration-150 hidden';
+    link.setAttribute('onclick', "navigateTo('member'); return false;");
+    link.innerHTML = `
+        <i data-lucide="id-card" class="w-4 h-4 text-slate-400"></i>
+        <span>Add Member Card</span>
+    `;
+    profileLink.insertAdjacentElement('afterend', link);
+}
+
 function updateSessionUI() {
+    ensureMemberCardDropdownLink();
+
     const loginBtn = document.getElementById('loginBtn');
     const navUser = document.getElementById('navUser');
     const navUserName = document.getElementById('navUserName');
@@ -1073,6 +1505,7 @@ function updateSessionUI() {
     const dropdownDashboardLink = document.getElementById('dropdownDashboardLink');
     const dropdownAdminLink = document.getElementById('dropdownAdminLink');
     const dropdownSavedLink = document.getElementById('dropdownSavedLink');
+    const dropdownMemberCardLink = document.getElementById('dropdownMemberCardLink');
 
     const dashboardLink = document.getElementById('dashboardLink');
     const adminLink = document.getElementById('adminLink');
@@ -1103,6 +1536,7 @@ function updateSessionUI() {
 
         if (savedNavLink) savedNavLink.classList.remove('hidden');
         if (dropdownSavedLink) dropdownSavedLink.classList.remove('hidden');
+        if (dropdownMemberCardLink) dropdownMemberCardLink.classList.remove('hidden');
 
         if (currentRole === 'admin') {
             if (adminLink) adminLink.classList.remove('hidden');
@@ -1131,6 +1565,7 @@ function updateSessionUI() {
         if (adminLink) adminLink.classList.add('hidden');
         if (mobileAdminLink) mobileAdminLink.classList.add('hidden');
         if (dropdownSavedLink) dropdownSavedLink.classList.add('hidden');
+        if (dropdownMemberCardLink) dropdownMemberCardLink.classList.add('hidden');
     }
 
     // NOTE: Do NOT call lucide.createIcons() here — it destroys and
@@ -1418,6 +1853,7 @@ function getCurrentPageId() {
     if (path.endsWith('admin.html')) return 'admin';
     if (path.endsWith('saved.html')) return 'saved';
     if (path.endsWith('profile.html')) return 'profile';
+    if (path.endsWith('member.html')) return 'member';
     if (path.endsWith('login.html')) return 'login';
     if (path.endsWith('register.html')) return 'register';
     return 'home';
@@ -1430,6 +1866,11 @@ function checkPageSecurity() {
     if (pageId === 'admin' && currentRole !== 'admin') {
         window.location.href = homeRedirect;
         localStorage.setItem('securityAlert', 'Admin privileges required.');
+    }
+
+    if (pageId === 'member' && !currentUser) {
+        window.location.href = 'login.html?role=user&redirect=member.html';
+        return;
     }
 
     const pendingAlert = localStorage.getItem('securityAlert');
@@ -1499,6 +1940,7 @@ function navigateTo(sectionId) {
     else if (sectionId === 'admin') targetPage = 'admin.html';
     else if (sectionId === 'saved') targetPage = 'saved.html';
     else if (sectionId === 'profile') targetPage = 'profile.html';
+    else if (sectionId === 'member') targetPage = 'member.html';
 
     const queryString = getSessionQueryString();
     window.location.href = targetPage + queryString;
@@ -2403,6 +2845,9 @@ function switchAdminTab(tabId, tabBtn) {
 
         if (tabId === 'manageBooks') {
             updateAdminTable();
+        }
+        if (tabId === 'memberApprovals') {
+            renderMemberApprovals();
         }
     }
 }
