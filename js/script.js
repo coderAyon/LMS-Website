@@ -392,6 +392,24 @@ function initializeApp() {
     injectLoginModalHTML();
     loadDownloads();
     initUserSession();   // ← Must run BEFORE fetchCatalogDatabase so currentUser is set
+
+    // Standalone page auto-redirection if already authenticated
+    const pageId = getCurrentPageId();
+    if ((pageId === 'login' || pageId === 'register') && currentUser) {
+        const urlParams = new URLSearchParams(window.location.search);
+        const redirectPage = urlParams.get('redirect');
+        if (redirectPage && redirectPage !== 'login.html' && redirectPage !== 'register.html') {
+            window.location.href = redirectPage + getSessionQueryString();
+        } else {
+            if (currentRole === 'admin') {
+                window.location.href = 'admin.html' + getSessionQueryString();
+            } else {
+                window.location.href = 'saved.html' + getSessionQueryString();
+            }
+        }
+        return;
+    }
+
     fetchCatalogDatabase();
     checkPageSecurity();
     updateActiveNavLinkStyle();
@@ -845,21 +863,22 @@ function injectLoginModalHTML() {
 
 // Dialog selectors configurations
 function showLoginModal() {
-    const modal = document.getElementById('loginModal');
-    if (!modal) return;
-    toggleAuthView('login');
-    modal.classList.remove('hidden');
-    modal.classList.add('flex');
-    gsap.fromTo(modal.querySelector('.modal-card'),
-        { scale: 0.85, opacity: 0 },
-        { scale: 1, opacity: 1, duration: 0.45, ease: "back.out(1.5)" }
-    );
+    const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+    // If we're already on login.html or register.html, do nothing to prevent cycles
+    if (currentPage === 'login.html' || currentPage === 'register.html') return;
+    window.location.href = `login.html?redirect=${encodeURIComponent(currentPage)}`;
 }
 
 function closeLoginModal() {
     const modal = document.getElementById('loginModal');
     if (!modal) return;
-    gsap.to(modal.querySelector('.modal-card'), {
+    const card = modal.querySelector('.modal-card');
+    if (!card) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        return;
+    }
+    gsap.to(card, {
         scale: 0.85,
         opacity: 0,
         duration: 0.3,
@@ -898,11 +917,17 @@ function handleLoginSubmit(event) {
         updateSessionUI();
         closeLoginModal();
         showNotification("Portal Authentication Verified: Welcome, Admin Manager", "success");
-        // If already on profile page, load it directly instead of redirecting away
-        if (getCurrentPageId() === 'profile') {
-            initProfilePage();
+        
+        const urlParams = new URLSearchParams(window.location.search);
+        const redirectPage = urlParams.get('redirect');
+        if (redirectPage && redirectPage !== 'login.html' && redirectPage !== 'register.html') {
+            setTimeout(() => {
+                window.location.href = redirectPage + getSessionQueryString();
+            }, 1000);
         } else {
-            navigateTo('admin');
+            setTimeout(() => {
+                navigateTo('admin');
+            }, 1000);
         }
         return;
     }
@@ -914,11 +939,17 @@ function handleLoginSubmit(event) {
         updateSessionUI();
         closeLoginModal();
         showNotification(`Portal Authentication Verified: Welcome, ${user.name}`, "success");
-        // If already on profile page, load it directly instead of redirecting away
-        if (getCurrentPageId() === 'profile') {
-            initProfilePage();
+        
+        const urlParams = new URLSearchParams(window.location.search);
+        const redirectPage = urlParams.get('redirect');
+        if (redirectPage && redirectPage !== 'login.html' && redirectPage !== 'register.html') {
+            setTimeout(() => {
+                window.location.href = redirectPage + getSessionQueryString();
+            }, 1000);
         } else {
-            navigateTo('saved');
+            setTimeout(() => {
+                navigateTo('saved');
+            }, 1000);
         }
         return;
     }
@@ -931,6 +962,12 @@ function handleRegisterSubmit(event) {
     const name = document.getElementById('registerName').value.trim();
     const email = document.getElementById('registerEmail').value.trim().toLowerCase();
     const pass = document.getElementById('registerPassword').value;
+    const confirmPassEl = document.getElementById('registerConfirmPassword');
+    
+    if (confirmPassEl && pass !== confirmPassEl.value) {
+        showNotification("Registration Failed: Passwords do not match.", "error");
+        return;
+    }
 
     if (email === 'admin@gmail.com') {
         showNotification("Registration Blocked: admin@gmail.com is reserved.", "error");
@@ -951,9 +988,21 @@ function handleRegisterSubmit(event) {
     document.getElementById('registerName').value = '';
     document.getElementById('registerEmail').value = '';
     document.getElementById('registerPassword').value = '';
+    if (confirmPassEl) confirmPassEl.value = '';
 
-    showNotification("Registration Successful! Please sign in.", "success");
-    toggleAuthView('login');
+    showNotification("Registration Successful! Redirecting to sign in...", "success");
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const redirectPage = urlParams.get('redirect');
+    const redirectQuery = redirectPage ? `?redirect=${encodeURIComponent(redirectPage)}` : '';
+    
+    if (getCurrentPageId() === 'register') {
+        setTimeout(() => {
+            window.location.href = `login.html` + redirectQuery;
+        }, 1200);
+    } else {
+        toggleAuthView('login');
+    }
 }
 
 function logout() {
@@ -1320,6 +1369,8 @@ function getCurrentPageId() {
     if (path.endsWith('admin.html')) return 'admin';
     if (path.endsWith('saved.html')) return 'saved';
     if (path.endsWith('profile.html')) return 'profile';
+    if (path.endsWith('login.html')) return 'login';
+    if (path.endsWith('register.html')) return 'register';
     return 'home';
 }
 

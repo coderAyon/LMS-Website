@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GBLMS | Create Account</title>
+    <link rel="icon" type="image/svg+xml"
+        href="data:image/svg+xml,%3Csvg viewBox='0 0 100 120' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M 50 15 L 50 2' stroke='%23dc2626' stroke-width='2.5' stroke-linecap='round' /%3E%3Cpath d='M 38 18 L 26 8' stroke='%23dc2626' stroke-width='2.5' stroke-linecap='round' /%3E%3Cpath d='M 62 18 L 74 8' stroke='%23dc2626' stroke-width='2.5' stroke-linecap='round' /%3E%3Cpath d='M 29 26 L 15 19' stroke='%23dc2626' stroke-width='2.5' stroke-linecap='round' /%3E%3Cpath d='M 71 26 L 85 19' stroke='%23dc2626' stroke-width='2.5' stroke-linecap='round' /%3E%3Cpath d='M 32 28 A 18 18 0 0 1 68 28 Z' fill='%23dc2626' /%3E%3Cpath d='M 15 28 L 85 28 L 85 75 Q 85 98 50 108 Q 15 98 15 75 Z' fill='%231e3a8a' stroke='%23d97706' stroke-width='3' stroke-linejoin='round' /%3E%3Cline x1='15' y1='36' x2='35' y2='46' stroke='%23d97706' stroke-width='1.5' opacity='0.8' /%3E%3Cline x1='85' y1='36' x2='65' y2='46' stroke='%23d97706' stroke-width='1.5' opacity='0.8' /%3E%3Cline x1='15' y1='68' x2='35' y2='58' stroke='%23d97706' stroke-width='1.5' opacity='0.8' /%3E%3Cline x1='85' y1='68' x2='65' y2='58' stroke='%23d97706' stroke-width='1.5' opacity='0.8' /%3E%3Cpolygon points='50,34 65,42.5 65,60 50,68.5 35,60 35,42.5' fill='%23ffffff' stroke='%23d97706' stroke-width='2' /%3E%3Cpath d='M 40 58 Q 45 56 50 59 Q 55 56 60 58 L 60 54 Q 55 52 50 55 Q 45 52 40 54 Z' fill='%23dc2626' /%3E%3Cline x1='50' y1='55' x2='50' y2='59' stroke='%23ffffff' stroke-width='1' /%3E%3Cpath d='M 50 38 Q 47 46 50 53 Q 53 46 50 38 Z' fill='%23dc2626' /%3E%3Cpath d='M 50 53 Q 41 45 42 42 Q 47 43 50 51 Z' fill='%23dc2626' /%3E%3Cpath d='M 50 53 Q 36 51 38 48 Q 43 47 50 52 Z' fill='%23dc2626' /%3E%3Cpath d='M 50 53 Q 59 45 58 42 Q 53 43 50 51 Z' fill='%23dc2626' /%3E%3Cpath d='M 50 53 Q 64 51 62 48 Q 57 47 50 52 Z' fill='%23dc2626' /%3E%3Cpath d='M 28 80 Q 50 67 72 80 Q 50 93 28 80 Z' fill='%23ffffff' /%3E%3Ccircle cx='50' cy='80' r='7' fill='%231e3a8a' /%3E%3Ccircle cx='50' cy='80' r='7' fill='none' stroke='%23ffffff' stroke-width='0.8' /%3E%3Cellipse cx='50' cy='80' rx='3' ry='7' fill='none' stroke='%23ffffff' stroke-width='0.8' /%3E%3Cline x1='43' y1='80' x2='57' y2='80' stroke='%23ffffff' stroke-width='0.8' /%3E%3Cpath d='M 8 102 L 20 95 L 80 95 L 92 102 L 86 112 L 50 114 L 14 112 Z' fill='%23d97706' stroke='%23b45309' stroke-width='1' /%3E%3Cpath d='M 8 102 L 14 112 L 14 100 Z' fill='%2392400e' /%3E%3Cpath d='M 92 102 L 86 112 L 86 100 Z' fill='%2392400e' /%3E%3Ctext x='50' y='108' font-family='sans-serif' font-weight='900' font-size='8' fill='%23dc2626' text-anchor='middle' letter-spacing='1'%3EGBLMS%3C/text%3E%3C/svg%3E">
+
+    <!-- Meta SEO -->
+    <meta name="description" content="Register an account on Gono Bishwabidyalay Library Portal. Save books, customize portfolios, and synchronize collections.">
+    <meta name="author" content="GBLMS">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS Play CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        serif: ['"Playfair Display"', 'serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#2563eb',
+                            600: '#1d4ed8',
+                            700: '#1e40af',
+                            900: '#1e3a8a',
+                        },
+                        accent: {
+                            50: '#fef2f2',
+                            500: '#dc2626',
+                            600: '#b91c1c',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+
+    <style>
+        .glowing-orb-1 {
+            animation: orbFloat1 25s ease-in-out infinite alternate;
+        }
+
+        .glowing-orb-2 {
+            animation: orbFloat2 20s ease-in-out infinite alternate;
+        }
+
+        @keyframes orbFloat1 {
+            0% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(60px, -40px) scale(1.15); }
+            100% { transform: translate(-30px, 80px) scale(0.9); }
+        }
+
+        @keyframes orbFloat2 {
+            0% { transform: translate(0, 0) scale(1.1); }
+            50% { transform: translate(-50px, 60px) scale(0.9); }
+            100% { transform: translate(40px, -70px) scale(1.05); }
+        }
+    </style>
+</head>
+
+<body class="bg-[#f8fafc] text-slate-900 font-sans min-h-screen flex items-center justify-center relative overflow-hidden select-none px-6 py-8 bg-hero-grid antialiased">
+
+    <!-- Grid line overlay -->
+    <div class="absolute inset-0 hero-grid-lines pointer-events-none"></div>
+
+    <!-- Ambient glowing orbs -->
+    <div class="absolute top-1/4 -left-32 w-96 h-96 rounded-full bg-brand-500/8 blur-[120px] glowing-orb-1 pointer-events-none"></div>
+    <div class="absolute bottom-1/4 -right-32 w-[400px] h-[400px] rounded-full bg-accent-500/6 blur-[130px] glowing-orb-2 pointer-events-none"></div>
+
+    <!-- Main Register Container -->
+    <div class="register-card w-full max-w-md bg-white/80 backdrop-blur-xl border border-slate-200/80 rounded-3xl p-8 relative shadow-2xl z-10 opacity-0 scale-90">
+        
+        <!-- Back to Portal Button -->
+        <a href="index.html" class="absolute top-6 left-6 text-slate-400 hover:text-slate-700 flex items-center gap-1.5 text-xs font-bold transition-all duration-200 select-none group">
+            <i data-lucide="arrow-left" class="w-3.5 h-3.5 transition-transform duration-200 group-hover:-translate-x-1"></i>
+            <span>Portal Home</span>
+        </a>
+
+        <!-- Close Button -->
+        <a href="index.html" id="closePageLink" class="absolute top-6 right-6 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 border border-slate-200/80 flex items-center justify-center transition-colors duration-200">
+            <i data-lucide="x" class="w-4 h-4"></i>
+        </a>
+
+        <!-- Portal Header -->
+        <div class="text-center mt-6 mb-6 form-element opacity-0">
+            <div class="w-16 h-18 mx-auto mb-4 select-none">
+                <svg viewBox="0 0 100 120" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M 50 15 L 50 2" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" />
+                    <path d="M 38 18 L 26 8" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" />
+                    <path d="M 62 18 L 74 8" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" />
+                    <path d="M 29 26 L 15 19" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" />
+                    <path d="M 71 26 L 85 19" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" />
+                    <path d="M 32 28 A 18 18 0 0 1 68 28 Z" fill="#dc2626" />
+                    <path d="M 15 28 L 85 28 L 85 75 Q 85 98 50 108 Q 15 98 15 75 Z" fill="#1e3a8a" stroke="#d97706" stroke-width="3" stroke-linejoin="round" />
+                    <polygon points="50,34 65,42.5 65,60 50,68.5 35,60 35,42.5" fill="#ffffff" stroke="#d97706" stroke-width="2" />
+                    <path d="M 40 58 Q 45 56 50 59 Q 55 56 60 58 L 60 54 Q 55 52 50 55 Q 45 52 40 54 Z" fill="#dc2626" />
+                    <line x1="50" y1="55" x2="50" y2="59" stroke="#ffffff" stroke-width="1" />
+                    <path d="M 50 38 Q 47 46 50 53 Q 53 46 50 38 Z" fill="#dc2626" />
+                    <path d="M 50 53 Q 41 45 42 42 Q 47 43 50 51 Z" fill="#dc2626" />
+                    <path d="M 50 53 Q 36 51 38 48 Q 43 47 50 52 Z" fill="#dc2626" />
+                    <path d="M 50 53 Q 59 45 58 42 Q 53 43 50 51 Z" fill="#dc2626" />
+                    <path d="M 50 53 Q 64 51 62 48 Q 57 47 50 52 Z" fill="#dc2626" />
+                    <path d="M 28 80 Q 50 67 72 80 Q 50 93 28 80 Z" fill="#ffffff" />
+                    <circle cx="50" cy="80" r="7" fill="#1e3a8a" />
+                    <circle cx="50" cy="80" r="7" fill="none" stroke="#ffffff" stroke-width="0.8" />
+                    <ellipse cx="50" cy="80" rx="3" ry="7" fill="none" stroke="#ffffff" stroke-width="0.8" />
+                    <line x1="43" y1="80" x2="57" y2="80" stroke="#ffffff" stroke-width="0.8" />
+                    <path d="M 8 102 L 20 95 L 80 95 L 92 102 L 86 112 L 50 114 L 14 112 Z" fill="#d97706" stroke="#b45309" stroke-width="1" />
+                    <path d="M 8 102 L 14 112 L 14 100 Z" fill="#92400e" />
+                    <path d="M 92 102 L 86 112 L 86 100 Z" fill="#92400e" />
+                    <text x="50" y="108" font-family="'Plus Jakarta Sans', sans-serif" font-weight="900" font-size="8" fill="#dc2626" text-anchor="middle" letter-spacing="1">GBLMS</text>
+                </svg>
+            </div>
+            <h3 class="text-2xl font-black text-slate-800 tracking-tight mb-1">Create Account</h3>
+            <p class="text-slate-500 text-xs font-semibold leading-relaxed">Register to save collections, reserve materials & sync portals</p>
+        </div>
+
+        <!-- Registration Form -->
+        <form onsubmit="handleRegisterSubmit(event)" class="space-y-4">
+            <!-- Full Name Input -->
+            <div class="form-element opacity-0 relative">
+                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Full Name</label>
+                <div class="relative flex items-center">
+                    <span class="absolute left-4 text-slate-400 pointer-events-none">
+                        <i data-lucide="user" class="w-4 h-4"></i>
+                    </span>
+                    <input type="text" id="registerName" required placeholder="John Doe"
+                        class="w-full pl-11 pr-4 py-2.5 bg-slate-50 border-2 border-slate-200/80 rounded-xl text-sm font-bold text-slate-800 focus:outline-none focus:border-brand-500 focus:bg-white transition-all duration-200">
+                </div>
+            </div>
+
+            <!-- Email Address Input -->
+            <div class="form-element opacity-0 relative">
+                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Email Address</label>
+                <div class="relative flex items-center">
+                    <span class="absolute left-4 text-slate-400 pointer-events-none">
+                        <i data-lucide="mail" class="w-4 h-4"></i>
+                    </span>
+                    <input type="email" id="registerEmail" required placeholder="reader@gmail.com"
+                        class="w-full pl-11 pr-4 py-2.5 bg-slate-50 border-2 border-slate-200/80 rounded-xl text-sm font-bold text-slate-800 focus:outline-none focus:border-brand-500 focus:bg-white transition-all duration-200">
+                </div>
+            </div>
+
+            <!-- Password Input -->
+            <div class="form-element opacity-0 relative">
+                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Password</label>
+                <div class="relative flex items-center">
+                    <span class="absolute left-4 text-slate-400 pointer-events-none">
+                        <i data-lucide="lock" class="w-4 h-4"></i>
+                    </span>
+                    <input type="password" id="registerPassword" required placeholder="••••••••"
+                        class="w-full pl-11 pr-12 py-2.5 bg-slate-50 border-2 border-slate-200/80 rounded-xl text-sm font-bold text-slate-800 focus:outline-none focus:border-brand-500 focus:bg-white transition-all duration-200">
+                    <button type="button" onclick="togglePasswordVisibility('registerPassword', this)"
+                        class="absolute right-4 text-slate-400 hover:text-slate-650 transition-colors duration-150">
+                        <i data-lucide="eye" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Confirm Password Input -->
+            <div class="form-element opacity-0 relative">
+                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Confirm Password</label>
+                <div class="relative flex items-center">
+                    <span class="absolute left-4 text-slate-400 pointer-events-none">
+                        <i data-lucide="shield-check" class="w-4 h-4"></i>
+                    </span>
+                    <input type="password" id="registerConfirmPassword" required placeholder="••••••••"
+                        class="w-full pl-11 pr-12 py-2.5 bg-slate-50 border-2 border-slate-200/80 rounded-xl text-sm font-bold text-slate-800 focus:outline-none focus:border-brand-500 focus:bg-white transition-all duration-200">
+                    <button type="button" onclick="togglePasswordVisibility('registerConfirmPassword', this)"
+                        class="absolute right-4 text-slate-400 hover:text-slate-650 transition-colors duration-150">
+                        <i data-lucide="eye" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="form-element opacity-0 pt-1.5">
+                <button type="submit"
+                    class="w-full py-3 bg-accent-650 hover:bg-accent-500 bg-brand-600 hover:bg-brand-500 text-white rounded-xl text-sm font-bold active:scale-95 transition-all duration-200 shadow-lg shadow-brand-500/15 flex items-center justify-center gap-2">
+                    <i data-lucide="user-check" class="w-4 h-4"></i>
+                    <span>Register Account</span>
+                </button>
+            </div>
+        </form>
+
+        <!-- Redirection Options -->
+        <div class="text-center mt-5 pt-3.5 border-t border-slate-100 form-element opacity-0">
+            <p class="text-xs text-slate-500 font-semibold">
+                Already have an account? 
+                <a href="login.html" id="loginPageLink" class="text-brand-600 hover:underline font-bold transition-all duration-150">Sign In here</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- Placeholder for fallback in script.js -->
+    <div id="loginModal" class="hidden"></div>
+
+    <!-- ==================== MICRO TOAST NOTIFICATIONS ==================== -->
+    <div id="toast"
+        class="fixed bottom-8 right-8 z-[100] px-5 py-4 rounded-2xl bg-white border border-slate-200/80 text-slate-800 text-sm shadow-2xl flex items-center gap-3 hidden transition-all duration-300">
+        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-600 flex items-center justify-center shrink-0"
+            id="toastIcon">
+            <i data-lucide="check" class="w-4 h-4"></i>
+        </div>
+        <span id="toastMessage" class="font-bold text-xs leading-normal">System Action Confirmed</span>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="js/script.js"></script>
+
+    <script>
+        // Password field visibility toggler
+        function togglePasswordVisibility(inputId, buttonEl) {
+            const input = document.getElementById(inputId);
+            const icon = buttonEl.querySelector('i');
+            if (!input || !icon) return;
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.setAttribute('data-lucide', 'eye-off');
+            } else {
+                input.type = 'password';
+                icon.setAttribute('data-lucide', 'eye');
+            }
+            if (window.lucide) {
+                lucide.createIcons();
+            }
+        }
+
+        // Set up redirection queries on login link dynamically
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const redirectPage = urlParams.get('redirect');
+            const loginLink = document.getElementById('loginPageLink');
+            const closeLink = document.getElementById('closePageLink');
+            const portalHomeLink = document.querySelector('a[href="index.html"]');
+
+            if (redirectPage) {
+                if (loginLink) {
+                    loginLink.href = `login.html?redirect=${encodeURIComponent(redirectPage)}`;
+                }
+                if (closeLink) {
+                    closeLink.href = redirectPage;
+                }
+                if (portalHomeLink) {
+                    portalHomeLink.href = redirectPage;
+                }
+            }
+
+            // GSAP animations
+            gsap.fromTo('.register-card', 
+                { scale: 0.88, opacity: 0, y: 20 },
+                { scale: 1, opacity: 1, y: 0, duration: 0.55, ease: "power3.out" }
+            );
+
+            gsap.fromTo('.form-element',
+                { opacity: 0, y: 12 },
+                { opacity: 1, y: 0, duration: 0.45, stagger: 0.08, ease: "power2.out", delay: 0.15 }
+            );
+        });
+    </script>
+</body>
+
+</html>
