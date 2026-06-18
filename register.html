@@ -255,13 +255,17 @@
 
             if (redirectPage) {
                 if (loginLink) {
-                    loginLink.href = `login.html?redirect=${encodeURIComponent(redirectPage)}`;
+                    loginLink.href = `login.html?role=user&redirect=${encodeURIComponent(redirectPage)}`;
                 }
                 if (closeLink) {
                     closeLink.href = redirectPage;
                 }
                 if (portalHomeLink) {
                     portalHomeLink.href = redirectPage;
+                }
+            } else {
+                if (loginLink) {
+                    loginLink.href = `login.html?role=user`;
                 }
             }
 

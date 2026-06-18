@@ -1,3 +1,66 @@
+// Provide a safe fallback for Lucide icons if the CDN script fails to load (e.g. network timeout / offline)
+if (typeof window.lucide === 'undefined') {
+    window.lucide = {
+        createIcons: function() {
+            console.warn("Lucide library failed to load. Icon rendering skipped.");
+        }
+    };
+}
+if (typeof lucide === 'undefined') {
+    var lucide = window.lucide;
+}
+
+// Provide a safe fallback for GSAP animations if the CDN script fails to load
+if (typeof window.gsap === 'undefined') {
+    window.gsap = {
+        registerPlugin: function() {},
+        killTweensOf: function() {},
+        set: function() {},
+        timeline: function() {
+            const mock = {
+                fromTo: function() { return mock; },
+                to: function() { return mock; },
+                set: function() { return mock; }
+            };
+            return mock;
+        },
+        fromTo: function(el, from, to) {
+            if (to && typeof to.onComplete === 'function') {
+                to.onComplete();
+            }
+            return { kill: function() {} };
+        },
+        to: function(el, to) {
+            if (to && typeof to.onComplete === 'function') {
+                to.onComplete();
+            }
+            return { kill: function() {} };
+        }
+    };
+}
+if (typeof gsap === 'undefined') {
+    var gsap = window.gsap;
+}
+if (typeof window.ScrollTrigger === 'undefined') {
+    window.ScrollTrigger = {};
+}
+
+// Provide a safe fallback for Swiper if the CDN script fails to load
+if (typeof window.Swiper === 'undefined') {
+    window.Swiper = function() {
+        console.warn("Swiper library failed to load. Slider disabled.");
+        return {
+            on: function() {},
+            destroy: function() {},
+            update: function() {}
+        };
+    };
+}
+if (typeof Swiper === 'undefined') {
+    var Swiper = window.Swiper;
+}
+
+
 // ==================== STATE MANAGEMENT ====================
 let allBooks = [];
 let userDownloads = [];
@@ -771,87 +834,46 @@ function injectLoginModalHTML() {
     if (!modal) return;
 
     modal.innerHTML = `
-        <div class="modal-card w-full max-w-md bg-white border border-slate-200 rounded-3xl p-8 relative shadow-2xl">
+        <div class="modal-card w-full max-w-[480px] bg-white border border-slate-100 rounded-3xl p-8 relative shadow-[0_25px_50px_-12px_rgba(30,58,138,0.15)] overflow-hidden">
             <!-- Close Button -->
             <button onclick="closeLoginModal()"
-                class="absolute top-6 right-6 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 border border-slate-200/80 flex items-center justify-center transition-colors duration-200">
+                class="absolute top-5 right-5 w-9 h-9 rounded-full bg-slate-50 hover:bg-slate-100 text-slate-400 hover:text-slate-700 border border-slate-150 flex items-center justify-center transition-colors duration-250">
                 <i data-lucide="x" class="w-4 h-4"></i>
             </button>
 
-            <!-- LOGIN VIEW -->
-            <div id="loginFormView">
-                <div class="text-center mb-6">
-                    <div class="w-12 h-12 rounded-xl bg-brand-500/10 text-brand-600 flex items-center justify-center mx-auto mb-4">
-                        <i data-lucide="shield-check" class="w-6 h-6"></i>
-                    </div>
-                    <h3 class="text-xl font-extrabold text-slate-800 mb-2">Login / Register</h3>
-                    <p class="text-slate-500 text-xs leading-normal">Sign in to authenticate workspace controls</p>
+            <!-- Role Selection Header -->
+            <div class="text-center mt-3 mb-8">
+                <div class="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-brand-50 text-brand-600 mb-3 border border-brand-100/50">
+                    <i data-lucide="key-round" class="w-6 h-6"></i>
                 </div>
-
-                <form onsubmit="handleLoginSubmit(event)" class="space-y-4">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Email Address</label>
-                        <input type="email" id="loginEmail" required placeholder="name@example.com" 
-                            class="w-full px-4 py-3 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold text-slate-800 focus:outline-none focus:border-brand-500 focus:bg-white transition-all duration-200">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Password</label>
-                        <input type="password" id="loginPassword" required placeholder="••••••••" 
-                            class="w-full px-4 py-3 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold text-slate-800 focus:outline-none focus:border-brand-500 focus:bg-white transition-all duration-200">
-                    </div>
-                    <button type="submit" 
-                        class="w-full py-3.5 bg-brand-600 hover:bg-brand-500 text-white rounded-xl text-sm font-bold active:scale-95 transition-all duration-200 shadow-lg shadow-brand-500/15 flex items-center justify-center gap-2 mt-2">
-                        <i data-lucide="log-in" class="w-4 h-4"></i>
-                        <span>Authenticate</span>
-                    </button>
-                </form>
-
-                <div class="text-center mt-6 pt-4 border-t border-slate-100">
-                    <p class="text-xs text-slate-500 font-semibold">
-                        Don't have an account? 
-                        <a href="#" onclick="toggleAuthView('register'); return false;" class="text-brand-600 hover:underline font-bold">Register here</a>
-                    </p>
-                </div>
+                <h3 class="text-2xl font-black text-slate-900 tracking-tight">Select Role</h3>
+                <p class="text-slate-400 text-xs font-semibold mt-1">Choose your role to access the portal</p>
             </div>
 
-            <!-- REGISTER VIEW -->
-            <div id="registerFormView" class="hidden">
-                <div class="text-center mb-6">
-                    <div class="w-12 h-12 rounded-xl bg-accent-500/10 text-accent-600 flex items-center justify-center mx-auto mb-4">
-                        <i data-lucide="user-plus" class="w-6 h-6"></i>
+            <!-- Options Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <!-- Admin Card -->
+                <div onclick="selectRole('admin')" 
+                    class="relative border border-slate-150 hover:border-brand-500 rounded-2xl p-6 text-center cursor-pointer bg-white hover:bg-brand-50/10 shadow-sm transition-colors duration-200 group">
+                    
+                    <!-- Icon badge -->
+                    <div class="w-14 h-14 rounded-2xl bg-brand-50 text-brand-600 flex items-center justify-center mx-auto mb-4 border border-brand-100 group-hover:bg-brand-100/50 transition-colors duration-200">
+                        <i data-lucide="shield" class="w-6 h-6"></i>
                     </div>
-                    <h3 class="text-xl font-extrabold text-slate-800 mb-2">Create Account</h3>
-                    <p class="text-slate-500 text-xs leading-normal">Register to save collections and sync portfolios</p>
+                    <h4 class="text-base font-extrabold text-slate-800 mb-1 group-hover:text-brand-600 transition-colors">Admin Portal</h4>
+                    <p class="text-[11px] text-slate-400 font-semibold leading-relaxed">Manage books, catalog data & systems</p>
                 </div>
 
-                <form onsubmit="handleRegisterSubmit(event)" class="space-y-4">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Full Name</label>
-                        <input type="text" id="registerName" required placeholder="John Doe" 
-                            class="w-full px-4 py-3 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold text-slate-800 focus:outline-none focus:border-brand-500 focus:bg-white transition-all duration-200">
+                <!-- User Card -->
+                <div onclick="selectRole('user')" 
+                    class="relative border border-slate-150 hover:border-accent-500 rounded-2xl p-6 text-center cursor-pointer bg-white hover:bg-accent-50/10 shadow-sm transition-colors duration-200 group">
+                    
+                    <!-- Icon badge -->
+                    <div class="w-14 h-14 rounded-2xl bg-accent-50 text-accent-600 flex items-center justify-center mx-auto mb-4 border border-accent-100 group-hover:bg-accent-100/50 transition-colors duration-200">
+                        <i data-lucide="user" class="w-6 h-6"></i>
                     </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Email Address</label>
-                        <input type="email" id="registerEmail" required placeholder="reader@gmail.com" 
-                            class="w-full px-4 py-3 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold text-slate-800 focus:outline-none focus:border-brand-500 focus:bg-white transition-all duration-200">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Password</label>
-                        <input type="password" id="registerPassword" required placeholder="••••••••" 
-                            class="w-full px-4 py-3 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold text-slate-800 focus:outline-none focus:border-brand-500 focus:bg-white transition-all duration-200">
-                    </div>
-                    <button type="submit" 
-                        class="w-full py-3.5 bg-accent-600 hover:bg-accent-500 text-white rounded-xl text-sm font-bold active:scale-95 transition-all duration-200 shadow-lg shadow-accent-600/15 flex items-center justify-center gap-2 mt-2">
-                        <i data-lucide="user-check" class="w-4 h-4"></i>
-                        <span>Register Account</span>
-                    </button>
-                </form>
-
-                <div class="text-center mt-6 pt-4 border-t border-slate-100">
-                    <p class="text-xs text-slate-500 font-semibold">
-                        Already have an account? 
-                        <a href="#" onclick="toggleAuthView('login'); return false;" class="text-brand-600 hover:underline font-bold">Sign In here</a>
-                    </p>
+                    <h4 class="text-base font-extrabold text-slate-800 mb-1 group-hover:text-accent-600 transition-colors">User Portal</h4>
+                    <p class="text-[11px] text-slate-400 font-semibold leading-relaxed">Download and read academic resources</p>
                 </div>
             </div>
         </div>
@@ -866,7 +888,34 @@ function showLoginModal() {
     const currentPage = window.location.pathname.split('/').pop() || 'index.html';
     // If we're already on login.html or register.html, do nothing to prevent cycles
     if (currentPage === 'login.html' || currentPage === 'register.html') return;
-    window.location.href = `login.html?redirect=${encodeURIComponent(currentPage)}`;
+
+    const modal = document.getElementById('loginModal');
+    if (!modal) return;
+
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    
+    // Explicitly process newly injected Lucide icons upon modal activation
+    if (window.lucide) {
+        lucide.createIcons();
+    }
+
+    const card = modal.querySelector('.modal-card');
+    if (card) {
+        gsap.fromTo(card,
+            { scale: 0.85, opacity: 0 },
+            { scale: 1, opacity: 1, duration: 0.45, ease: "back.out(1.5)" }
+        );
+    }
+}
+
+function selectRole(role) {
+    const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+    closeLoginModal();
+    // Redirect to login.html with role and redirect parameters
+    setTimeout(() => {
+        window.location.href = `login.html?role=${role}&redirect=${encodeURIComponent(currentPage)}`;
+    }, 250);
 }
 
 function closeLoginModal() {
