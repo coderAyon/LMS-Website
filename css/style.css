@@ -1061,3 +1061,16 @@ html {
     object-fit: cover !important;
     border-radius: 9999px !important;
 }
+
+/* ==================== NAV LINK VISIBILITY POLISH ==================== */
+@media (min-width: 768px) {
+    body>header nav {
+        gap: 2.35rem !important;
+    }
+
+    body>header .nav-link {
+        font-size: 1.08rem !important;
+        line-height: 1.5 !important;
+        font-weight: 750 !important;
+    }
+}
