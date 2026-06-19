@@ -259,8 +259,9 @@
                         var registered = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
                         var email = localStorage.getItem('currentUserEmail');
                         var matchedUser = registered.find(function(u) { return u.email === email; });
-                        if (matchedUser && matchedUser.profileImage) {
-                            avatarEl.innerHTML = '<img src="' + matchedUser.profileImage + '" class="w-full h-full object-cover rounded-full" style="max-width: 100%; max-height: 100%;" />';
+                        var avatarImage = email === 'admin@gmail.com' ? localStorage.getItem('adminAvatar') : (matchedUser && matchedUser.profileImage);
+                        if (avatarImage) {
+                            avatarEl.innerHTML = '<img src="' + avatarImage + '" class="w-full h-full object-cover rounded-full" style="max-width: 100%; max-height: 100%;" />';
                         } else {
                             avatarEl.innerHTML = '';
                             avatarEl.textContent = user.charAt(0).toUpperCase();
@@ -300,30 +301,30 @@
 
                     <!-- Tab bar — scrollable on mobile, normal on md+ -->
                     <div class="overflow-x-auto pb-1 -mx-1 px-1">
-                        <div class="flex gap-2 bg-slate-100 p-1.5 rounded-xl border border-slate-200 shadow-sm w-max min-w-full sm:w-auto sm:min-w-0">
+                        <div class="flex gap-2 bg-slate-100 p-1.5 rounded-xl border border-slate-200 shadow-sm w-full min-w-max lg:min-w-0">
                             <button id="databaseListTabBtn" onclick="switchAdminTab('manageBooks', this)"
-                                class="admin-tab active flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg text-xs font-bold text-brand-600 transition-all duration-200 whitespace-nowrap">
+                                class="admin-tab active flex flex-1 items-center justify-center gap-2 px-3 sm:px-4 py-2 rounded-lg text-xs font-bold text-brand-600 transition-all duration-200 whitespace-nowrap">
                                 <i data-lucide="database" class="w-3.5 h-3.5 shrink-0"></i>
                                 <span>Database Grid</span>
                             </button>
                             <button onclick="factoryResetDatabase()"
-                                class="admin-tab flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg text-xs font-bold text-slate-500 hover:text-rose-600 transition-all duration-200 whitespace-nowrap">
+                                class="admin-tab flex flex-1 items-center justify-center gap-2 px-3 sm:px-4 py-2 rounded-lg text-xs font-bold text-slate-500 hover:text-rose-600 transition-all duration-200 whitespace-nowrap">
                                 <i data-lucide="refresh-cw" class="w-3.5 h-3.5 shrink-0"></i>
                                 <span>Restore Default Catalog</span>
                             </button>
                             <button onclick="switchAdminTab('addBook', this)"
-                                class="admin-tab flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg text-xs font-bold text-slate-500 hover:text-slate-700 transition-all duration-200 whitespace-nowrap">
+                                class="admin-tab flex flex-1 items-center justify-center gap-2 px-3 sm:px-4 py-2 rounded-lg text-xs font-bold text-slate-500 hover:text-slate-700 transition-all duration-200 whitespace-nowrap">
                                 <i data-lucide="plus-circle" class="w-3.5 h-3.5 shrink-0"></i>
                                 <span>Upload Volume</span>
                             </button>
                             <button id="memberApprovalsTabBtn" onclick="switchAdminTab('memberApprovals', this)"
-                                class="admin-tab flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg text-xs font-bold text-slate-500 hover:text-slate-700 transition-all duration-200 whitespace-nowrap">
+                                class="admin-tab flex flex-1 items-center justify-center gap-2 px-3 sm:px-4 py-2 rounded-lg text-xs font-bold text-slate-500 hover:text-slate-700 transition-all duration-200 whitespace-nowrap">
                                 <i data-lucide="user-check" class="w-3.5 h-3.5 shrink-0"></i>
                                 <span>Member Approvals</span>
                                 <span id="pendingMembersBadge" class="hidden min-w-5 h-5 px-1.5 rounded-full bg-accent-600 text-white text-[10px] font-black items-center justify-center">0</span>
                             </button>
                             <button id="bookApprovalsTabBtn" onclick="switchAdminTab('bookApprovals', this)"
-                                class="admin-tab flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg text-xs font-bold text-slate-500 hover:text-slate-700 transition-all duration-200 whitespace-nowrap">
+                                class="admin-tab flex flex-1 items-center justify-center gap-2 px-3 sm:px-4 py-2 rounded-lg text-xs font-bold text-slate-500 hover:text-slate-700 transition-all duration-200 whitespace-nowrap">
                                 <i data-lucide="book-plus" class="w-3.5 h-3.5 shrink-0"></i>
                                 <span>Book Approvals</span>
                                 <span id="pendingBooksBadge" class="hidden min-w-5 h-5 px-1.5 rounded-full bg-amber-600 text-white text-[10px] font-black items-center justify-center">0</span>

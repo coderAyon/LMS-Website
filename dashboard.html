@@ -259,8 +259,9 @@
                         var registered = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
                         var email = localStorage.getItem('currentUserEmail');
                         var matchedUser = registered.find(function(u) { return u.email === email; });
-                        if (matchedUser && matchedUser.profileImage) {
-                            avatarEl.innerHTML = '<img src="' + matchedUser.profileImage + '" class="w-full h-full object-cover rounded-full" style="max-width: 100%; max-height: 100%;" />';
+                        var avatarImage = email === 'admin@gmail.com' ? localStorage.getItem('adminAvatar') : (matchedUser && matchedUser.profileImage);
+                        if (avatarImage) {
+                            avatarEl.innerHTML = '<img src="' + avatarImage + '" class="w-full h-full object-cover rounded-full" style="max-width: 100%; max-height: 100%;" />';
                         } else {
                             avatarEl.innerHTML = '';
                             avatarEl.textContent = user.charAt(0).toUpperCase();
