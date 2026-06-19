@@ -1116,9 +1116,78 @@ function updateLibraryStats() {
     updateCustomBookApprovalBadges();
 }
 
+function injectWhatsAppButton() {
+    if (document.getElementById('whatsappContactButton')) return;
+
+    if (!document.getElementById('whatsappContactStyles')) {
+        const style = document.createElement('style');
+        style.id = 'whatsappContactStyles';
+        style.textContent = `
+            .whatsapp-contact-button {
+                position: fixed;
+                right: 24px;
+                bottom: 24px;
+                z-index: 80;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                width: 48px;
+                height: 48px;
+                border-radius: 999px;
+                border: 1px solid rgba(22, 163, 74, 0.32);
+                background: #22c55e;
+                color: #fff;
+                font: 800 13px/1 "Plus Jakarta Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+                text-decoration: none;
+                box-shadow: 0 14px 30px rgba(34, 197, 94, 0.34), 0 4px 12px rgba(15, 23, 42, 0.14);
+                transition: transform 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
+            }
+
+            .whatsapp-contact-button:hover {
+                background: #16a34a;
+                transform: translateY(-2px);
+                box-shadow: 0 18px 36px rgba(34, 197, 94, 0.42), 0 6px 14px rgba(15, 23, 42, 0.16);
+            }
+
+            .whatsapp-contact-button:active {
+                transform: translateY(0) scale(0.98);
+            }
+
+            .whatsapp-contact-button svg {
+                width: 26px;
+                height: 26px;
+                display: block;
+            }
+
+            @media (max-width: 640px) {
+                .whatsapp-contact-button {
+                    right: 16px;
+                    bottom: 16px;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    const button = document.createElement('a');
+    button.id = 'whatsappContactButton';
+    button.className = 'whatsapp-contact-button';
+    button.href = 'https://wa.me/8801630802119?text=Hello%20GBLMS%2C%20I%20need%20help.';
+    button.target = '_blank';
+    button.rel = 'noopener noreferrer';
+    button.setAttribute('aria-label', 'Contact GBLMS on WhatsApp');
+    button.innerHTML = `
+        <svg viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+            <path fill="currentColor" d="M16.04 4C9.42 4 4.05 9.34 4.05 15.92c0 2.1.55 4.15 1.6 5.96L4 28l6.28-1.62a12.06 12.06 0 0 0 5.76 1.47C22.66 27.85 28 22.5 28 15.92 28 9.34 22.66 4 16.04 4Zm0 21.8c-1.84 0-3.64-.5-5.2-1.45l-.37-.22-3.72.96.99-3.6-.24-.37a9.78 9.78 0 0 1-1.5-5.2c0-5.44 4.5-9.88 10.04-9.88 5.52 0 10 4.44 10 9.88s-4.48 9.88-10 9.88Zm5.5-7.4c-.3-.15-1.78-.87-2.06-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.95 1.17-.17.2-.35.23-.65.08-.3-.15-1.27-.47-2.42-1.5a9.06 9.06 0 0 1-1.67-2.06c-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.18.2-.3.3-.5.1-.2.05-.38-.02-.53-.08-.15-.67-1.6-.92-2.2-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.53.07-.8.38-.27.3-1.05 1.02-1.05 2.5s1.08 2.9 1.23 3.1c.15.2 2.13 3.23 5.15 4.53.72.3 1.28.49 1.72.62.72.23 1.38.2 1.9.12.58-.09 1.78-.72 2.03-1.42.25-.7.25-1.3.17-1.42-.07-.13-.27-.2-.57-.35Z"/>
+        </svg>
+    `;
+    document.body.appendChild(button);
+}
+
 // ==================== APP BOOTSTRAPPING ====================
 function initializeApp() {
     injectLoginModalHTML();
+    injectWhatsAppButton();
     loadDownloads();
     initUserSession();   // ← Must run BEFORE fetchCatalogDatabase so currentUser is set
 
@@ -2642,8 +2711,9 @@ function createBookCard(book, options = {}) {
     };
     const categoryTextColor = categoryTextColors[book.category] || "text-slate-400";
     const approvalStatus = book.approvalStatus || '';
-    const canManageCustomBook = Boolean(options.allowCustomManagement) &&
-        book.isCustom &&
+    const isCustomBook = Boolean(book.isCustom);
+    const canManageCustomBook = (Boolean(options.allowCustomManagement) || Boolean(options.showCustomRemove)) &&
+        isCustomBook &&
         (!book.ownerEmail || !currentUserEmail || (book.ownerEmail || '').toLowerCase() === currentUserEmail.toLowerCase());
     const approvalBadge = canManageCustomBook && approvalStatus ? `
         <span class="inline-flex items-center gap-1.5 text-[9px] font-black tracking-widest uppercase px-2 py-1 rounded-lg border mb-2 ${getBookApprovalStatusClasses(approvalStatus)}">
@@ -2671,9 +2741,9 @@ function createBookCard(book, options = {}) {
             ` : ''}
             <button onclick="event.stopPropagation(); deleteCustomBook(${book.id});" 
                     class="flex items-center gap-1.5 py-1.5 px-3 rounded-lg transition-all duration-200 select-none text-red-600 bg-red-50 hover:bg-red-100/80 border border-red-100" 
-                    title="Delete Custom Book">
+                    title="Remove Custom Book">
                 <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-                <span class="text-[10px] font-black uppercase tracking-wider">DELETE</span>
+                <span class="text-[10px] font-black uppercase tracking-wider">REMOVE</span>
             </button>
         </div>
     ` : '';
@@ -3341,18 +3411,42 @@ function publishCustomBook(bookId) {
 }
 
 function deleteCustomBook(bookId) {
-    if (!currentUserEmail) return;
+    if (!currentUserEmail) {
+        showNotification("Portal Sign In required.", "error");
+        return;
+    }
 
-    if (confirm("Are you sure you want to delete this custom book entry?")) {
-        const customBooks = JSON.parse(localStorage.getItem(`customUserBooks_${currentUserEmail}`) || '[]');
-        const filtered = customBooks.filter(b => Number(b.id) !== Number(bookId));
-        localStorage.setItem(`customUserBooks_${currentUserEmail}`, JSON.stringify(filtered));
-        allBooks = allBooks.filter(b => Number(b.id) !== Number(bookId));
-        const applications = getCustomBookApplications();
-        saveCustomBookApplications(applications.filter(app => Number(app.id) !== Number(bookId)));
-        saveDatabase();
-        showNotification("Custom book entry removed.", "info");
+    const bookIdText = String(bookId);
+    const storageKey = `customUserBooks_${currentUserEmail}`;
+    const customBooks = JSON.parse(localStorage.getItem(storageKey) || '[]');
+    const customBook = customBooks.find(book => String(book.id) === bookIdText);
+
+    if (!customBook) {
+        showNotification("Custom book entry not found.", "error");
         renderDashboardPortfolio();
+        return;
+    }
+
+    if (confirm(`Remove "${customBook.title}" from your custom books?`)) {
+        localStorage.setItem(storageKey, JSON.stringify(
+            customBooks.filter(book => String(book.id) !== bookIdText)
+        ));
+
+        userDownloads = userDownloads.filter(id => String(id) !== bookIdText);
+        saveDownloads();
+
+        allBooks = allBooks.filter(book => String(book.id) !== bookIdText);
+
+        const applications = getCustomBookApplications();
+        saveCustomBookApplications(applications.filter(app => String(app.id) !== bookIdText));
+
+        saveDatabase();
+        showNotification("Custom book removed from your library.", "info");
+
+        const pageId = getCurrentPageId();
+        if (pageId === 'dashboard') renderDashboardPortfolio();
+        if (pageId === 'catalog') filterBooks();
+        if (pageId === 'saved') renderSavedBooks();
     }
 }
 
@@ -3390,7 +3484,12 @@ function renderDashboardPortfolio() {
         // Load buffered catalog books
         const savedList = allBooks.filter(b => userDownloads.some(id => Number(id) === Number(b.id)));
 
-        const combinedList = [...customBooks, ...savedList];
+        const combinedMap = new Map();
+        [...customBooks, ...savedList].forEach(book => {
+            const key = String(book.id);
+            if (!combinedMap.has(key)) combinedMap.set(key, book);
+        });
+        const combinedList = Array.from(combinedMap.values());
 
         if (combinedList.length === 0) {
             userGrid.innerHTML = `
@@ -3412,7 +3511,12 @@ function renderDashboardPortfolio() {
             combinedList.forEach(book => {
                 const isOwnCustomBook = book.isCustom &&
                     (!book.ownerEmail || !currentUserEmail || (book.ownerEmail || '').toLowerCase() === currentUserEmail.toLowerCase());
-                userGrid.appendChild(createBookCard(book, { allowCustomManagement: isOwnCustomBook }));
+                const isStoredCustomBook = book.isCustom &&
+                    customBooks.some(customBook => Number(customBook.id) === Number(book.id));
+                userGrid.appendChild(createBookCard(book, {
+                    allowCustomManagement: isOwnCustomBook || isStoredCustomBook,
+                    showCustomRemove: isStoredCustomBook
+                }));
             });
             const divs = userGrid.querySelectorAll(':scope > div');
             if (divs.length) {

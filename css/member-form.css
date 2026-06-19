@@ -2897,6 +2897,26 @@ legend::before {
   gap: 12px;
 }
 
+@media (min-width: 901px) {
+  .portal-nav-shell {
+    display: grid;
+    grid-template-columns: minmax(220px, 1fr) auto minmax(220px, 1fr);
+  }
+
+  .portal-brand-link {
+    justify-self: start;
+  }
+
+  .portal-nav-links {
+    justify-self: center;
+    margin-left: 0;
+  }
+
+  .portal-actions {
+    justify-self: end;
+  }
+}
+
 .portal-login-btn,
 .portal-user-btn,
 .portal-mobile-toggle {

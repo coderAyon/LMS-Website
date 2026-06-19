@@ -260,6 +260,7 @@ const renderApprovedMemberCard = (source, session) => {
 
   approvedPanel.hidden = false;
   form.hidden = true;
+  if (photoStamp) photoStamp.hidden = true;
 
   if (approvedMessage) {
     approvedMessage.textContent = `${name}, your GBLMS library membership has been approved by the admin office. Your card is ready to use.`;
@@ -286,6 +287,7 @@ const renderApprovedMemberCard = (source, session) => {
 const showMemberApplicationForm = () => {
   if (approvedPanel) approvedPanel.hidden = true;
   form.hidden = false;
+  if (photoStamp) photoStamp.hidden = false;
 };
 
 const setFormValue = (name, value) => {
