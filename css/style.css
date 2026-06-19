@@ -85,10 +85,16 @@ html {
 }
 
 @media (max-width: 767px) {
-    .hero-cta-row {
-        justify-content: center;
+    .hero-cta-row.flex {
+        justify-content: center !important;
         width: 100%;
         gap: 18px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .hero-cta-button {
+        flex-basis: min(86vw, 320px);
     }
 }
 
