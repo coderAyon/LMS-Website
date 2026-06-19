@@ -143,11 +143,15 @@ function renderKnowledgeAreas() {
     const badge = document.getElementById('totalVolumesBadge');
     if (!grid) return;
 
+    mergeApprovedCustomBooksIntoCatalog();
+    mergeCurrentUserCustomBooksIntoCatalog();
+    const visibleBooks = allBooks.filter(isCatalogVisibleBook);
+
     // Update total count badge
-    if (badge) badge.textContent = `${allBooks.length} Volumes Cataloged`;
+    if (badge) badge.textContent = `${visibleBooks.length} Volumes Cataloged`;
 
     grid.innerHTML = KNOWLEDGE_AREAS_CONFIG.map(area => {
-        const count = allBooks.filter(b => b.category === area.category).length;
+        const count = visibleBooks.filter(b => b.category === area.category).length;
         return `
             <div onclick="navigateToCatalogWithFilter('${area.category}')"
                 class="bg-white border border-slate-200 p-6 rounded-3xl cursor-pointer flex flex-col items-center text-center relative overflow-hidden group">
@@ -241,6 +245,7 @@ async function fetchCatalogDatabase() {
         });
 
         mergeApprovedCustomBooksIntoCatalog();
+        mergeCurrentUserCustomBooksIntoCatalog();
         localStorage.setItem('libraryBooks', JSON.stringify(allBooks));
 
         // Update home stats UI
@@ -387,6 +392,7 @@ async function fetchCatalogDatabase() {
         ];
 
         mergeApprovedCustomBooksIntoCatalog();
+        mergeCurrentUserCustomBooksIntoCatalog();
         localStorage.setItem('libraryBooks', JSON.stringify(allBooks));
 
         const heroBookCount2 = document.getElementById('heroBookCount');
@@ -401,6 +407,7 @@ async function fetchCatalogDatabase() {
         if (fallbackPageId === 'admin') { if (document.getElementById('adminBooksTable')) updateAdminTable(); }
         if (fallbackPageId === 'saved') renderSavedBooks();
         if (fallbackPageId === 'dashboard') renderDashboardPortfolio();
+        checkPendingFilters();
 
         showNotification("Loaded local fallback catalog due to file system security rules.", "success");
     }
@@ -573,6 +580,69 @@ function mergeApprovedCustomBooksIntoCatalog({ persist = false } = {}) {
     }
 
     return changed;
+}
+
+function mergeCurrentUserCustomBooksIntoCatalog({ persist = false } = {}) {
+    if (!currentUserEmail) return false;
+
+    const customBooks = JSON.parse(localStorage.getItem(`customUserBooks_${currentUserEmail}`) || '[]')
+        .filter(book => (book.approvalStatus || 'pending') !== 'rejected')
+        .map(book => {
+            const approvalStatus = book.approvalStatus || 'pending';
+            return {
+                ...book,
+                isCustom: true,
+                ownerEmail: book.ownerEmail || currentUserEmail,
+                submittedByEmail: book.submittedByEmail || currentUserEmail,
+                submittedBy: book.submittedBy || currentUser || currentUserEmail,
+                approvalStatus,
+                reviewStatus: book.reviewStatus || approvalStatus,
+                status: approvalStatus === 'approved' ? 'Available' : 'Pending Review',
+                copiesTotal: book.copiesTotal || 1,
+                copiesAvailable: approvalStatus === 'approved' ? (book.copiesAvailable || 1) : 0,
+                publisher: book.publisher || 'Custom Reader Entry',
+                pages: book.pages || 300,
+                yearPublished: book.yearPublished || new Date().getFullYear(),
+                rating: book.rating || 5.0
+            };
+        });
+
+    if (!customBooks.length) return false;
+
+    let changed = false;
+    customBooks.forEach(customBook => {
+        const existingIndex = allBooks.findIndex(book =>
+            String(book.id) === String(customBook.id) ||
+            ((book.isbn || '').toLowerCase() === (customBook.isbn || '').toLowerCase())
+        );
+
+        if (existingIndex === -1) {
+            allBooks.push(customBook);
+            changed = true;
+        } else {
+            const existingBook = allBooks[existingIndex];
+            if (existingBook.approvalStatus !== 'approved') {
+                allBooks[existingIndex] = {
+                    ...existingBook,
+                    ...customBook
+                };
+                changed = true;
+            }
+        }
+    });
+
+    if (changed && persist) {
+        localStorage.setItem('libraryBooks', JSON.stringify(allBooks));
+    }
+
+    return changed;
+}
+
+function isCatalogVisibleBook(book) {
+    if (!book || !book.isCustom) return true;
+    if ((book.approvalStatus || '') === 'approved') return true;
+    const ownerEmail = (book.ownerEmail || book.submittedByEmail || '').toLowerCase();
+    return Boolean(currentUserEmail && ownerEmail === currentUserEmail.toLowerCase());
 }
 
 function getMemberStatusClasses(status) {
@@ -1848,10 +1918,23 @@ function ensureMemberCardDropdownLink() {
     profileLink.insertAdjacentElement('afterend', link);
 }
 
+function updateHeroMembershipButton() {
+    const button = document.getElementById('heroMembershipBtn');
+    if (!button) return;
+
+    const label = button.querySelector('[data-hero-membership-label]');
+    const isAdmin = currentRole === 'admin';
+
+    button.setAttribute('onclick', isAdmin ? "navigateToMemberApprovals(); return false;" : "navigateTo('member'); return false;");
+    button.setAttribute('aria-label', isAdmin ? 'Open member approvals' : 'Open LMS membership');
+    if (label) label.textContent = isAdmin ? 'Member Approval' : 'LMS Membership';
+}
+
 function updateSessionUI() {
     ensureMemberCardDropdownLink();
 
     const loginBtn = document.getElementById('loginBtn');
+    const heroAccessConsoleBtn = document.getElementById('heroAccessConsoleBtn');
     const navUser = document.getElementById('navUser');
     const navUserName = document.getElementById('navUserName');
     const navUserRole = document.getElementById('navUserRole');
@@ -1872,8 +1955,12 @@ function updateSessionUI() {
     const mobileAdminLink = document.getElementById('mobileAdminLink');
     const savedNavLink = document.getElementById('savedNavLink');
 
+    updateHeroMembershipButton();
+
     if (currentUser) {
+        document.body.classList.add('session-authenticated');
         if (loginBtn) loginBtn.classList.add('hidden');
+        if (heroAccessConsoleBtn) heroAccessConsoleBtn.classList.add('hidden');
         if (navUser) { navUser.classList.remove('hidden'); navUser.classList.add('flex'); }
 
         if (navUserName) navUserName.textContent = currentUser;
@@ -1917,7 +2004,9 @@ function updateSessionUI() {
             if (dropdownMemberCardLink) dropdownMemberCardLink.classList.remove('hidden');
         }
     } else {
+        document.body.classList.remove('session-authenticated');
         if (loginBtn) loginBtn.classList.remove('hidden');
+        if (heroAccessConsoleBtn) heroAccessConsoleBtn.classList.remove('hidden');
         if (navUser) navUser.classList.add('hidden');
         if (savedNavLink) savedNavLink.classList.add('hidden');
         if (dashboardLink) dashboardLink.classList.add('hidden');
@@ -2302,6 +2391,15 @@ function checkPendingFilters() {
         }
         localStorage.removeItem('pendingCategoryFilter');
     }
+
+    const pendingAdminTab = localStorage.getItem('pendingAdminTab');
+    if (pendingAdminTab && getCurrentPageId() === 'admin') {
+        const tabBtn = document.getElementById(`${pendingAdminTab}TabBtn`);
+        if (tabBtn && typeof switchAdminTab === 'function') {
+            switchAdminTab(pendingAdminTab, tabBtn);
+        }
+        localStorage.removeItem('pendingAdminTab');
+    }
 }
 
 function getSessionQueryString() {
@@ -2330,6 +2428,22 @@ function navigateTo(sectionId) {
 
     const queryString = getSessionQueryString();
     window.location.href = targetPage + queryString;
+}
+
+function navigateToMemberApprovals() {
+    if (currentRole !== 'admin') {
+        navigateTo('member');
+        return;
+    }
+
+    localStorage.setItem('pendingAdminTab', 'memberApprovals');
+
+    if (getCurrentPageId() === 'admin') {
+        checkPendingFilters();
+        return;
+    }
+
+    navigateTo('admin');
 }
 
 function toggleMobileMenu() {
@@ -2648,9 +2762,10 @@ function renderCatalogGrid() {
     if (!grid) return;
 
     mergeApprovedCustomBooksIntoCatalog({ persist: true });
+    mergeCurrentUserCustomBooksIntoCatalog({ persist: true });
     grid.innerHTML = '';
 
-    allBooks.forEach(book => {
+    allBooks.filter(isCatalogVisibleBook).forEach(book => {
         grid.appendChild(createBookCard(book));
     });
 
@@ -2829,6 +2944,9 @@ function clearSearch() {
 
 function filterBooks(resetPage = true) {
     if (resetPage) catalogCurrentPage = 1;
+    mergeApprovedCustomBooksIntoCatalog({ persist: true });
+    mergeCurrentUserCustomBooksIntoCatalog({ persist: true });
+
     const searchInput = document.getElementById('searchInput');
     const categoryFilter = document.getElementById('categoryFilter');
     const semesterFilter = document.getElementById('semesterFilter');
@@ -2845,6 +2963,8 @@ function filterBooks(resetPage = true) {
     const sortVal = sortControl ? sortControl.value : 'title-asc';
 
     let filtered = allBooks.filter(book => {
+        if (!isCatalogVisibleBook(book)) return false;
+
         const matchesSearch = book.title.toLowerCase().includes(searchVal) ||
             book.author.toLowerCase().includes(searchVal) ||
             book.isbn.includes(searchVal);
@@ -2921,13 +3041,14 @@ function updateCatalogStats() {
     const availableCountEl = document.getElementById('catalogAvailableCount');
     const reservedCountEl = document.getElementById('catalogReservedCount');
     const savedCountEl = document.getElementById('catalogSavedCount');
+    const visibleBooks = allBooks.filter(isCatalogVisibleBook);
 
-    if (totalCountEl) totalCountEl.textContent = allBooks.length;
+    if (totalCountEl) totalCountEl.textContent = visibleBooks.length;
     if (availableCountEl) {
-        availableCountEl.textContent = allBooks.filter(b => b.status === 'Available').length;
+        availableCountEl.textContent = visibleBooks.filter(b => b.status === 'Available').length;
     }
     if (reservedCountEl) {
-        reservedCountEl.textContent = allBooks.filter(b => b.status === 'Reserved').length;
+        reservedCountEl.textContent = visibleBooks.filter(b => b.status === 'Reserved').length;
     }
     if (savedCountEl) {
         savedCountEl.textContent = userDownloads.length;
@@ -3272,6 +3393,7 @@ function handleAddBookSubmit(event) {
         }
 
         allBooks = allBooks.filter(item => Number(item.id) !== Number(editingCustomBookId));
+        mergeCurrentUserCustomBooksIntoCatalog();
         saveDatabase();
         resetCustomBookFormMode();
         showNotification(`Book "${title}" updated.`, "success");
@@ -3320,6 +3442,8 @@ function handleAddBookSubmit(event) {
 
     submittedBooks.push(newBook);
     saveCustomBookApplications(submittedBooks);
+    mergeCurrentUserCustomBooksIntoCatalog();
+    saveDatabase();
 
     form.reset();
     if (categoryEl) categoryEl.value = 'Technology';

@@ -73,6 +73,17 @@ html {
     -webkit-mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 100%);
 }
 
+.hero-cta-row {
+    width: min(100%, 575px);
+    gap: 28px;
+    margin-inline: auto;
+}
+
+.hero-cta-button {
+    flex: 0 0 min(100%, 245px);
+    min-height: 58px;
+}
+
 
 /* ==================== PREMIUM LIGHT DASHBOARD CARDS ==================== */
 
@@ -1060,6 +1071,14 @@ html {
     height: 100% !important;
     object-fit: cover !important;
     border-radius: 9999px !important;
+}
+
+body.session-authenticated #heroAccessConsoleBtn {
+    display: none !important;
+}
+
+body:not(.session-authenticated) #heroMembershipBtn {
+    display: none !important;
 }
 
 /* ==================== NAV LINK VISIBILITY POLISH ==================== */

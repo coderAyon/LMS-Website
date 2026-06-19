@@ -532,6 +532,7 @@
             var role = localStorage.getItem('currentRole');
             var user = localStorage.getItem('currentUser');
             if (role && user) {
+                document.body.classList.add('session-authenticated');
                 var saved = document.getElementById('savedNavLink');
                 var dash = document.getElementById('dashboardLink');
                 var admin = document.getElementById('adminLink');
@@ -654,14 +655,19 @@
                             </p>
 
                             <!-- CTA Buttons -->
-                            <div class="flex flex-wrap justify-center lg:justify-start gap-3 mb-7">
+                            <div class="hero-cta-row flex flex-wrap justify-start mb-7">
                                 <button onclick="navigateTo('catalog')"
-                                    class="flex items-center gap-2 px-6 py-3 rounded-xl bg-brand-600 hover:bg-brand-500 hover:-translate-y-1 hover:shadow-xl hover:shadow-brand-500/25 text-white text-base font-bold active:scale-95 transition-all duration-300">
+                                    class="hero-cta-button flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-brand-600 hover:bg-brand-500 hover:-translate-y-1 hover:shadow-xl hover:shadow-brand-500/25 text-white text-base font-bold active:scale-95 transition-all duration-300">
                                     <i data-lucide="compass" class="w-4 h-4"></i>
                                     Browse Catalog
                                 </button>
-                                <button onclick="showLoginModal()"
-                                    class="flex items-center gap-2 px-6 py-3 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-300 hover:-translate-y-1 hover:shadow-md text-slate-700 text-base font-bold active:scale-95 transition-all duration-300">
+                                <button onclick="navigateTo('member')" id="heroMembershipBtn"
+                                    class="hero-cta-button flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-white border border-brand-500 hover:bg-brand-50 hover:border-brand-600 hover:-translate-y-1 hover:shadow-md text-brand-600 text-base font-bold active:scale-95 transition-all duration-300">
+                                    <i data-lucide="id-card" class="w-4 h-4"></i>
+                                    <span data-hero-membership-label>LMS Membership</span>
+                                </button>
+                                <button onclick="showLoginModal()" id="heroAccessConsoleBtn"
+                                    class="hero-cta-button flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-white border border-brand-500 hover:bg-brand-50 hover:border-brand-600 hover:-translate-y-1 hover:shadow-md text-brand-600 text-base font-bold active:scale-95 transition-all duration-300">
                                     <i data-lucide="user-check" class="w-4 h-4"></i>
                                     Access Console
                                 </button>
