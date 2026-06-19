@@ -87,7 +87,8 @@
             transition: transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
 
-        .book-floater:hover .book-shift-wrapper {
+        .book-floater:hover .book-shift-wrapper,
+        body.hero-book-auto-open .book-floater .book-shift-wrapper {
             transform: translateX(0);
         }
 
@@ -100,7 +101,8 @@
             transition: transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
 
-        .book-floater:hover .book-container {
+        .book-floater:hover .book-container,
+        body.hero-book-auto-open .book-floater .book-container {
             transform: rotateY(10deg) rotateX(10deg) scale(1.1);
         }
 
@@ -197,27 +199,32 @@
         }
 
         /* Fan pages on hover with sequential opening delays */
-        .book-floater:hover .book-page-1 {
+        .book-floater:hover .book-page-1,
+        body.hero-book-auto-open .book-floater .book-page-1 {
             transform: rotateY(-135deg) translateZ(10px);
             transition-delay: 0.2s;
         }
 
-        .book-floater:hover .book-page-2 {
+        .book-floater:hover .book-page-2,
+        body.hero-book-auto-open .book-floater .book-page-2 {
             transform: rotateY(-126deg) translateZ(8px);
             transition-delay: 0.4s;
         }
 
-        .book-floater:hover .book-page-3 {
+        .book-floater:hover .book-page-3,
+        body.hero-book-auto-open .book-floater .book-page-3 {
             transform: rotateY(-117deg) translateZ(6px);
             transition-delay: 0.6s;
         }
 
-        .book-floater:hover .book-page-4 {
+        .book-floater:hover .book-page-4,
+        body.hero-book-auto-open .book-floater .book-page-4 {
             transform: rotateY(-108deg) translateZ(4px);
             transition-delay: 0.8s;
         }
 
-        .book-floater:hover .book-page-5 {
+        .book-floater:hover .book-page-5,
+        body.hero-book-auto-open .book-floater .book-page-5 {
             transform: rotateY(-99deg) translateZ(2px);
             transition-delay: 1.0s;
         }
@@ -234,7 +241,8 @@
             transform-style: preserve-3d;
         }
 
-        .book-floater:hover .book-front {
+        .book-floater:hover .book-front,
+        body.hero-book-auto-open .book-floater .book-front {
             transform: rotateY(-142deg) translateZ(12px);
             transition-delay: 0s;
         }
@@ -275,7 +283,8 @@
             transition: stroke-dashoffset 1.0s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .book-floater:hover .telemetry-graph-path {
+        .book-floater:hover .telemetry-graph-path,
+        body.hero-book-auto-open .book-floater .telemetry-graph-path {
             stroke-dashoffset: 0;
         }
 
@@ -285,7 +294,8 @@
             transition: stroke-dashoffset 1.0s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .book-floater:hover .telemetry-radial-circle {
+        .book-floater:hover .telemetry-radial-circle,
+        body.hero-book-auto-open .book-floater .telemetry-radial-circle {
             stroke-dashoffset: 16;
         }
 

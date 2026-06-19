@@ -70,6 +70,8 @@ let currentUserEmail = null;
 let currentSection = 'home';
 let featuredStartIndex = 0;
 let selectedBookForModal = null;
+let heroBookAutoOpenTimer = null;
+let heroBookAutoOpenPlayed = false;
 
 const MEMBERSHIP_APPLICATIONS_KEY = 'libraryMemberApplications';
 const CUSTOM_BOOK_APPLICATIONS_KEY = 'customBookApplications';
@@ -1930,6 +1932,22 @@ function updateHeroMembershipButton() {
     if (label) label.textContent = isAdmin ? 'Member Approval' : 'LMS Membership';
 }
 
+function triggerHeroBookAutoOpen() {
+    if (heroBookAutoOpenPlayed || getCurrentPageId() !== 'home' || !document.querySelector('.book-floater')) return;
+
+    heroBookAutoOpenPlayed = true;
+    if (heroBookAutoOpenTimer) clearTimeout(heroBookAutoOpenTimer);
+
+    document.body.classList.remove('hero-book-auto-open');
+    requestAnimationFrame(() => {
+        document.body.classList.add('hero-book-auto-open');
+        heroBookAutoOpenTimer = setTimeout(() => {
+            document.body.classList.remove('hero-book-auto-open');
+            heroBookAutoOpenTimer = null;
+        }, 2800);
+    });
+}
+
 function updateSessionUI() {
     ensureMemberCardDropdownLink();
 
@@ -1959,6 +1977,7 @@ function updateSessionUI() {
 
     if (currentUser) {
         document.body.classList.add('session-authenticated');
+        triggerHeroBookAutoOpen();
         if (loginBtn) loginBtn.classList.add('hidden');
         if (heroAccessConsoleBtn) heroAccessConsoleBtn.classList.add('hidden');
         if (navUser) { navUser.classList.remove('hidden'); navUser.classList.add('flex'); }
@@ -2005,6 +2024,10 @@ function updateSessionUI() {
         }
     } else {
         document.body.classList.remove('session-authenticated');
+        document.body.classList.remove('hero-book-auto-open');
+        heroBookAutoOpenPlayed = false;
+        if (heroBookAutoOpenTimer) clearTimeout(heroBookAutoOpenTimer);
+        heroBookAutoOpenTimer = null;
         if (loginBtn) loginBtn.classList.remove('hidden');
         if (heroAccessConsoleBtn) heroAccessConsoleBtn.classList.remove('hidden');
         if (navUser) navUser.classList.add('hidden');
