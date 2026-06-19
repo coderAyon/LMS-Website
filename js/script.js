@@ -1126,17 +1126,22 @@ function initializeApp() {
     const pageId = getCurrentPageId();
     if ((pageId === 'login' || pageId === 'register') && currentUser) {
         const urlParams = new URLSearchParams(window.location.search);
-        const redirectPage = urlParams.get('redirect');
-        if (redirectPage && redirectPage !== 'login.html' && redirectPage !== 'register.html') {
-            window.location.href = redirectPage + getSessionQueryString();
+        const requestedRole = urlParams.get('role') === 'admin' ? 'admin' : 'user';
+        if (pageId === 'login' && requestedRole !== currentRole) {
+            clearSession();
         } else {
-            if (currentRole === 'admin') {
-                window.location.href = 'admin.html' + getSessionQueryString();
+            const redirectPage = urlParams.get('redirect');
+            if (redirectPage && redirectPage !== 'login.html' && redirectPage !== 'register.html') {
+                window.location.href = redirectPage + getSessionQueryString();
             } else {
-                window.location.href = 'saved.html' + getSessionQueryString();
+                if (currentRole === 'admin') {
+                    window.location.href = 'admin.html' + getSessionQueryString();
+                } else {
+                    window.location.href = 'saved.html' + getSessionQueryString();
+                }
             }
+            return;
         }
-        return;
     }
 
     fetchCatalogDatabase();
@@ -1629,15 +1634,27 @@ function handleLoginSubmit(event) {
     event.preventDefault();
     const email = document.getElementById('loginEmail').value.trim().toLowerCase();
     const pass = document.getElementById('loginPassword').value;
+    const urlParams = new URLSearchParams(window.location.search);
+    const requestedRole = urlParams.get('role') === 'admin' ? 'admin' : 'user';
+    const redirectPage = urlParams.get('redirect');
+    const isAdminCredentials = email === 'admin@gmail.com' && pass === 'admin1234';
 
-    if (email === 'admin@gmail.com' && pass === 'admin1234') {
+    if (requestedRole === 'admin' && !isAdminCredentials) {
+        showNotification("Admin Login Only: use an administrator account for this page.", "error");
+        return;
+    }
+
+    if (requestedRole === 'user' && email === 'admin@gmail.com') {
+        showNotification("Reader Login Only: admin accounts must use the admin sign in page.", "error");
+        return;
+    }
+
+    if (isAdminCredentials) {
         saveSession('admin', 'Admin Manager', 'admin@gmail.com');
         updateSessionUI();
         closeLoginModal();
         showNotification("Portal Authentication Verified: Welcome, Admin Manager", "success");
-        
-        const urlParams = new URLSearchParams(window.location.search);
-        const redirectPage = urlParams.get('redirect');
+
         if (redirectPage && redirectPage !== 'login.html' && redirectPage !== 'register.html') {
             setTimeout(() => {
                 window.location.href = redirectPage + getSessionQueryString();
@@ -1657,9 +1674,7 @@ function handleLoginSubmit(event) {
         updateSessionUI();
         closeLoginModal();
         showNotification(`Portal Authentication Verified: Welcome, ${user.name}`, "success");
-        
-        const urlParams = new URLSearchParams(window.location.search);
-        const redirectPage = urlParams.get('redirect');
+
         if (redirectPage && redirectPage !== 'login.html' && redirectPage !== 'register.html') {
             setTimeout(() => {
                 window.location.href = redirectPage + getSessionQueryString();
@@ -1797,8 +1812,11 @@ function updateSessionUI() {
         if (userAvatar) {
             const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
             const user = registeredUsers.find(u => u.email === currentUserEmail);
-            if (user && user.profileImage) {
-                userAvatar.innerHTML = `<img src="${user.profileImage}" class="w-full h-full object-cover rounded-full" style="max-width: 100%; max-height: 100%;" />`;
+            const avatarImage = currentUserEmail === 'admin@gmail.com'
+                ? localStorage.getItem('adminAvatar')
+                : user?.profileImage;
+            if (avatarImage) {
+                userAvatar.innerHTML = `<img src="${avatarImage}" class="w-full h-full object-cover rounded-full" style="max-width: 100%; max-height: 100%;" />`;
             } else {
                 userAvatar.innerHTML = '';
                 userAvatar.textContent = currentUser.charAt(0);
@@ -1809,7 +1827,6 @@ function updateSessionUI() {
 
         if (savedNavLink) savedNavLink.classList.remove('hidden');
         if (dropdownSavedLink) dropdownSavedLink.classList.remove('hidden');
-        if (dropdownMemberCardLink) dropdownMemberCardLink.classList.remove('hidden');
 
         if (currentRole === 'admin') {
             if (adminLink) adminLink.classList.remove('hidden');
@@ -1819,6 +1836,7 @@ function updateSessionUI() {
             if (footerLibraryLink) footerLibraryLink.classList.remove('hidden');
             if (dropdownDashboardLink) dropdownDashboardLink.classList.remove('hidden');
             if (dropdownAdminLink) dropdownAdminLink.classList.remove('hidden');
+            if (dropdownMemberCardLink) dropdownMemberCardLink.classList.add('hidden');
         } else {
             if (dashboardLink) dashboardLink.classList.remove('hidden');
             if (mobileDashboardLink) mobileDashboardLink.classList.remove('hidden');
@@ -1827,6 +1845,7 @@ function updateSessionUI() {
             if (mobileAdminLink) mobileAdminLink.classList.add('hidden');
             if (dropdownDashboardLink) dropdownDashboardLink.classList.remove('hidden');
             if (dropdownAdminLink) dropdownAdminLink.classList.add('hidden');
+            if (dropdownMemberCardLink) dropdownMemberCardLink.classList.remove('hidden');
         }
     } else {
         if (loginBtn) loginBtn.classList.remove('hidden');
@@ -1989,7 +2008,19 @@ function saveUserProfile(event) {
     if (pNameHeader) pNameHeader.textContent = name;
 
     updateSessionUI();
-    showNotification("Profile updated successfully.", "success");
+    if (tempAvatar) {
+        const userAvatar = document.getElementById('userAvatar');
+        if (userAvatar) {
+            userAvatar.innerHTML = `<img src="${tempAvatar}" class="w-full h-full object-cover rounded-full" style="max-width: 100%; max-height: 100%;" />`;
+        }
+        const profileCard = document.getElementById('profileCard');
+        if (profileCard) delete profileCard.dataset.tempAvatar;
+    }
+    localStorage.setItem('pendingPortalToast', JSON.stringify({
+        message: 'Profile updated successfully.',
+        type: 'success'
+    }));
+    navigateTo('home');
 }
 
 function toggleUserDropdown(event) {
@@ -2152,6 +2183,19 @@ function checkPageSecurity() {
             showNotification(pendingAlert, 'error');
             localStorage.removeItem('securityAlert');
         }, 300);
+    }
+
+    const pendingToast = localStorage.getItem('pendingPortalToast');
+    if (pendingToast) {
+        try {
+            const toast = JSON.parse(pendingToast);
+            setTimeout(() => {
+                showNotification(toast.message || 'Action completed successfully.', toast.type || 'success');
+                localStorage.removeItem('pendingPortalToast');
+            }, 300);
+        } catch (error) {
+            localStorage.removeItem('pendingPortalToast');
+        }
     }
 }
 
