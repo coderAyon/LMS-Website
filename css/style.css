@@ -84,6 +84,14 @@ html {
     min-height: 58px;
 }
 
+@media (max-width: 767px) {
+    .hero-cta-row {
+        justify-content: center;
+        width: 100%;
+        gap: 18px;
+    }
+}
+
 
 /* ==================== PREMIUM LIGHT DASHBOARD CARDS ==================== */
 
