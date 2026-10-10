@@ -84,7 +84,7 @@
     <div class="absolute bottom-1/4 -right-32 w-[400px] h-[400px] rounded-full bg-accent-500/6 blur-[130px] glowing-orb-2 pointer-events-none"></div>
 
     <!-- Main Login Container -->
-    <div class="login-card w-full max-w-md bg-white/80 backdrop-blur-xl border border-slate-200/80 rounded-3xl p-8 relative shadow-2xl z-10 opacity-0 scale-90">
+    <div class="login-card w-full max-w-[460px] bg-white/95 backdrop-blur-xl border border-slate-200/80 rounded-3xl p-8 relative shadow-2xl z-10 opacity-0 scale-90">
         
         <!-- Back to Portal Button -->
         <a href="index.html" class="absolute top-6 left-6 text-slate-400 hover:text-slate-700 flex items-center gap-1.5 text-xs font-bold transition-all duration-200 select-none group">
@@ -98,8 +98,8 @@
         </a>
 
         <!-- Portal Header -->
-        <div class="text-center mt-6 mb-7 form-element opacity-0">
-            <div class="w-16 h-18 mx-auto mb-4 select-none">
+        <div class="text-center mt-5 mb-5 form-element opacity-0">
+            <div class="w-14 h-16 mx-auto mb-3 select-none">
                 <svg viewBox="0 0 100 120" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
                     <path d="M 50 15 L 50 2" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" />
                     <path d="M 38 18 L 26 8" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" />
@@ -127,14 +127,43 @@
                     <text x="50" y="108" font-family="'Plus Jakarta Sans', sans-serif" font-weight="900" font-size="8" fill="#dc2626" text-anchor="middle" letter-spacing="1">GBLMS</text>
                 </svg>
             </div>
-            <h3 class="text-2xl font-black text-slate-800 tracking-tight mb-2" id="loginTitle">Portal Sign In</h3>
+            
+            <div id="roleBadgeContainer" class="mb-2">
+                <span id="roleBadge" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-50 border border-brand-200 text-brand-600 text-[10px] font-black uppercase tracking-wider select-none shadow-xs">
+                    <i data-lucide="shield" class="w-3.5 h-3.5" id="roleBadgeIcon"></i>
+                    <span id="roleBadgeText">Admin Console</span>
+                </span>
+            </div>
+
+            <h3 class="text-2xl font-black text-slate-800 tracking-tight mb-1" id="loginTitle">Portal Sign In</h3>
             <p class="text-slate-500 text-xs font-semibold leading-relaxed" id="loginSubtitle">Sign in to authenticate workspace controls & sync portfolios</p>
         </div>
 
+        <!-- Role Switcher Segmented Control -->
+        <div class="inline-flex w-full p-1 bg-slate-100 rounded-2xl mb-4 border border-slate-200/70 select-none form-element opacity-0 shadow-inner">
+            <button type="button" id="roleTabAdmin" onclick="setLoginRole('admin')"
+                class="flex-1 py-2 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 cursor-pointer bg-white text-brand-700 shadow-sm border border-brand-100">
+                <i data-lucide="shield" class="w-3.5 h-3.5"></i>
+                <span>Admin Console</span>
+            </button>
+            <button type="button" id="roleTabUser" onclick="setLoginRole('user')"
+                class="flex-1 py-2 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 cursor-pointer text-slate-500 hover:text-slate-800">
+                <i data-lucide="user" class="w-3.5 h-3.5"></i>
+                <span>Reader Portal</span>
+            </button>
+        </div>
+
+        <!-- 1-Click Demo Autofill Button -->
+        <button type="button" onclick="autoFillDemoCredentials()" id="autoFillBtn"
+            class="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-brand-50 to-indigo-50/80 hover:from-brand-100 hover:to-indigo-100 border border-brand-200 text-brand-700 text-xs font-black flex items-center justify-center gap-2 cursor-pointer active:scale-98 transition-all shadow-xs mb-4 form-element opacity-0 select-none">
+            <i data-lucide="zap" class="w-3.5 h-3.5 text-brand-600 fill-brand-600"></i>
+            <span id="autoFillText">1-Click Auto-Fill Demo Credentials</span>
+        </button>
+
         <!-- Credentials Form -->
-        <form onsubmit="handleLoginSubmit(event)" class="space-y-5">
+        <form onsubmit="handleLoginSubmit(event)" class="space-y-4">
             <!-- Email Address Input -->
-            <div class="form-element opacity-0 relative">
+            <div class="form-element opacity-0 relative text-left">
                 <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Email Address</label>
                 <div class="relative flex items-center">
                     <span class="absolute left-4 text-slate-400 pointer-events-none">
@@ -146,7 +175,7 @@
             </div>
 
             <!-- Password Input -->
-            <div class="form-element opacity-0 relative">
+            <div class="form-element opacity-0 relative text-left">
                 <div class="flex justify-between items-center mb-1.5">
                     <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest">Password</label>
                 </div>
@@ -157,16 +186,16 @@
                     <input type="password" id="loginPassword" required placeholder="••••••••"
                         class="w-full pl-11 pr-12 py-3 bg-slate-50 border-2 border-slate-200/80 rounded-xl text-sm font-bold text-slate-800 focus:outline-none focus:border-brand-500 focus:bg-white transition-all duration-200">
                     <button type="button" onclick="togglePasswordVisibility('loginPassword', this)"
-                        class="absolute right-4 text-slate-400 hover:text-slate-650 transition-colors duration-150">
+                        class="absolute right-4 text-slate-400 hover:text-slate-650 transition-colors duration-150 cursor-pointer">
                         <i data-lucide="eye" class="w-4 h-4"></i>
                     </button>
                 </div>
             </div>
 
             <!-- Submit Button -->
-            <div class="form-element opacity-0 pt-2">
-                <button type="submit"
-                    class="w-full py-3.5 bg-brand-600 hover:bg-brand-500 text-white rounded-xl text-sm font-bold active:scale-95 transition-all duration-200 shadow-lg shadow-brand-500/15 flex items-center justify-center gap-2">
+            <div class="form-element opacity-0 pt-1">
+                <button type="submit" id="submitButton"
+                    class="w-full py-3.5 bg-brand-600 hover:bg-brand-500 text-white rounded-xl text-sm font-bold active:scale-95 transition-all duration-200 shadow-lg shadow-brand-500/20 flex items-center justify-center gap-2 cursor-pointer">
                     <i data-lucide="log-in" class="w-4 h-4"></i>
                     <span id="submitButtonText">Authenticate Account</span>
                 </button>
@@ -218,63 +247,116 @@
             input.focus({ preventScroll: true });
         }
 
-        // Set up redirection queries on register link dynamically
-        document.addEventListener('DOMContentLoaded', () => {
-            const urlParams = new URLSearchParams(window.location.search);
-            const role = urlParams.get('role') || 'user';
-            const redirectPage = urlParams.get('redirect');
-            
-            const registerLink = document.getElementById('registerPageLink');
-            const closeLink = document.getElementById('closePageLink');
-            const portalHomeLink = document.querySelector('a[href="index.html"]');
+        let currentActiveRole = 'admin';
+
+        function setLoginRole(role) {
+            currentActiveRole = role;
+            const url = new URL(window.location);
+            url.searchParams.set('role', role);
+            window.history.replaceState({}, '', url);
 
             const loginTitle = document.getElementById('loginTitle');
             const loginSubtitle = document.getElementById('loginSubtitle');
             const submitButtonText = document.getElementById('submitButtonText');
             const registerOptionContainer = document.getElementById('registerOptionContainer');
+            const roleBadge = document.getElementById('roleBadge');
+            const roleBadgeText = document.getElementById('roleBadgeText');
+            const roleBadgeIcon = document.getElementById('roleBadgeIcon');
+            const autoFillText = document.getElementById('autoFillText');
+            const roleTabAdmin = document.getElementById('roleTabAdmin');
+            const roleTabUser = document.getElementById('roleTabUser');
+            const registerLink = document.getElementById('registerPageLink');
+            const redirectPage = url.searchParams.get('redirect');
 
             if (role === 'admin') {
+                if (roleTabAdmin) roleTabAdmin.className = "flex-1 py-2 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 cursor-pointer bg-white text-brand-700 shadow-sm border border-brand-100";
+                if (roleTabUser) roleTabUser.className = "flex-1 py-2 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 cursor-pointer text-slate-500 hover:text-slate-800";
+                if (roleBadge) roleBadge.className = "inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-50 border border-brand-200 text-brand-600 text-[10px] font-black uppercase tracking-wider select-none shadow-xs";
+                if (roleBadgeText) roleBadgeText.textContent = "Admin Console";
+                if (roleBadgeIcon) roleBadgeIcon.setAttribute('data-lucide', 'shield');
                 if (loginTitle) loginTitle.textContent = 'Admin Sign In';
                 if (loginSubtitle) loginSubtitle.textContent = 'Access database controls, manage catalogs, and review library telemetry.';
                 if (submitButtonText) submitButtonText.textContent = 'Authenticate Admin Panel';
+                if (autoFillText) autoFillText.textContent = '⚡ 1-Click Demo Fill: admin@gmail.com';
                 if (registerOptionContainer) registerOptionContainer.classList.add('hidden');
-                
-                const badge = document.createElement('div');
-                badge.className = "inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-50 border border-brand-200 text-brand-600 text-[10px] font-black uppercase tracking-wider mx-auto mb-4 select-none";
-                badge.innerHTML = `<i data-lucide="shield" class="w-3 h-3"></i><span>Admin Console</span>`;
-                loginTitle.parentNode.insertBefore(badge, loginTitle);
-                
-                document.querySelector('.login-card').classList.add('border-brand-500/20');
             } else {
+                if (roleTabUser) roleTabUser.className = "flex-1 py-2 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 cursor-pointer bg-white text-accent-700 shadow-sm border border-accent-100";
+                if (roleTabAdmin) roleTabAdmin.className = "flex-1 py-2 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 cursor-pointer text-slate-500 hover:text-slate-800";
+                if (roleBadge) roleBadge.className = "inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-accent-50 border border-accent-200/50 text-accent-600 text-[10px] font-black uppercase tracking-wider select-none shadow-xs";
+                if (roleBadgeText) roleBadgeText.textContent = "Library Member";
+                if (roleBadgeIcon) roleBadgeIcon.setAttribute('data-lucide', 'user');
                 if (loginTitle) loginTitle.textContent = 'Reader Sign In';
                 if (loginSubtitle) loginSubtitle.textContent = 'Sign in to view saved books, reserve materials, and sync portfolios.';
                 if (submitButtonText) submitButtonText.textContent = 'Sign In to Portal';
+                if (autoFillText) autoFillText.textContent = '⚡ 1-Click Demo Fill: student@gb.edu';
                 if (registerOptionContainer) registerOptionContainer.classList.remove('hidden');
+            }
 
-                const badge = document.createElement('div');
-                badge.className = "inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-accent-50 border border-accent-200/50 text-accent-600 text-[10px] font-black uppercase tracking-wider mx-auto mb-4 select-none";
-                badge.innerHTML = `<i data-lucide="user" class="w-3 h-3"></i><span>Library Member</span>`;
-                loginTitle.parentNode.insertBefore(badge, loginTitle);
+            if (registerLink) {
+                if (redirectPage) {
+                    registerLink.href = `register.html?role=${role}&redirect=${encodeURIComponent(redirectPage)}`;
+                } else {
+                    registerLink.href = `register.html?role=${role}`;
+                }
             }
 
             if (window.lucide) {
                 lucide.createIcons();
             }
+        }
 
-            if (redirectPage) {
-                if (registerLink) {
-                    registerLink.href = `register.html?role=${role}&redirect=${encodeURIComponent(redirectPage)}`;
-                }
-                if (closeLink) {
-                    closeLink.href = redirectPage;
-                }
-                if (portalHomeLink) {
-                    portalHomeLink.href = redirectPage;
+        function autoFillDemoCredentials() {
+            const emailInput = document.getElementById('loginEmail');
+            const passInput = document.getElementById('loginPassword');
+            if (!emailInput || !passInput) return;
+
+            if (currentActiveRole === 'admin') {
+                emailInput.value = 'admin@gmail.com';
+                passInput.value = 'admin1234';
+                if (typeof showNotification === 'function') {
+                    showNotification("Populated admin credentials (admin@gmail.com / admin1234)", "info");
                 }
             } else {
-                if (registerLink) {
-                    registerLink.href = `register.html?role=${role}`;
+                // Ensure a registered demo user exists in localStorage
+                const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
+                let demoUser = registeredUsers.find(u => u.email === 'student@gb.edu');
+                if (!demoUser) {
+                    registeredUsers.push({
+                        name: 'Tanvir Hossain',
+                        email: 'student@gb.edu',
+                        password: 'student1234',
+                        role: 'user',
+                        date: new Date().toISOString()
+                    });
+                    localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
                 }
+                emailInput.value = 'student@gb.edu';
+                passInput.value = 'student1234';
+                if (typeof showNotification === 'function') {
+                    showNotification("Populated reader credentials (student@gb.edu / student1234)", "info");
+                }
+            }
+
+            // Animate input highlight
+            [emailInput, passInput].forEach(el => {
+                el.classList.add('ring-2', 'ring-brand-500');
+                setTimeout(() => el.classList.remove('ring-2', 'ring-brand-500'), 1200);
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const role = urlParams.get('role') === 'admin' ? 'admin' : 'user';
+            const redirectPage = urlParams.get('redirect');
+            
+            const closeLink = document.getElementById('closePageLink');
+            const portalHomeLink = document.querySelector('a[href="index.html"]');
+
+            setLoginRole(role);
+
+            if (redirectPage) {
+                if (closeLink) closeLink.href = redirectPage;
+                if (portalHomeLink) portalHomeLink.href = redirectPage;
             }
 
             // GSAP animations

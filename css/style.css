@@ -34,49 +34,69 @@ html {
     background-size: 100% 100%, 24px 24px, 24px 24px;
 }
 
-/* ==================== HERO FULL-PAGE STYLES ==================== */
-.hero-full {
-    min-height: calc(100vh - 80px);
-    height: auto;
-    background-color: #f8fafc;
+/* ==================== HERO BALANCED STYLES ==================== */
+.hero-full,
+#heroSection.hero-full {
+    min-height: 480px !important;
+    height: auto !important;
+    max-height: none !important;
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
     display: flex;
     align-items: center;
     overflow: hidden;
-    padding-top: 2.5rem;
-    padding-bottom: 2.5rem;
+    padding-top: 3.5rem !important;
+    padding-bottom: 3.5rem !important;
 }
 
 @media (min-width: 1024px) {
-    .hero-full {
-        height: calc(100vh - 80px);
-        padding-top: 0;
-        padding-bottom: 0;
+    .hero-full,
+    #heroSection.hero-full {
+        min-height: 560px !important;
+        height: auto !important;
+        max-height: none !important;
+        padding-top: 4.5rem !important;
+        padding-bottom: 4.5rem !important;
+    }
+}
+
+@media (min-width: 1280px) {
+    .hero-full,
+    #heroSection.hero-full {
+        min-height: 570px !important;
+        height: auto !important;
+        max-height: none !important;
+        padding-top: 4.75rem !important;
+        padding-bottom: 4.75rem !important;
     }
 }
 
 
-/* Visible dot-grid background for hero */
+/* Clean transparent background for hero */
 .bg-hero-grid {
-    background-color: #f8fafc;
-    background-image:
-        radial-gradient(circle at 25% 35%, rgba(29, 78, 216, 0.07) 0%, transparent 55%),
-        radial-gradient(circle at 75% 70%, rgba(220, 38, 38, 0.05) 0%, transparent 50%);
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
 }
 
-/* Crisp visible grid line overlay */
+/* Removed grid overlay for clean modern aesthetic */
 .hero-grid-lines {
-    background-image:
-        linear-gradient(rgba(148, 163, 184, 0.14) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(148, 163, 184, 0.14) 1px, transparent 1px);
-    background-size: 40px 40px;
-    mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 100%);
-    -webkit-mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 100%);
+    display: none !important;
 }
 
 .hero-cta-row {
-    width: min(100%, 575px);
+    width: min(100%, 518px);
+    max-width: 518px;
     gap: 28px;
     margin-inline: auto;
+}
+
+@media (min-width: 1024px) {
+    .hero-cta-row {
+        margin-left: 0 !important;
+        margin-right: auto !important;
+    }
 }
 
 .hero-cta-button {
@@ -84,20 +104,206 @@ html {
     min-height: 58px;
 }
 
+.hero-search-wrapper {
+    width: min(100%, 518px);
+    max-width: 518px;
+    margin-inline: auto;
+}
+
+@media (min-width: 1024px) {
+    .hero-search-wrapper {
+        margin-left: 0 !important;
+        margin-right: auto !important;
+    }
+}
+
 @media (max-width: 767px) {
     .hero-cta-row.flex {
         justify-content: center !important;
         width: 100%;
         gap: 18px;
-        margin-left: auto;
-        margin-right: auto;
+        margin-left: auto !important;
+        margin-right: auto !important;
     }
 
     .hero-cta-button {
         flex-basis: min(86vw, 320px);
     }
+
+    .hero-search-wrapper {
+        width: 100% !important;
+        max-width: min(86vw, 320px) !important;
+        margin-inline: auto !important;
+    }
 }
 
+/* ==================== HERO SEARCH BAR INTERACTIVE FOCUS INVERSION ==================== */
+.hero-search-wrapper #heroQuickSearchInput {
+    border: 1.5px solid #94a3b8 !important;
+    box-shadow: 0 2px 10px -2px rgba(15, 23, 42, 0.08) !important;
+    transition: background-color 0.28s ease, background 0.28s ease, border-color 0.28s ease, box-shadow 0.28s ease, color 0.28s ease !important;
+}
+
+.hero-search-wrapper #heroQuickSearchInput:hover {
+    border-color: #64748b !important;
+    box-shadow: 0 4px 14px -2px rgba(15, 23, 42, 0.12) !important;
+}
+
+.hero-search-wrapper #heroQuickSearchBtn {
+    transition: background-color 0.28s ease, background 0.28s ease, color 0.28s ease, box-shadow 0.28s ease, transform 0.2s ease, border-color 0.28s ease !important;
+}
+
+.hero-search-wrapper .hero-search-icon,
+.hero-search-wrapper svg {
+    transition: color 0.28s ease, stroke 0.28s ease !important;
+}
+
+/* WHEN CLICKED / FOCUSED: Invert to Blue Container + White Button with Blue Text */
+.hero-search-wrapper:focus-within #heroQuickSearchInput,
+.hero-search-wrapper.is-focused #heroQuickSearchInput,
+.catalog-search-wrapper:focus-within #searchInput,
+.catalog-search-wrapper.is-focused #searchInput {
+    background-color: #2563eb !important;
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
+    border-color: #1d4ed8 !important;
+    color: #ffffff !important;
+    caret-color: #ffffff !important;
+    box-shadow: 0 8px 26px -2px rgba(37, 99, 235, 0.42), 0 2px 6px -1px rgba(0, 0, 0, 0.08) !important;
+}
+
+.hero-search-wrapper:focus-within #heroQuickSearchInput::placeholder,
+.hero-search-wrapper.is-focused #heroQuickSearchInput::placeholder,
+.catalog-search-wrapper:focus-within #searchInput::placeholder,
+.catalog-search-wrapper.is-focused #searchInput::placeholder {
+    color: rgba(255, 255, 255, 0.82) !important;
+}
+
+.hero-search-wrapper:focus-within .hero-search-icon,
+.hero-search-wrapper:focus-within svg,
+.hero-search-wrapper.is-focused .hero-search-icon,
+.hero-search-wrapper.is-focused svg,
+.catalog-search-wrapper:focus-within #searchIconContainer,
+.catalog-search-wrapper:focus-within #searchIconContainer svg,
+.catalog-search-wrapper:focus-within #searchIconContainer i,
+.catalog-search-wrapper.is-focused #searchIconContainer svg {
+    color: #ffffff !important;
+    stroke: #ffffff !important;
+}
+
+/* Find Book tablet button becomes white background with vibrant blue text */
+.hero-search-wrapper:focus-within #heroQuickSearchBtn,
+.hero-search-wrapper.is-focused #heroQuickSearchBtn,
+.catalog-search-wrapper:focus-within #searchActionBtn,
+.catalog-search-wrapper.is-focused #searchActionBtn {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    background-image: none !important;
+    color: #2563eb !important;
+    border: 1px solid rgba(255, 255, 255, 0.95) !important;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.16) !important;
+}
+
+.hero-search-wrapper:focus-within #heroQuickSearchBtn *,
+.hero-search-wrapper.is-focused #heroQuickSearchBtn *,
+.catalog-search-wrapper:focus-within #searchActionBtn *,
+.catalog-search-wrapper.is-focused #searchActionBtn * {
+    color: #2563eb !important;
+    stroke: #2563eb !important;
+}
+
+.hero-search-wrapper:focus-within #heroQuickSearchBtn:hover,
+.hero-search-wrapper.is-focused #heroQuickSearchBtn:hover,
+.catalog-search-wrapper:focus-within #searchActionBtn:hover,
+.catalog-search-wrapper.is-focused #searchActionBtn:hover {
+    background: #f8fafc !important;
+    background-color: #f8fafc !important;
+    color: #1d4ed8 !important;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.22) !important;
+}
+
+/* Catalog Discovery Category & Semester Toggle Pills */
+.cat-toggle-btn,
+.cse-sem-btn {
+    flex: 1 1 auto;
+    min-width: fit-content;
+    justify-content: center;
+}
+
+/* ==================== LOGIN MODAL ANIMATED GLOWING BORDER ==================== */
+.modal-card-glow-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 540px;
+    margin: 1rem auto;
+    isolation: isolate;
+}
+
+/* Crisp rotating animated neon gradient border */
+.modal-glow-border {
+    position: absolute;
+    inset: -2px;
+    border-radius: 26px;
+    background: linear-gradient(
+        135deg,
+        #1d4ed8,
+        #3b82f6,
+        #06b6d4,
+        #f59e0b,
+        #dc2626,
+        #8b5cf6,
+        #1d4ed8
+    );
+    background-size: 300% 300%;
+    animation: modalGlowGradientFlow 5s ease-in-out infinite;
+    z-index: 1;
+}
+
+/* Atmospheric soft breathing neon glow aura */
+.modal-glow-aura {
+    position: absolute;
+    inset: -6px;
+    border-radius: 30px;
+    background: linear-gradient(
+        135deg,
+        rgba(29, 78, 216, 0.75),
+        rgba(59, 130, 246, 0.65),
+        rgba(6, 182, 212, 0.65),
+        rgba(245, 158, 11, 0.65),
+        rgba(220, 38, 38, 0.65),
+        rgba(139, 92, 246, 0.7),
+        rgba(29, 78, 216, 0.75)
+    );
+    background-size: 300% 300%;
+    filter: blur(20px);
+    opacity: 0.65;
+    animation: modalGlowGradientFlow 5s ease-in-out infinite, modalAuraPulse 3s ease-in-out infinite alternate;
+    z-index: 0;
+}
+
+@keyframes modalGlowGradientFlow {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+@keyframes modalAuraPulse {
+    0% {
+        opacity: 0.45;
+        transform: scale(0.985);
+        filter: blur(16px);
+    }
+    100% {
+        opacity: 0.8;
+        transform: scale(1.02);
+        filter: blur(24px);
+    }
+}
 
 /* ==================== PREMIUM LIGHT DASHBOARD CARDS ==================== */
 
@@ -386,6 +592,7 @@ html {
     height: 100%;
     transform-style: preserve-3d;
     overflow: visible;
+    will-change: transform;
 }
 
 .coverflow-book {
@@ -397,11 +604,15 @@ html {
     margin-left: -100px;
     margin-top: -150px;
     transform-style: preserve-3d;
-    transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    transition: transform 0.28s cubic-bezier(0.2, 0.9, 0.3, 1), opacity 0.22s ease, filter 0.22s ease;
+    will-change: transform, opacity;
     cursor: pointer;
     border-radius: 12px;
     overflow: hidden;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    transform: translateZ(0);
 }
 
 .coverflow-book-cover {
@@ -419,7 +630,7 @@ html {
     height: 100%;
     object-fit: cover;
     border-radius: 12px;
-    transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    transition: transform 0.25s cubic-bezier(0.2, 0.9, 0.3, 1);
     filter: brightness(1.05) contrast(1.05);
 }
 
@@ -436,7 +647,7 @@ html {
     border-radius: 0 0 12px 12px;
     opacity: 0;
     transform: translateY(8px);
-    transition: opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    transition: opacity 0.2s cubic-bezier(0.2, 0.9, 0.3, 1), transform 0.2s cubic-bezier(0.2, 0.9, 0.3, 1);
 }
 
 .coverflow-book.active .coverflow-book-info {
@@ -531,7 +742,7 @@ html {
     border-radius: 14px;
     cursor: pointer;
     font-size: 18px;
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.15s ease;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -546,11 +757,11 @@ html {
     color: #2563eb;
     box-shadow: 0 6px 20px rgba(29, 78, 216, 0.14);
     /* Brand glow */
-    transform: scale(1.08);
+    transform: scale(1.06);
 }
 
 .coverflow-btn:active {
-    transform: scale(0.95);
+    transform: scale(0.92);
 }
 
 /* Indicators */
@@ -1107,3 +1318,235 @@ body:not(.session-authenticated) #heroMembershipBtn {
         font-weight: 750 !important;
     }
 }
+
+/* ==================== ULTRA-MODERN CIRCULAR AVATAR NAVBAR BUTTON ==================== */
+#userDropdownBtn {
+    transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    border-radius: 9999px !important;
+    border: 1.5px solid #2563eb !important;
+    box-shadow: 0 2px 8px -2px rgba(37, 99, 235, 0.2) !important;
+}
+
+#userDropdownBtn:hover {
+    transform: translateY(-1px) scale(1.03);
+    border-color: #1d4ed8 !important;
+    box-shadow: 0 4px 16px -2px rgba(37, 99, 235, 0.32), 0 2px 6px -1px rgba(0, 0, 0, 0.04) !important;
+}
+
+#userDropdownBtn:active {
+    transform: scale(0.96) !important;
+}
+
+#userDropdownBtn:focus-visible {
+    outline: none !important;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.35) !important;
+}
+
+#navUserName {
+    font-size: 13px !important;
+    font-weight: 800 !important;
+    color: #0f172a !important;
+    line-height: 1.15 !important;
+    letter-spacing: -0.01em !important;
+    display: inline-block !important;
+    white-space: nowrap !important;
+}
+
+#navUserRole {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 10px !important;
+    font-weight: 850 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
+    padding: 2.5px 7.5px !important;
+    border-radius: 9999px !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+    transition: all 0.2s ease !important;
+}
+
+/* User / Student Role default styling */
+#navUserRole:not(.role-admin) {
+    background-color: #eff6ff !important;
+    color: #2563eb !important;
+    border: 1px solid rgba(191, 219, 254, 0.95) !important;
+}
+
+/* Admin Role styling */
+#navUserRole.role-admin,
+body.session-role-admin #navUserRole {
+    background-color: #fef3c7 !important;
+    color: #b45309 !important;
+    border: 1px solid rgba(253, 230, 138, 0.95) !important;
+}
+
+#userDropdownMenu {
+    background: #ffffff !important;
+    border: 1px solid rgba(226, 232, 240, 0.95) !important;
+    border-radius: 20px !important;
+    box-shadow: 0 20px 45px -12px rgba(15, 23, 42, 0.18), 0 4px 12px -2px rgba(15, 23, 42, 0.05), 0 0 0 1px rgba(15, 23, 42, 0.04) !important;
+    overflow: hidden !important;
+}
+
+/* Responsive Mobile Optimizations for User Capsule & Dropdown */
+@media (max-width: 640px) {
+    #userDropdownBtn {
+        padding: 2px 8px 2px 2px !important;
+        gap: 6px !important;
+    }
+    #navUserName {
+        font-size: 12px !important;
+        max-width: 80px !important;
+    }
+    #navUserRole {
+        font-size: 9px !important;
+        padding: 2px 6.5px !important;
+        letter-spacing: 0.04em !important;
+    }
+    #userDropdownMenu {
+        right: -4px !important;
+        width: 260px !important;
+        max-width: calc(100vw - 1.25rem) !important;
+        box-shadow: 0 20px 40px -8px rgba(15, 23, 42, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.06) !important;
+    }
+}
+
+/* ==================== CATALOG SEARCH MODE TOGGLE BUTTONS ==================== */
+.catalog-mode-btn {
+    border: 2px solid transparent !important;
+    outline: none !important;
+    box-shadow: none;
+    transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    cursor: pointer !important;
+    user-select: none !important;
+}
+
+.catalog-mode-btn:focus,
+.catalog-mode-btn:focus-visible {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+/* Active Highlighted State (Find Books Mode) - Blue bg with pure white text */
+.catalog-mode-btn.active-mode {
+    background: #2563eb !important;
+    background-color: #2563eb !important;
+    color: #ffffff !important;
+    border-color: #1d4ed8 !important;
+    box-shadow: 0 4px 14px -2px rgba(37, 99, 235, 0.45), 0 2px 6px rgba(37, 99, 235, 0.3) !important;
+    font-weight: 800 !important;
+}
+
+.catalog-mode-btn.active-mode * {
+    color: #ffffff !important;
+    stroke: #ffffff !important;
+}
+
+.catalog-mode-btn.active-mode #localBooksCountBadge {
+    background-color: rgba(255, 255, 255, 0.25) !important;
+    color: #ffffff !important;
+    border-color: rgba(255, 255, 255, 0.4) !important;
+}
+
+/* Active Highlighted State (Web & PDF Search Mode) - Blue bg with pure white text */
+.catalog-mode-btn.active-mode-web {
+    background: #2563eb !important;
+    background-color: #2563eb !important;
+    color: #ffffff !important;
+    border-color: #1d4ed8 !important;
+    box-shadow: 0 4px 14px -2px rgba(37, 99, 235, 0.45), 0 2px 6px rgba(37, 99, 235, 0.3) !important;
+    font-weight: 800 !important;
+}
+
+.catalog-mode-btn.active-mode-web * {
+    color: #ffffff !important;
+    stroke: #ffffff !important;
+}
+
+.catalog-mode-btn.active-mode-web span.uppercase {
+    background: #ffffff !important;
+    color: #2563eb !important;
+    border-color: #ffffff !important;
+}
+
+/* Inactive State */
+.catalog-mode-btn:not(.active-mode):not(.active-mode-web) {
+    background-color: transparent !important;
+    color: #64748b !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+}
+
+.catalog-mode-btn:not(.active-mode):not(.active-mode-web) * {
+    color: #64748b !important;
+}
+
+.catalog-mode-btn:not(.active-mode):not(.active-mode-web) #localBooksCountBadge {
+    background-color: #e2e8f0 !important;
+    color: #475569 !important;
+    border-color: #cbd5e1 !important;
+}
+
+.catalog-mode-btn:not(.active-mode):not(.active-mode-web) span.uppercase {
+    background: #e2e8f0 !important;
+    color: #475569 !important;
+    border-color: #cbd5e1 !important;
+}
+
+.catalog-mode-btn:not(.active-mode):not(.active-mode-web):hover {
+    background-color: rgba(255, 255, 255, 0.85) !important;
+    color: #0f172a !important;
+    border-color: rgba(203, 213, 225, 0.8) !important;
+}
+
+.catalog-mode-btn:not(.active-mode):not(.active-mode-web):hover * {
+    color: #0f172a !important;
+}
+
+/* ==================== CUSTOM BOOK SOURCE & PDF MODAL ==================== */
+#customBookSourceModal {
+    backdrop-filter: blur(14px) !important;
+    -webkit-backdrop-filter: blur(14px) !important;
+    animation: fadeInModal 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fadeInModal {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+#customBookSourceModal > div {
+    animation: slideUpModal 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes slideUpModal {
+    from {
+        opacity: 0;
+        transform: translateY(14px) scale(0.97);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+    height: 4px;
+}
+.scrollbar-thin::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 9999px;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 9999px;
+}
+
+
+

@@ -63,9 +63,83 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
 
     <!-- Native CSS Stylesheet override for customizations -->
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/style.css?v=4.0">
 
     <style>
+        /* Hero search bar: when clicked/focused turns blue + white button */
+        .hero-search-wrapper:focus-within #heroQuickSearchInput,
+        .hero-search-wrapper.is-focused #heroQuickSearchInput {
+            background-color: #2563eb !important;
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
+            border-color: #1d4ed8 !important;
+            color: #ffffff !important;
+            caret-color: #ffffff !important;
+            box-shadow: 0 8px 26px -2px rgba(37, 99, 235, 0.42), 0 2px 6px -1px rgba(0, 0, 0, 0.08) !important;
+        }
+        .hero-search-wrapper:focus-within #heroQuickSearchInput::placeholder,
+        .hero-search-wrapper.is-focused #heroQuickSearchInput::placeholder {
+            color: rgba(255, 255, 255, 0.82) !important;
+        }
+        .hero-search-wrapper:focus-within .hero-search-icon,
+        .hero-search-wrapper:focus-within svg,
+        .hero-search-wrapper.is-focused .hero-search-icon,
+        .hero-search-wrapper.is-focused svg {
+            color: #ffffff !important;
+            stroke: #ffffff !important;
+        }
+        .hero-search-wrapper:focus-within #heroQuickSearchBtn,
+        .hero-search-wrapper.is-focused #heroQuickSearchBtn {
+            background: #ffffff !important;
+            background-color: #ffffff !important;
+            background-image: none !important;
+            color: #2563eb !important;
+            border: 1px solid rgba(255, 255, 255, 0.95) !important;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.16) !important;
+        }
+        .hero-search-wrapper:focus-within #heroQuickSearchBtn *,
+        .hero-search-wrapper.is-focused #heroQuickSearchBtn * {
+            color: #2563eb !important;
+            stroke: #2563eb !important;
+        }
+        .hero-search-wrapper:focus-within #heroQuickSearchBtn:hover,
+        .hero-search-wrapper.is-focused #heroQuickSearchBtn:hover {
+            background: #f8fafc !important;
+            background-color: #f8fafc !important;
+            color: #1d4ed8 !important;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.22) !important;
+        }
+
+        /* Hero Balanced Proportions & Elegant Ambient Background */
+        #heroSection,
+        .hero-full {
+            height: auto !important;
+            min-height: 480px !important;
+            max-height: none !important;
+            background: radial-gradient(circle at 80% 48%, rgba(224, 231, 255, 0.45) 0%, rgba(241, 245, 249, 0.25) 55%, #f8fafc 100%) !important;
+            border-bottom: 1px solid rgba(226, 232, 240, 0.6) !important;
+            padding-top: 3.5rem !important;
+            padding-bottom: 3.5rem !important;
+            position: relative;
+        }
+
+        @media (min-width: 1024px) {
+            #heroSection,
+            .hero-full {
+                min-height: 560px !important;
+                padding-top: 4.5rem !important;
+                padding-bottom: 4.5rem !important;
+            }
+        }
+
+        @media (min-width: 1280px) {
+            #heroSection,
+            .hero-full {
+                min-height: 570px !important;
+                padding-top: 4.75rem !important;
+                padding-bottom: 4.75rem !important;
+            }
+        }
+
         /* 3D Book Animation */
         .book-perspective {
             perspective: 1200px;
@@ -77,6 +151,7 @@
             height: 385px;
             animation: floatBook 4.5s ease-in-out infinite;
             transform-style: preserve-3d;
+            margin-top: 1.5rem;
         }
 
         .book-shift-wrapper {
@@ -88,7 +163,8 @@
         }
 
         .book-floater:hover .book-shift-wrapper,
-        body.hero-book-auto-open .book-floater .book-shift-wrapper {
+        body.hero-book-auto-open .book-floater .book-shift-wrapper,
+        .book-floater.book-is-open .book-shift-wrapper {
             transform: translateX(0);
         }
 
@@ -102,8 +178,9 @@
         }
 
         .book-floater:hover .book-container,
-        body.hero-book-auto-open .book-floater .book-container {
-            transform: rotateY(10deg) rotateX(10deg) scale(1.1);
+        body.hero-book-auto-open .book-floater .book-container,
+        .book-floater.book-is-open .book-container {
+            transform: translateX(45px) rotateY(6deg) rotateX(8deg) scale(1.08);
         }
 
         .book-back {
@@ -113,17 +190,17 @@
             background: #121036;
             border-radius: 4px 12px 12px 4px;
             box-shadow: 12px 12px 30px rgba(0, 0, 0, 0.25);
-            transform: translateZ(-12px);
+            transform: translateZ(-18px);
             z-index: 1;
         }
 
         .book-spine {
             position: absolute;
-            width: 24px;
+            width: 36px;
             height: 100%;
             background: #0f0d2b;
             transform-origin: left center;
-            transform: rotateY(-90deg) translateZ(12px);
+            transform: rotateY(-90deg) translateZ(18px);
             border-radius: 3px 0 0 3px;
             z-index: 2;
         }
@@ -169,64 +246,121 @@
         }
 
         .book-page-1 {
-            transform: translateZ(10px);
-            z-index: 6;
-            transition-delay: 0.8s;
+            transform: translateZ(16px);
+            z-index: 10;
+            transition-delay: 0.55s;
         }
 
         .book-page-2 {
-            transform: translateZ(8px);
-            z-index: 5;
-            transition-delay: 0.6s;
+            transform: translateZ(14px);
+            z-index: 9;
+            transition-delay: 0.40s;
         }
 
         .book-page-3 {
-            transform: translateZ(6px);
-            z-index: 4;
-            transition-delay: 0.4s;
+            transform: translateZ(12px);
+            z-index: 8;
+            transition-delay: 0.25s;
         }
 
         .book-page-4 {
-            transform: translateZ(4px);
-            z-index: 3;
-            transition-delay: 0.2s;
+            transform: translateZ(10px);
+            z-index: 7;
+            transition-delay: 0.10s;
         }
 
         .book-page-5 {
+            transform: translateZ(8px);
+            z-index: 6;
+            transition-delay: 0s;
+        }
+
+        .book-page-6 {
+            transform: translateZ(6px);
+            z-index: 5;
+            transition-delay: 0s;
+        }
+
+        .book-page-7 {
+            transform: translateZ(4px);
+            z-index: 4;
+            transition-delay: 0s;
+        }
+
+        .book-page-8 {
             transform: translateZ(2px);
+            z-index: 3;
+            transition-delay: 0s;
+        }
+
+        .book-page-9 {
+            transform: translateZ(0px);
             z-index: 2;
             transition-delay: 0s;
         }
 
-        /* Fan pages on hover with sequential opening delays */
+        /* Natural, elegant two-page book spread with clear readability on both sides */
         .book-floater:hover .book-page-1,
-        body.hero-book-auto-open .book-floater .book-page-1 {
-            transform: rotateY(-135deg) translateZ(10px);
-            transition-delay: 0.2s;
+        body.hero-book-auto-open .book-floater .book-page-1,
+        .book-floater.book-is-open .book-page-1 {
+            transform: rotateY(-151deg) translateZ(16px);
+            transition-delay: 0.10s;
         }
 
         .book-floater:hover .book-page-2,
-        body.hero-book-auto-open .book-floater .book-page-2 {
-            transform: rotateY(-126deg) translateZ(8px);
-            transition-delay: 0.4s;
+        body.hero-book-auto-open .book-floater .book-page-2,
+        .book-floater.book-is-open .book-page-2 {
+            transform: rotateY(-146deg) translateZ(14px);
+            transition-delay: 0.22s;
         }
 
         .book-floater:hover .book-page-3,
-        body.hero-book-auto-open .book-floater .book-page-3 {
-            transform: rotateY(-117deg) translateZ(6px);
-            transition-delay: 0.6s;
+        body.hero-book-auto-open .book-floater .book-page-3,
+        .book-floater.book-is-open .book-page-3 {
+            transform: rotateY(-140deg) translateZ(12px);
+            transition-delay: 0.34s;
         }
 
         .book-floater:hover .book-page-4,
-        body.hero-book-auto-open .book-floater .book-page-4 {
-            transform: rotateY(-108deg) translateZ(4px);
-            transition-delay: 0.8s;
+        body.hero-book-auto-open .book-floater .book-page-4,
+        .book-floater.book-is-open .book-page-4 {
+            transform: rotateY(-133deg) translateZ(10px);
+            transition-delay: 0.46s;
         }
 
         .book-floater:hover .book-page-5,
-        body.hero-book-auto-open .book-floater .book-page-5 {
-            transform: rotateY(-99deg) translateZ(2px);
-            transition-delay: 1.0s;
+        body.hero-book-auto-open .book-floater .book-page-5,
+        .book-floater.book-is-open .book-page-5 {
+            transform: rotateY(-26deg) translateZ(8px);
+            transition-delay: 0.58s;
+        }
+
+        .book-floater:hover .book-page-6,
+        body.hero-book-auto-open .book-floater .book-page-6,
+        .book-floater.book-is-open .book-page-6 {
+            transform: rotateY(-19deg) translateZ(6px);
+            transition-delay: 0.68s;
+        }
+
+        .book-floater:hover .book-page-7,
+        body.hero-book-auto-open .book-floater .book-page-7,
+        .book-floater.book-is-open .book-page-7 {
+            transform: rotateY(-13deg) translateZ(4px);
+            transition-delay: 0.78s;
+        }
+
+        .book-floater:hover .book-page-8,
+        body.hero-book-auto-open .book-floater .book-page-8,
+        .book-floater.book-is-open .book-page-8 {
+            transform: rotateY(-7deg) translateZ(2px);
+            transition-delay: 0.88s;
+        }
+
+        .book-floater:hover .book-page-9,
+        body.hero-book-auto-open .book-floater .book-page-9,
+        .book-floater.book-is-open .book-page-9 {
+            transform: rotateY(-2deg) translateZ(0px);
+            transition-delay: 0.98s;
         }
 
         .book-front {
@@ -234,17 +368,27 @@
             width: 100%;
             height: 100%;
             transform-origin: left center;
-            transform: rotateY(0deg) translateZ(12px);
+            transform: rotateY(0deg) translateZ(18px);
             transition: transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
-            transition-delay: 1.0s;
-            z-index: 5;
+            transition-delay: 0.70s;
+            z-index: 12;
             transform-style: preserve-3d;
         }
 
         .book-floater:hover .book-front,
-        body.hero-book-auto-open .book-floater .book-front {
-            transform: rotateY(-142deg) translateZ(12px);
+        body.hero-book-auto-open .book-floater .book-front,
+        .book-floater.book-is-open .book-front {
+            transform: rotateY(-155deg) translateZ(18px);
             transition-delay: 0s;
+        }
+
+
+        @keyframes orbitSlow {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .hero-orbit-rings {
+            animation: orbitSlow 80s linear infinite;
         }
 
         /* Double-sided cover setup */
@@ -346,11 +490,11 @@
 
             0%,
             100% {
-                transform: translateY(0px);
+                transform: translateY(6px);
             }
 
             50% {
-                transform: translateY(-16px);
+                transform: translateY(-4px);
             }
         }
 
@@ -452,7 +596,7 @@
             </nav>
 
             <!-- User Auth Controls -->
-            <div class="flex items-center gap-4">
+            <div class="flex items-center gap-2 sm:gap-4">
                 <button onclick="showLoginModal()" id="loginBtn"
                     class="flex items-center justify-center gap-2 w-10 sm:w-auto h-10 px-0 sm:px-5 py-2.5 rounded-xl text-sm font-semibold bg-brand-600 text-white hover:bg-brand-500 hover:shadow-lg hover:shadow-brand-500/10 active:scale-95 transition-all duration-200">
                     <i data-lucide="log-in" class="w-4 h-4"></i>
@@ -462,67 +606,124 @@
                 <!-- Authenticated User Menu Dropdown -->
                 <div id="navUser" class="hidden relative">
                     <button onclick="toggleUserDropdown(event)" id="userDropdownBtn"
-                        class="flex items-center gap-2.5 bg-slate-100/80 hover:bg-slate-200/50 border border-slate-200/80 px-3 py-1.5 rounded-xl active:scale-95 transition-all duration-200 focus:outline-none select-none">
-                        <div id="userAvatar"
-                            class="w-8 h-8 rounded-full bg-brand-600 flex items-center justify-center text-xs font-bold text-white uppercase shrink-0">
-                            A
+                        class="group flex items-center gap-1.5 sm:gap-2 p-1 pr-2.5 sm:pr-3 rounded-full bg-white hover:bg-slate-50 border border-blue-600 hover:border-blue-700 shadow-xs hover:shadow-md hover:shadow-brand-500/10 active:scale-95 transition-all duration-200 focus:outline-none select-none cursor-pointer">
+                        <!-- Stylish Circular Avatar with Online Status Indicator -->
+                        <div class="relative shrink-0">
+                            <div id="userAvatar"
+                                class="w-9 h-9 rounded-full bg-gradient-to-tr from-brand-600 via-indigo-600 to-blue-500 flex items-center justify-center text-xs font-black text-white uppercase shadow-sm ring-2 ring-white overflow-hidden group-hover:scale-105 transition-transform duration-200">
+                                A
+                            </div>
+                            <span class="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-white"></span>
                         </div>
-                        <div class="hidden lg:flex flex-col text-left">
-                            <span id="navUserName" class="text-xs font-bold text-slate-800 leading-tight">Admin
-                                User</span>
-                            <span id="navUserRole"
-                                class="text-[9px] font-semibold text-accent-600 uppercase tracking-wider leading-none">ADMIN</span>
-                        </div>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                            class="w-3.5 h-3.5 text-slate-500 shrink-0 hidden lg:block transition-transform duration-200"
+                        <!-- User Name beside Profile Picture -->
+                        <span id="navUserName" class="text-xs sm:text-[13px] font-bold text-slate-800 group-hover:text-brand-600 transition-colors truncate max-w-[90px] sm:max-w-[130px] leading-tight select-none">Admin User</span>
+                        <!-- Sleek Micro Dropdown Chevron -->
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+                            class="w-3 h-3 text-slate-400 group-hover:text-brand-600 transition-transform duration-200 group-hover:translate-y-0.5 shrink-0"
                             id="dropdownChevron"><path d="m6 9 6 6 6-6"/></svg>
+                        
+                        <!-- Hidden accessibility / JS state preservation -->
+                        <span id="navUserRole" class="hidden">ADMIN</span>
                     </button>
 
                     <!-- Premium Dropdown Menu Panel -->
                     <div id="userDropdownMenu"
-                        class="absolute right-0 top-full mt-2 w-56 bg-white border border-slate-200/80 rounded-2xl shadow-xl py-1.5 hidden flex-col z-[70] transition-all duration-200 origin-top-right transform scale-95 opacity-0">
-                        <div class="px-4 py-3 border-b border-slate-100 flex flex-col text-left">
-                            <span id="dropdownUserName" class="text-xs font-bold text-slate-800">Admin User</span>
-                            <span id="dropdownUserRole"
-                                class="text-[10px] font-semibold text-brand-600 uppercase tracking-wider mt-0.5">ADMIN</span>
+                        class="absolute right-0 top-full mt-2 w-[270px] sm:w-[285px] max-w-[calc(100vw-1.25rem)] bg-white border border-slate-200/90 rounded-2xl shadow-2xl shadow-slate-900/15 py-0 hidden flex-col z-[70] transition-all duration-200 origin-top-right transform scale-95 opacity-0 overflow-hidden">
+                        
+                        <!-- Header with Mini Avatar, User Info & Role Badge -->
+                        <div class="px-4 py-3.5 bg-gradient-to-b from-slate-50 via-slate-50/60 to-white border-b border-slate-100 flex items-center gap-3">
+                            <div class="relative shrink-0">
+                                <div id="dropdownAvatarMini"
+                                    class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 via-indigo-600 to-blue-500 flex items-center justify-center text-xs font-black text-white uppercase shadow-sm ring-2 ring-white overflow-hidden">
+                                    A
+                                </div>
+                                <span class="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-500 ring-2 ring-white"></span>
+                            </div>
+                            <div class="min-w-0 flex-1 text-left">
+                                <div class="flex items-center justify-between gap-1 mb-0.5">
+                                    <span class="text-[9px] font-black uppercase tracking-wider text-slate-400">Signed In</span>
+                                    <span id="dropdownUserRole"
+                                        class="inline-flex items-center text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-blue-50 text-brand-700 border border-brand-200/80 leading-none shrink-0 shadow-[0_1px_2px_rgba(0,0,0,0.03)]">ADMIN</span>
+                                </div>
+                                <span id="dropdownUserName" class="block text-xs font-extrabold text-slate-900 leading-tight truncate">Admin User</span>
+                                <span id="dropdownUserEmail" class="block text-[10px] font-medium text-slate-400 truncate leading-tight mt-0.5">admin@gblms.edu</span>
+                            </div>
                         </div>
 
-                        <!-- Account Link -->
-                        <a href="#" onclick="navigateTo('profile'); return false;" id="dropdownProfileLink"
-                            class="flex items-center gap-3 px-4 py-2 text-xs font-bold text-slate-655 hover:text-slate-900 hover:bg-slate-50 transition-colors duration-150">
-                            <i data-lucide="user" class="w-4 h-4 text-slate-400"></i>
-                            <span>My Profile</span>
-                        </a>
+                        <!-- Menu Navigation Links -->
+                        <div class="p-1.5 space-y-0.5">
+                            <!-- My Profile Link -->
+                            <a href="#" onclick="navigateTo('profile'); return false;" id="dropdownProfileLink"
+                                class="group flex items-center justify-between px-2.5 py-2 rounded-xl text-xs font-bold text-slate-700 hover:text-brand-600 hover:bg-slate-50 transition-all duration-150">
+                                <div class="flex items-center gap-2.5 min-w-0">
+                                    <div class="w-7 h-7 rounded-lg bg-slate-100/90 group-hover:bg-brand-50 text-slate-500 group-hover:text-brand-600 flex items-center justify-center transition-colors shrink-0">
+                                        <i data-lucide="user" class="w-3.5 h-3.5"></i>
+                                    </div>
+                                    <span class="truncate">My Profile</span>
+                                </div>
+                                <svg class="w-3.5 h-3.5 text-slate-300 group-hover:text-brand-400 group-hover:translate-x-0.5 transition-all shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                            </a>
 
-                        <!-- Separator -->
-                        <div class="border-t border-slate-100 my-1"></div>
+                            <!-- Add Member Card Link -->
+                            <a href="#" onclick="navigateTo('member'); return false;" id="dropdownMemberCardLink"
+                                class="group flex items-center justify-between px-2.5 py-2 rounded-xl text-xs font-bold text-slate-700 hover:text-amber-700 hover:bg-amber-50/60 transition-all duration-150 hidden">
+                                <div class="flex items-center gap-2.5 min-w-0">
+                                    <div class="w-7 h-7 rounded-lg bg-amber-50 group-hover:bg-amber-100/80 text-amber-600 flex items-center justify-center transition-colors shrink-0">
+                                        <i data-lucide="id-card" class="w-3.5 h-3.5"></i>
+                                    </div>
+                                    <span class="truncate">Add Member Card</span>
+                                </div>
+                                <span class="text-[8.5px] font-black text-amber-700 bg-amber-100/80 px-1.5 py-0.5 rounded-md leading-none uppercase shrink-0">CARD</span>
+                            </a>
 
-                        <!-- Workspace Links -->
-                        <a href="#" onclick="navigateTo('saved'); return false;" id="dropdownSavedLink"
-                            class="flex items-center gap-3 px-4 py-2 text-xs font-bold text-slate-655 hover:text-slate-900 hover:bg-slate-50 transition-colors duration-150 hidden">
-                            <i data-lucide="bookmark" class="w-4 h-4 text-slate-400"></i>
-                            <span>Saved Books</span>
-                        </a>
-                        <a href="#" onclick="navigateTo('dashboard'); return false;" id="dropdownDashboardLink"
-                            class="flex items-center gap-3 px-4 py-2 text-xs font-bold text-slate-655 hover:text-slate-900 hover:bg-slate-50 transition-colors duration-150">
-                            <i data-lucide="layout-dashboard" class="w-4 h-4 text-slate-400"></i>
-                            <span>Reader Dashboard</span>
-                        </a>
-                        <a href="#" onclick="navigateTo('admin'); return false;" id="dropdownAdminLink"
-                            class="flex items-center gap-3 px-4 py-2 text-xs font-bold text-slate-655 hover:text-slate-900 hover:bg-slate-50 transition-colors duration-150">
-                            <i data-lucide="shield" class="w-4 h-4 text-slate-400"></i>
-                            <span>System Admin</span>
-                        </a>
+                            <!-- Workspace Links -->
+                            <a href="#" onclick="navigateTo('saved'); return false;" id="dropdownSavedLink"
+                                class="group flex items-center justify-between px-2.5 py-2 rounded-xl text-xs font-bold text-slate-700 hover:text-brand-600 hover:bg-slate-50 transition-all duration-150 hidden">
+                                <div class="flex items-center gap-2.5 min-w-0">
+                                    <div class="w-7 h-7 rounded-lg bg-purple-50 group-hover:bg-purple-100/80 text-purple-600 flex items-center justify-center transition-colors shrink-0">
+                                        <i data-lucide="bookmark" class="w-3.5 h-3.5"></i>
+                                    </div>
+                                    <span class="truncate">Saved Books</span>
+                                </div>
+                                <svg class="w-3.5 h-3.5 text-slate-300 group-hover:text-purple-400 group-hover:translate-x-0.5 transition-all shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                            </a>
 
-                        <!-- Separator -->
-                        <div class="border-t border-slate-100 my-1"></div>
+                            <a href="#" onclick="navigateTo('dashboard'); return false;" id="dropdownDashboardLink"
+                                class="group flex items-center justify-between px-2.5 py-2 rounded-xl text-xs font-bold text-slate-700 hover:text-brand-600 hover:bg-slate-50 transition-all duration-150">
+                                <div class="flex items-center gap-2.5 min-w-0">
+                                    <div class="w-7 h-7 rounded-lg bg-blue-50 group-hover:bg-blue-100/80 text-blue-600 flex items-center justify-center transition-colors shrink-0">
+                                        <i data-lucide="layout-dashboard" class="w-3.5 h-3.5"></i>
+                                    </div>
+                                    <span class="truncate">Reader Dashboard</span>
+                                </div>
+                                <svg class="w-3.5 h-3.5 text-slate-300 group-hover:text-brand-400 group-hover:translate-x-0.5 transition-all shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                            </a>
 
-                        <!-- Sign Out -->
-                        <button onclick="logout()"
-                            class="w-full flex items-center gap-3 px-4 py-2 text-xs font-bold text-red-655 hover:bg-red-50 transition-colors duration-150 text-left">
-                            <i data-lucide="log-out" class="w-4 h-4"></i>
-                            <span>Portal Sign Out</span>
-                        </button>
+                            <a href="#" onclick="navigateTo('admin'); return false;" id="dropdownAdminLink"
+                                class="group flex items-center justify-between px-2.5 py-2 rounded-xl text-xs font-bold text-slate-700 hover:text-brand-600 hover:bg-slate-50 transition-all duration-150">
+                                <div class="flex items-center gap-2.5 min-w-0">
+                                    <div class="w-7 h-7 rounded-lg bg-indigo-50 group-hover:bg-indigo-100/80 text-indigo-600 flex items-center justify-center transition-colors shrink-0">
+                                        <i data-lucide="shield" class="w-3.5 h-3.5"></i>
+                                    </div>
+                                    <span class="truncate">System Admin</span>
+                                </div>
+                                <span class="text-[8.5px] font-black text-indigo-600 bg-indigo-100/80 px-1.5 py-0.5 rounded-md leading-none uppercase shrink-0">ADMIN</span>
+                            </a>
+                        </div>
+
+                        <!-- Footer Sign Out -->
+                        <div class="p-1.5 bg-slate-50/80 border-t border-slate-100">
+                            <button onclick="logout()"
+                                class="group w-full flex items-center justify-between px-2.5 py-2 rounded-xl text-xs font-bold text-rose-600 hover:bg-rose-50/90 active:scale-[0.98] transition-all duration-150 text-left cursor-pointer">
+                                <div class="flex items-center gap-2.5">
+                                    <div class="w-7 h-7 rounded-lg bg-rose-100/80 group-hover:bg-rose-200/90 text-rose-600 flex items-center justify-center transition-colors shrink-0">
+                                        <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
+                                    </div>
+                                    <span>Portal Sign Out</span>
+                                </div>
+                                <svg class="w-3.5 h-3.5 text-rose-300 group-hover:text-rose-500 group-hover:translate-x-0.5 transition-all shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7"/></svg>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -570,16 +771,21 @@
                     navUser.classList.add('flex');
                     var nameEl = document.getElementById('navUserName');
                     var roleEl = document.getElementById('navUserRole');
-                    if (nameEl) nameEl.textContent = user;
+                    if (nameEl) {
+                        nameEl.textContent = user;
+                        nameEl.classList.remove('hidden');
+                    }
                     if (roleEl) roleEl.textContent = role.toUpperCase();
 
                     // Instantly set correct user initial or avatar image to prevent avatar flickering
                     var avatarEl = document.getElementById('userAvatar');
                     if (avatarEl) {
                         var registered = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
-                        var email = localStorage.getItem('currentUserEmail');
-                        var matchedUser = registered.find(function(u) { return u.email === email; });
-                        var avatarImage = email === 'admin@gmail.com' ? localStorage.getItem('adminAvatar') : (matchedUser && matchedUser.profileImage);
+                        var email = (localStorage.getItem('currentUserEmail') || '').toLowerCase();
+                        var matchedUser = registered.find(function(u) { return (u.email || '').toLowerCase() === email; });
+                        var avatarImage = (email === 'admin@gmail.com' || role === 'admin') 
+                            ? (localStorage.getItem('adminAvatar') || localStorage.getItem('currentUserAvatar')) 
+                            : ((matchedUser && (matchedUser.profileImage || matchedUser.memberPhoto)) || localStorage.getItem('userAvatar_' + email) || localStorage.getItem('currentUserAvatar'));
                         if (avatarImage) {
                             avatarEl.innerHTML = '<img src="' + avatarImage + '" class="w-full h-full object-cover rounded-full" style="max-width: 100%; max-height: 100%;" />';
                         } else {
@@ -612,42 +818,26 @@
         <section id="homeSection" class="page-section active-section block opacity-1">
 
             <!-- Hero — Full Viewport (height: 100vh - 80px) -->
-            <div id="heroSection" class="relative hero-full border-b border-slate-200 bg-hero-grid overflow-hidden">
-
-                <!-- Grid line overlay -->
-                <div class="absolute inset-0 hero-grid-lines pointer-events-none"></div>
-
-                <!-- Ambient glow orbs -->
-                <div
-                    class="absolute -top-40 -left-40 w-[550px] h-[550px] rounded-full bg-brand-500/8 blur-[130px] pointer-events-none">
-                </div>
-                <div
-                    class="absolute -bottom-40 -right-40 w-[500px] h-[500px] rounded-full bg-accent-500/6 blur-[120px] pointer-events-none">
-                </div>
-
-                <!-- Decorative ring (xl only, sits in the gap) -->
-                <div
-                    class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[420px] h-[420px] rounded-full border border-slate-200/35 pointer-events-none hidden xl:block">
-                </div>
+            <div id="heroSection" class="relative hero-full overflow-hidden">
 
                 <!-- ═══ TWO-COLUMN LAYOUT ═══ -->
-                <div class="max-w-7xl mx-auto px-6 md:px-10 relative z-20 w-full h-full flex items-center">
+                <div class="max-w-7xl mx-auto px-6 md:px-10 relative z-20 w-full">
                     <div
-                        class="w-full flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-10 xl:gap-16">
+                        class="w-full flex flex-col lg:flex-row items-center justify-between gap-6 lg:gap-8 xl:gap-12">
 
                         <!-- ── LEFT: Hero Copy ── -->
                         <div class="flex-1 text-center lg:text-left max-w-lg lg:max-w-xl w-full mx-auto lg:mx-0">
 
                             <!-- Eyebrow badge -->
                             <div
-                                class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-50/70 backdrop-blur-md border border-brand-600/30 text-xs font-bold text-brand-600 mb-5 shadow-sm hover:bg-brand-50 transition-colors duration-300">
+                                class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/85 backdrop-blur-md border border-brand-600/30 text-xs font-bold text-brand-600 mb-2.5 shadow-sm hover:bg-white transition-colors duration-300">
                                 <i data-lucide="shield-check" class="w-3.5 h-3.5 text-brand-600"></i>
                                 <span class="tracking-wide">Enterprise Architecture Standard</span>
                             </div>
 
                             <!-- Headline -->
                             <h1
-                                class="font-black tracking-tight leading-tight mb-4 md:mb-5 text-slate-900">
+                                class="font-black tracking-tight leading-tight mb-2.5 md:mb-3 text-slate-900">
                                 <div class="inline-flex flex-col items-start">
                                     <span class="hero-title-line overflow-hidden"><span
                                             class="inline-block whitespace-nowrap text-[8.2vw] sm:text-[6.2vw] md:text-[5vw] lg:text-[3.6rem] leading-[1.0]">Discover &amp; Control</span></span>
@@ -659,13 +849,13 @@
 
                             <!-- Sub-copy -->
                             <p
-                                class="text-slate-500 text-sm sm:text-base max-w-md leading-relaxed mb-6 md:mb-7 font-medium mx-auto lg:mx-0">
+                                class="text-slate-500 text-sm sm:text-base max-w-md leading-relaxed mb-3.5 md:mb-4 font-medium mx-auto lg:mx-0">
                                 A premium enterprise-grade LMS for GB powered by smart analytics, customized reading
                                 portfolios, and full structural metadata controls.
                             </p>
 
                             <!-- CTA Buttons -->
-                            <div class="hero-cta-row flex flex-wrap justify-start mb-7">
+                            <div class="hero-cta-row flex flex-wrap justify-start mb-2">
                                 <button onclick="navigateTo('catalog')"
                                     class="hero-cta-button flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-brand-600 hover:bg-brand-500 hover:-translate-y-1 hover:shadow-xl hover:shadow-brand-500/25 text-white text-base font-bold active:scale-95 transition-all duration-300">
                                     <i data-lucide="compass" class="w-4 h-4"></i>
@@ -683,15 +873,49 @@
                                 </button>
                             </div>
 
+                            <!-- Hero Quick AI Book Search Bar -->
+                            <div class="hero-search-wrapper w-full mt-3.5 mb-2 relative text-left">
+                                <form onsubmit="handleHeroQuickSearch(event)">
+                                    <div class="relative flex items-center">
+                                        <i data-lucide="sparkles" class="w-4 h-4 text-brand-600 absolute left-3.5 pointer-events-none hero-search-icon"></i>
+                                        <input type="text" id="heroQuickSearchInput" placeholder="Quick search any book (e.g. Clean Code, Python)..."
+                                            class="w-full pl-10 pr-28 py-2.5 bg-white/95 backdrop-blur-md border border-slate-400 rounded-2xl text-slate-800 text-xs sm:text-sm font-semibold placeholder-slate-400 focus:outline-none focus:border-brand-500 shadow-sm transition-all">
+                                        <button type="submit" id="heroQuickSearchBtn"
+                                            class="absolute right-1.5 top-1/2 -translate-y-1/2 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white text-xs font-bold shadow-sm active:scale-95 transition-all cursor-pointer">
+                                            Find Book
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+
                             <!-- Trust bar -->
                             
                         </div>
 
                         <!-- ── RIGHT: Floating Book Animation ── -->
                         <div
-                            class="hidden lg:flex flex-1 justify-end lg:pr-8 items-center relative min-h-[420px] book-perspective">
-                            <!-- Book Floater container -->
-                            <div class="book-floater select-none">
+                            class="hidden lg:flex flex-1 justify-end lg:pr-8 items-center relative min-h-0 pt-8 pb-4 book-perspective">
+
+                            <!-- Ambient Glow & Astronomical Orbit Rings behind 3D book -->
+                            <div class="absolute inset-0 pointer-events-none flex items-center justify-center -z-10 overflow-visible">
+                                <!-- Soft luminous ambient aura -->
+                                <div class="w-[520px] h-[520px] rounded-full bg-gradient-to-tr from-brand-500/10 via-indigo-500/8 to-amber-500/10 blur-3xl opacity-75 transform -translate-y-2"></div>
+                                <!-- Astronomical academic orbit rings -->
+                                <svg class="absolute w-[560px] h-[560px] opacity-25 text-indigo-900/40 hero-orbit-rings pointer-events-none" viewBox="0 0 600 600" fill="none">
+                                    <circle cx="300" cy="300" r="270" stroke="currentColor" stroke-width="1" stroke-dasharray="4 8" />
+                                    <circle cx="300" cy="300" r="220" stroke="currentColor" stroke-width="1.2" />
+                                    <circle cx="300" cy="300" r="170" stroke="currentColor" stroke-width="1" stroke-dasharray="2 6" opacity="0.6" />
+                                    <line x1="300" y1="20" x2="300" y2="45" stroke="currentColor" stroke-width="1.5" />
+                                    <line x1="300" y1="555" x2="300" y2="580" stroke="currentColor" stroke-width="1.5" />
+                                    <line x1="20" y1="300" x2="45" y2="300" stroke="currentColor" stroke-width="1.5" />
+                                    <line x1="555" y1="300" x2="580" y2="300" stroke="currentColor" stroke-width="1.5" />
+                                </svg>
+                            </div>
+
+
+
+                            <!-- Book Floater container (Hover or click to open/close) -->
+                            <div class="book-floater select-none cursor-pointer" onclick="this.classList.toggle('book-is-open')" title="Click or hover to open book">
                                 <div class="book-shift-wrapper">
                                     <!-- Book Shadow -->
                                     <div class="book-shadow"></div>
@@ -719,6 +943,329 @@
                                             <div class="flex justify-between items-center text-[6px] font-bold tracking-widest uppercase opacity-40">
                                                 <span>Protocol v3.5.2</span>
                                                 <span>LMS Core</span>
+                                            </div>
+                                        </div>
+
+                                        <!-- Page 9 (Stays on right when opened, showing Heritage Vault & Verification Certificate) -->
+                                        <div class="book-page book-page-9">
+                                            <!-- Page 9 Front (Special Archives & Rare Collections) -->
+                                            <div class="book-page-front flex flex-col justify-between p-4 text-slate-800">
+                                                <div class="border border-brand-200/50 rounded-2xl p-3 h-full flex flex-col justify-between bg-white/60 backdrop-blur-[0.5px]">
+                                                    <div class="flex items-center justify-between border-b border-slate-200/80 pb-2">
+                                                        <div class="flex flex-col text-left">
+                                                            <span class="text-[7px] font-black tracking-widest text-brand-600 uppercase">HERITAGE VAULT</span>
+                                                            <h4 class="font-serif font-extrabold text-[11px] text-slate-900 leading-tight mt-0.5">RARE ARCHIVES</h4>
+                                                        </div>
+                                                        <div class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-amber-50 border border-amber-200 select-none">
+                                                            <span class="text-[6.5px] font-black text-amber-700 uppercase tracking-wider">PRESERVED</span>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="my-auto text-left py-2 space-y-1.5">
+                                                        <div class="p-2 rounded-xl bg-slate-50 border border-slate-100">
+                                                            <span class="text-[6.5px] font-black text-slate-400 uppercase block">1971 Liberation War Archive</span>
+                                                            <p class="text-[7.5px] font-bold text-slate-800 mt-0.5">3,420 Rare Documents &amp; Photoprints</p>
+                                                        </div>
+                                                        <div class="p-2 rounded-xl bg-slate-50 border border-slate-100">
+                                                            <span class="text-[6.5px] font-black text-slate-400 uppercase block">Vault Climate Control</span>
+                                                            <div class="flex justify-between items-center text-[7.5px] font-bold text-slate-700 mt-0.5">
+                                                                <span>18°C Temp</span>
+                                                                <span class="text-brand-600 font-extrabold">45% Relative Humidity</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="text-center pt-2 mt-1 border-t border-slate-200/80 flex justify-between items-center text-[7px] font-black text-slate-400 tracking-wider">
+                                                        <span>RARE VAULT</span>
+                                                        <span>SYSTEM v3.5.2</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Page 9 Back (Academic Verification Certificate & Cryptographic Seal) -->
+                                            <div class="book-page-back flex flex-col justify-between p-4 text-slate-800">
+                                                <div class="border border-brand-200/50 rounded-2xl p-3 h-full flex flex-col justify-between bg-white/60 backdrop-blur-[0.5px]">
+                                                    <div class="flex justify-between items-center border-b border-slate-200/80 pb-2">
+                                                        <span class="text-[7px] font-black tracking-widest text-brand-600 uppercase">VERIFICATION</span>
+                                                        <span class="text-[7px] font-black tracking-widest text-slate-400 uppercase">PAGE 18</span>
+                                                    </div>
+                                                    
+                                                    <div class="my-auto text-center flex flex-col items-center gap-1.5 py-2 select-none">
+                                                        <div class="w-8 h-8 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-600 shadow-sm">
+                                                            <i data-lucide="award" class="w-4 h-4"></i>
+                                                        </div>
+                                                        <h4 class="font-serif font-black text-[10px] text-slate-900 uppercase tracking-widest leading-none mt-1">Certified System</h4>
+                                                        <p class="text-[6.5px] font-bold text-slate-500 max-w-[130px] leading-relaxed">
+                                                            Autonomous Catalog &amp; Circulation Engine Verified Under ISO-27001
+                                                        </p>
+                                                        <div class="px-2 py-0.5 rounded bg-slate-100 font-mono text-[6px] text-slate-600 tracking-wider mt-1 border border-slate-200">
+                                                            SHA256: 4F92...B83A
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="text-center pt-2 mt-1 border-t border-slate-200/80 flex justify-between items-center text-[7px] font-black text-slate-400 tracking-wider">
+                                                        <span>AUDIT PASS</span>
+                                                        <span>OFFICIAL RECORD</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Page 8 (Digital Periodicals, IEEE Xplore & Inter-Library Loan) -->
+                                        <div class="book-page book-page-8">
+                                            <!-- Page 8 Front (E-Journals & Research Subscriptions) -->
+                                            <div class="book-page-front flex flex-col justify-between p-4 text-slate-800">
+                                                <div class="border border-brand-200/50 rounded-2xl p-3 h-full flex flex-col justify-between bg-white/60 backdrop-blur-[0.5px]">
+                                                    <div class="flex items-center justify-between border-b border-slate-200/80 pb-2">
+                                                        <div class="flex flex-col text-left">
+                                                            <span class="text-[7px] font-black tracking-widest text-brand-600 uppercase">PERIODICALS</span>
+                                                            <h4 class="font-serif font-extrabold text-[11px] text-slate-900 leading-tight mt-0.5">E-JOURNALS</h4>
+                                                        </div>
+                                                        <div class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-blue-50 border border-blue-200 select-none">
+                                                            <span class="text-[6.5px] font-black text-blue-700 uppercase tracking-wider">CONSORTIUM</span>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="my-auto text-left py-2">
+                                                        <ul class="space-y-1.5 text-[7px] font-bold text-slate-600">
+                                                            <li class="flex items-center justify-between p-1.5 rounded-lg bg-white/80 border border-slate-100">
+                                                                <span>IEEE Xplore Digital</span>
+                                                                <span class="text-brand-600 font-extrabold">Active Sub</span>
+                                                            </li>
+                                                            <li class="flex items-center justify-between p-1.5 rounded-lg bg-white/80 border border-slate-100">
+                                                                <span>ScienceDirect (Elsevier)</span>
+                                                                <span class="text-indigo-600 font-extrabold">Full Access</span>
+                                                            </li>
+                                                            <li class="flex items-center justify-between p-1.5 rounded-lg bg-white/80 border border-slate-100">
+                                                                <span>Springer Link</span>
+                                                                <span class="text-emerald-600 font-extrabold">Unlimited</span>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+
+                                                    <div class="p-1.5 rounded-lg bg-brand-50/60 border border-brand-150 flex items-center justify-between text-[6.5px] font-bold text-brand-800">
+                                                        <span>Articles Indexed</span>
+                                                        <span class="font-extrabold">185,000+ Online</span>
+                                                    </div>
+
+                                                    <div class="text-center pt-2 mt-1 border-t border-slate-200/80 flex justify-between items-center text-[7px] font-black text-slate-400 tracking-wider">
+                                                        <span>PERIODICALS</span>
+                                                        <span>SYSTEM v3.5.2</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Page 8 Back (Inter-Library Loan & ILL Exchange) -->
+                                            <div class="book-page-back flex flex-col justify-between p-4 text-slate-800">
+                                                <div class="border border-brand-200/50 rounded-2xl p-3 h-full flex flex-col justify-between bg-white/60 backdrop-blur-[0.5px]">
+                                                    <div class="flex justify-between items-center border-b border-slate-200/80 pb-2">
+                                                        <span class="text-[7px] font-black tracking-widest text-brand-600 uppercase">ILL EXCHANGE</span>
+                                                        <span class="text-[7px] font-black tracking-widest text-slate-400 uppercase">PAGE 16</span>
+                                                    </div>
+
+                                                    <div class="my-auto text-left py-2 space-y-1.5">
+                                                        <div class="p-1.5 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between text-[7px] font-bold text-slate-700">
+                                                            <div class="flex items-center gap-1">
+                                                                <i data-lucide="building-2" class="w-3 h-3 text-brand-500 shrink-0"></i>
+                                                                <span>Dhaka University (DU)</span>
+                                                            </div>
+                                                            <span class="text-emerald-600 font-black">Connected</span>
+                                                        </div>
+                                                        <div class="p-1.5 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between text-[7px] font-bold text-slate-700">
+                                                            <div class="flex items-center gap-1">
+                                                                <i data-lucide="building-2" class="w-3 h-3 text-brand-500 shrink-0"></i>
+                                                                <span>BUET Digital Vault</span>
+                                                            </div>
+                                                            <span class="text-emerald-600 font-black">Connected</span>
+                                                        </div>
+                                                        <div class="p-1.5 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between text-[7px] font-bold text-slate-700">
+                                                            <div class="flex items-center gap-1">
+                                                                <i data-lucide="network" class="w-3 h-3 text-brand-500 shrink-0"></i>
+                                                                <span>UGC Consortium</span>
+                                                            </div>
+                                                            <span class="text-emerald-600 font-black">Verified</span>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="text-center pt-2 mt-1 border-t border-slate-200/80 flex justify-between items-center text-[7px] font-black text-slate-400 tracking-wider">
+                                                        <span>CONSORTIUM</span>
+                                                        <span>SYSTEM v3.5.2</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Page 7 (Stays on right when opened, showing Digital Theses & Borrowing Quotas) -->
+                                        <div class="book-page book-page-7">
+                                            <!-- Page 7 Front (Digital Theses & Research Directory) -->
+                                            <div class="book-page-front flex flex-col justify-between p-4 text-slate-800">
+                                                <div class="border border-brand-200/50 rounded-2xl p-3 h-full flex flex-col justify-between bg-white/60 backdrop-blur-[0.5px]">
+                                                    <div class="flex items-center justify-between border-b border-slate-200/80 pb-2">
+                                                        <div class="flex flex-col text-left">
+                                                            <span class="text-[7px] font-black tracking-widest text-brand-600 uppercase">E-REPOSITORY</span>
+                                                            <h4 class="font-serif font-extrabold text-[11px] text-slate-900 leading-tight mt-0.5">THESES ARCHIVE</h4>
+                                                        </div>
+                                                        <div class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-indigo-50 border border-indigo-200 select-none">
+                                                            <span class="text-[6.5px] font-black text-indigo-700 uppercase tracking-wider">OPEN ACCESS</span>
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Theses Statistics Grid -->
+                                                    <div class="grid grid-cols-2 gap-1.5 mt-2">
+                                                        <div class="p-2 rounded-xl bg-slate-50 border border-slate-150 flex flex-col items-center justify-center text-center">
+                                                            <span class="text-[11px] font-black text-brand-700">12.4K</span>
+                                                            <span class="text-[6px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">DISSERTATIONS</span>
+                                                        </div>
+                                                        <div class="p-2 rounded-xl bg-slate-50 border border-slate-150 flex flex-col items-center justify-center text-center">
+                                                            <span class="text-[11px] font-black text-brand-700">840+</span>
+                                                            <span class="text-[6px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">JOURNALS (ACM)</span>
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Featured Research Note -->
+                                                    <div class="mt-2 text-left p-2 rounded-xl bg-brand-50/50 border border-brand-100">
+                                                        <div class="flex items-center gap-1.5 text-brand-700 font-bold text-[7.5px]">
+                                                            <i data-lucide="book-check" class="w-3 h-3 text-brand-600 shrink-0"></i>
+                                                            <span>Institutional Gateway</span>
+                                                        </div>
+                                                        <p class="text-[6.5px] font-medium text-slate-500 mt-1 leading-relaxed">
+                                                            Direct permanent URI access for BSc &amp; MSc research publications with verified DOI indexing.
+                                                        </p>
+                                                    </div>
+
+                                                    <!-- Footer Stamp -->
+                                                    <div class="text-center pt-2 mt-1 border-t border-slate-200/80 flex justify-between items-center text-[7px] font-black text-slate-400 tracking-wider">
+                                                        <span>E-ARCHIVE</span>
+                                                        <span>SYSTEM v3.5.2</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Page 7 Back (Borrowing Privileges & Circulation Policies) -->
+                                            <div class="book-page-back flex flex-col justify-between p-4 text-slate-800">
+                                                <div class="border border-brand-200/50 rounded-2xl p-3 h-full flex flex-col justify-between bg-white/60 backdrop-blur-[0.5px]">
+                                                    <div class="flex justify-between items-center border-b border-slate-200/80 pb-2">
+                                                        <span class="text-[7px] font-black tracking-widest text-brand-600 uppercase">BORROWING TIERS</span>
+                                                        <span class="text-[7px] font-black tracking-widest text-slate-400 uppercase">PAGE 14</span>
+                                                    </div>
+                                                    <div class="my-auto text-left py-2">
+                                                        <h4 class="font-serif font-black text-[11px] text-slate-900 border-b border-slate-100 pb-1.5 mb-2 leading-tight uppercase">Circulation Quota</h4>
+                                                        <ul class="space-y-2 text-[7.5px] font-bold text-slate-600">
+                                                            <li class="flex items-center justify-between p-1.5 rounded-lg bg-white/80 border border-slate-100">
+                                                                <div class="flex items-center gap-1.5">
+                                                                    <i data-lucide="graduation-cap" class="w-3 h-3 text-brand-500 shrink-0"></i>
+                                                                    <span>Undergraduate</span>
+                                                                </div>
+                                                                <span class="text-brand-600 font-extrabold">5 Vols • 21d</span>
+                                                            </li>
+                                                            <li class="flex items-center justify-between p-1.5 rounded-lg bg-white/80 border border-slate-100">
+                                                                <div class="flex items-center gap-1.5">
+                                                                    <i data-lucide="award" class="w-3 h-3 text-indigo-500 shrink-0"></i>
+                                                                    <span>Postgraduate / MS</span>
+                                                                </div>
+                                                                <span class="text-indigo-600 font-extrabold">8 Vols • 30d</span>
+                                                            </li>
+                                                            <li class="flex items-center justify-between p-1.5 rounded-lg bg-white/80 border border-slate-100">
+                                                                <div class="flex items-center gap-1.5">
+                                                                    <i data-lucide="shield-check" class="w-3 h-3 text-emerald-500 shrink-0"></i>
+                                                                    <span>Faculty Fellow</span>
+                                                                </div>
+                                                                <span class="text-emerald-600 font-extrabold">Unlimited</span>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                    <div class="text-center pt-2 mt-1 border-t border-slate-200/80 flex justify-between items-center text-[7px] font-black text-slate-400 tracking-wider">
+                                                        <span>CIRCULATION</span>
+                                                        <span>SYSTEM v3.5.2</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Page 6 (CSE Faculty Syllabi & Facility Telemetry) -->
+                                        <div class="book-page book-page-6">
+                                            <!-- Page 6 Front (Course Reference Reserves) -->
+                                            <div class="book-page-front flex flex-col justify-between p-4 text-slate-800">
+                                                <div class="border border-brand-200/50 rounded-2xl p-3 h-full flex flex-col justify-between bg-white/60 backdrop-blur-[0.5px]">
+                                                    <div class="flex items-center justify-between border-b border-slate-200/80 pb-2">
+                                                        <div class="flex flex-col text-left">
+                                                            <span class="text-[7px] font-black tracking-widest text-brand-600 uppercase">COURSE REFERENCE</span>
+                                                            <h4 class="font-serif font-extrabold text-[11px] text-slate-900 leading-tight mt-0.5">CSE RESERVES</h4>
+                                                        </div>
+                                                        <div class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 select-none">
+                                                            <span class="text-[6.5px] font-black text-emerald-700 uppercase tracking-wider">ACTIVE</span>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="my-auto text-left py-2">
+                                                        <ul class="space-y-1.5 text-[7.5px] font-bold text-slate-600">
+                                                            <li class="flex items-center justify-between border-b border-slate-100 pb-1">
+                                                                <span>CSE-111 Data Structures</span>
+                                                                <span class="text-brand-600 font-extrabold">Sem 1</span>
+                                                            </li>
+                                                            <li class="flex items-center justify-between border-b border-slate-100 pb-1">
+                                                                <span>CSE-221 Algorithm Analysis</span>
+                                                                <span class="text-brand-600 font-extrabold">Sem 3</span>
+                                                            </li>
+                                                            <li class="flex items-center justify-between border-b border-slate-100 pb-1">
+                                                                <span>CSE-311 DBMS Architectures</span>
+                                                                <span class="text-brand-600 font-extrabold">Sem 5</span>
+                                                            </li>
+                                                            <li class="flex items-center justify-between">
+                                                                <span>CSE-411 Machine Learning</span>
+                                                                <span class="text-brand-600 font-extrabold">Sem 7</span>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+
+                                                    <div class="p-1.5 rounded-lg bg-emerald-50/60 border border-emerald-150 flex items-center justify-between text-[6.5px] font-bold text-emerald-800">
+                                                        <span>Reserve Vault Status</span>
+                                                        <span class="font-extrabold">100% In-Stock</span>
+                                                    </div>
+
+                                                    <div class="text-center pt-2 mt-1 border-t border-slate-200/80 flex justify-between items-center text-[7px] font-black text-slate-400 tracking-wider">
+                                                        <span>SYLLABI INDEX</span>
+                                                        <span>SYSTEM v3.5.2</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Page 6 Back (Reading Hall Facility Telemetry) -->
+                                            <div class="book-page-back flex flex-col justify-between p-4 text-slate-800">
+                                                <div class="border border-brand-200/50 rounded-2xl p-3 h-full flex flex-col justify-between bg-white/60 backdrop-blur-[0.5px]">
+                                                    <div class="flex justify-between items-center border-b border-slate-200/80 pb-2">
+                                                        <span class="text-[7px] font-black tracking-widest text-brand-600 uppercase">FACILITY TELEMETRY</span>
+                                                        <span class="text-[7px] font-black tracking-widest text-slate-400 uppercase">PAGE 12</span>
+                                                    </div>
+
+                                                    <div class="my-auto text-left py-2 space-y-2">
+                                                        <div class="p-2 rounded-xl bg-white/80 border border-slate-150">
+                                                            <div class="flex justify-between items-center text-[7.5px] font-bold text-slate-700 mb-1">
+                                                                <span>Study Cubicles (Floor 3)</span>
+                                                                <span class="text-brand-600 font-extrabold">142/160 Free</span>
+                                                            </div>
+                                                            <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                                                                <div class="h-full bg-brand-500 rounded-full" style="width: 88%;"></div>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="grid grid-cols-2 gap-1.5">
+                                                            <div class="p-1.5 rounded-lg bg-slate-50 border border-slate-100 text-center">
+                                                                <span class="text-[6px] font-bold text-slate-400 uppercase block">Noise Level</span>
+                                                                <span class="text-[8.5px] font-black text-emerald-600">32 dB (Silent)</span>
+                                                            </div>
+                                                            <div class="p-1.5 rounded-lg bg-slate-50 border border-slate-100 text-center">
+                                                                <span class="text-[6px] font-bold text-slate-400 uppercase block">Wi-Fi Mesh</span>
+                                                                <span class="text-[8.5px] font-black text-brand-600">1.2 Gbps</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="text-center pt-2 mt-1 border-t border-slate-200/80 flex justify-between items-center text-[7px] font-black text-slate-400 tracking-wider">
+                                                        <span>FACILITY MONITOR</span>
+                                                        <span>SYSTEM v3.5.2</span>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
 
@@ -1026,65 +1573,130 @@
 
                                         <!-- Page 1 (Flipped sequentially, showing welcome and directory) -->
                                         <div class="book-page book-page-1">
-                                            <!-- Page 1 Front (First page behind cover) -->
+                                            <!-- Page 1 Front (First page behind cover, showing official University Emblem) -->
                                             <div class="book-page-front flex flex-col justify-between p-4 text-slate-800">
-                                                <div class="border border-brand-200/50 rounded-2xl p-3 h-full flex flex-col justify-between bg-white/60 backdrop-blur-[0.5px]">
+                                                <div class="border border-brand-200/50 rounded-2xl p-3 h-full flex flex-col justify-between bg-white/70 backdrop-blur-[0.5px]">
                                                     <div class="flex justify-between items-center border-b border-slate-200/80 pb-2">
                                                         <span class="text-[7px] font-black tracking-widest text-brand-600 uppercase">SYS ENTRY</span>
                                                         <span class="text-[7px] font-black tracking-widest text-slate-400 uppercase">PAGE 01</span>
                                                     </div>
-                                                    <div class="my-auto text-center flex flex-col items-center gap-2 py-4 select-none">
-                                                        <div class="w-9 h-9 rounded-full bg-brand-50 border border-brand-100 flex items-center justify-center text-brand-600 shadow-sm">
-                                                            <i data-lucide="compass" class="w-4 h-4"></i>
+                                                    
+                                                    <div class="my-auto text-center flex flex-col items-center gap-1.5 py-1.5 select-none">
+                                                        <!-- Official GBLMS University Logo -->
+                                                        <div class="w-12 h-14 shrink-0 transition-transform duration-300 drop-shadow-md">
+                                                            <svg viewBox="0 0 100 120" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+                                                                <!-- Sun Rays (Red) -->
+                                                                <path d="M 50 15 L 50 2" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" />
+                                                                <path d="M 38 18 L 26 8" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" />
+                                                                <path d="M 62 18 L 74 8" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" />
+                                                                <path d="M 29 26 L 15 19" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" />
+                                                                <path d="M 71 26 L 85 19" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" />
+                                                                <!-- Rising Sun (Red) -->
+                                                                <path d="M 32 28 A 18 18 0 0 1 68 28 Z" fill="#dc2626" />
+                                                                <!-- Shield Outline & Background (Royal Blue with Gold border) -->
+                                                                <path d="M 15 28 L 85 28 L 85 75 Q 85 98 50 108 Q 15 98 15 75 Z" fill="#1e3a8a" stroke="#d97706"
+                                                                    stroke-width="3" stroke-linejoin="round" />
+                                                                <!-- Hexagon grid lines (Gold) -->
+                                                                <line x1="15" y1="36" x2="35" y2="46" stroke="#d97706" stroke-width="1.5" opacity="0.8" />
+                                                                <line x1="85" y1="36" x2="65" y2="46" stroke="#d97706" stroke-width="1.5" opacity="0.8" />
+                                                                <line x1="15" y1="68" x2="35" y2="58" stroke="#d97706" stroke-width="1.5" opacity="0.8" />
+                                                                <line x1="85" y1="68" x2="65" y2="58" stroke="#d97706" stroke-width="1.5" opacity="0.8" />
+                                                                <!-- Central Hexagon (White with Gold border) -->
+                                                                <polygon points="50,34 65,42.5 65,60 50,68.5 35,60 35,42.5" fill="#ffffff" stroke="#d97706"
+                                                                    stroke-width="2" />
+                                                                <!-- Water Lily & Book combo inside Hexagon -->
+                                                                <path d="M 40 58 Q 45 56 50 59 Q 55 56 60 58 L 60 54 Q 55 52 50 55 Q 45 52 40 54 Z"
+                                                                    fill="#dc2626" />
+                                                                <line x1="50" y1="55" x2="50" y2="59" stroke="#ffffff" stroke-width="1" />
+                                                                <path d="M 50 38 Q 47 46 50 53 Q 53 46 50 38 Z" fill="#dc2626" />
+                                                                <path d="M 50 53 Q 41 45 42 42 Q 47 43 50 51 Z" fill="#dc2626" />
+                                                                <path d="M 50 53 Q 36 51 38 48 Q 43 47 50 52 Z" fill="#dc2626" />
+                                                                <path d="M 50 53 Q 59 45 58 42 Q 53 43 50 51 Z" fill="#dc2626" />
+                                                                <path d="M 50 53 Q 64 51 62 48 Q 57 47 50 52 Z" fill="#dc2626" />
+                                                                <!-- Eyeball Shape at the bottom (White) -->
+                                                                <path d="M 28 80 Q 50 67 72 80 Q 50 93 28 80 Z" fill="#ffffff" />
+                                                                <!-- Globe pupil -->
+                                                                <circle cx="50" cy="80" r="7" fill="#1e3a8a" />
+                                                                <circle cx="50" cy="80" r="7" fill="none" stroke="#ffffff" stroke-width="0.8" />
+                                                                <ellipse cx="50" cy="80" rx="3" ry="7" fill="none" stroke="#ffffff" stroke-width="0.8" />
+                                                                <line x1="43" y1="80" x2="57" y2="80" stroke="#ffffff" stroke-width="0.8" />
+                                                                <!-- Golden Banner Ribbon at bottom -->
+                                                                <path d="M 8 102 L 20 95 L 80 95 L 92 102 L 86 112 L 50 114 L 14 112 Z" fill="#d97706"
+                                                                    stroke="#b45309" stroke-width="1" />
+                                                                <path d="M 8 102 L 14 112 L 14 100 Z" fill="#92400e" />
+                                                                <path d="M 92 102 L 86 112 L 86 100 Z" fill="#92400e" />
+                                                                <text x="50" y="108" font-family="'Plus Jakarta Sans', sans-serif" font-weight="900"
+                                                                    font-size="8" fill="#dc2626" text-anchor="middle" letter-spacing="1">GBLMS</text>
+                                                            </svg>
                                                         </div>
-                                                        <h4 class="font-serif font-black text-xs text-slate-800 uppercase tracking-widest leading-none mt-1">GBLMS Portal</h4>
-                                                        <p class="text-[8px] font-bold text-slate-500 tracking-wider uppercase mt-1 leading-normal">
-                                                            Interactive Guide
+                                                        <h4 class="font-serif font-black text-[11px] text-slate-800 uppercase tracking-widest leading-none mt-1">GBLMS Portal</h4>
+                                                        <p class="text-[7.5px] font-bold text-brand-600 tracking-wider uppercase leading-normal">
+                                                            Gono Bishwabidyalay
                                                         </p>
-                                                        <div class="w-6 h-[1.5px] bg-brand-500 mx-auto mt-2"></div>
-                                                        <p class="text-[7px] font-bold text-slate-400 leading-normal max-w-[120px] mx-auto mt-2">
-                                                            Hover book cover to leaf through the system directory.
+                                                        <div class="w-7 h-[1.5px] bg-brand-500 mx-auto mt-0.5"></div>
+                                                        <p class="text-[6.5px] font-bold text-slate-400 leading-normal max-w-[130px] mx-auto">
+                                                            Central University Library &amp; Automated Archive Registry Gateway
                                                         </p>
+                                                        <div class="mt-1 px-2 py-0.5 rounded-full bg-brand-50 border border-brand-200 inline-flex items-center gap-1 text-[6.5px] font-extrabold text-brand-700">
+                                                            <i data-lucide="shield-check" class="w-2.5 h-2.5 text-brand-600"></i>
+                                                            <span>Official University Portal</span>
+                                                        </div>
                                                     </div>
                                                     <div class="text-center pt-2 mt-1 border-t border-slate-200/80 flex justify-between items-center text-[7px] font-black text-slate-400 tracking-wider">
-                                                        <span>WELCOME</span>
-                                                        <span>PORTAL v3.5.2</span>
+                                                        <span>ESTD. 1998</span>
+                                                        <span>SYSTEM v3.5.2</span>
                                                     </div>
                                                 </div>
                                             </div>
-                                            <!-- Page 1 Back (Table of contents) -->
+                                            <!-- Page 1 Back (Table of contents - Expanded 9 Sections) -->
                                             <div class="book-page-back flex flex-col justify-between p-4 text-slate-800">
                                                 <div class="border border-brand-200/50 rounded-2xl p-3 h-full flex flex-col justify-between bg-white/60 backdrop-blur-[0.5px]">
                                                     <div class="flex justify-between items-center border-b border-slate-200/80 pb-2">
                                                         <span class="text-[7px] font-black tracking-widest text-brand-600 uppercase">SYS DIRECTORY</span>
                                                         <span class="text-[7px] font-black tracking-widest text-slate-400 uppercase">PAGE 02</span>
                                                     </div>
-                                                    <div class="my-auto text-left py-2">
-                                                        <h4 class="font-serif font-black text-[11px] text-slate-900 border-b border-slate-100 pb-1.5 mb-2 leading-tight uppercase">Table of Contents</h4>
-                                                        <ul class="space-y-1.5 text-[7.5px] font-bold text-slate-500">
+                                                    <div class="my-auto text-left py-1">
+                                                        <h4 class="font-serif font-black text-[10px] text-slate-900 border-b border-slate-100 pb-1 mb-1.5 leading-tight uppercase">Table of Contents</h4>
+                                                        <ul class="space-y-0.5 text-[6.5px] font-bold text-slate-500 leading-tight">
                                                             <li class="flex justify-between items-center">
                                                                 <span>01. Console Profile</span>
-                                                                <span class="text-slate-350 tracking-wider">................ p.3</span>
+                                                                <span class="text-slate-350 tracking-wider">... p.3</span>
                                                             </li>
                                                             <li class="flex justify-between items-center">
                                                                 <span>02. Service Registries</span>
-                                                                <span class="text-slate-350 tracking-wider">................ p.4</span>
+                                                                <span class="text-slate-350 tracking-wider">... p.4</span>
                                                             </li>
                                                             <li class="flex justify-between items-center">
                                                                 <span>03. Subject Index</span>
-                                                                <span class="text-slate-350 tracking-wider">................ p.5</span>
+                                                                <span class="text-slate-350 tracking-wider">... p.5</span>
                                                             </li>
                                                             <li class="flex justify-between items-center">
                                                                 <span>04. Section I Telemetry</span>
-                                                                <span class="text-slate-350 tracking-wider">................ p.7</span>
+                                                                <span class="text-slate-350 tracking-wider">... p.7</span>
                                                             </li>
                                                             <li class="flex justify-between items-center">
                                                                 <span>05. Data Engine Logs</span>
-                                                                <span class="text-slate-350 tracking-wider">................ p.9</span>
+                                                                <span class="text-slate-350 tracking-wider">... p.9</span>
+                                                            </li>
+                                                            <li class="flex justify-between items-center">
+                                                                <span>06. CSE Course Reserves</span>
+                                                                <span class="text-slate-350 tracking-wider">... p.11</span>
+                                                            </li>
+                                                            <li class="flex justify-between items-center">
+                                                                <span>07. Theses E-Repository</span>
+                                                                <span class="text-slate-350 tracking-wider">... p.13</span>
+                                                            </li>
+                                                            <li class="flex justify-between items-center">
+                                                                <span>08. E-Journals &amp; Consortium</span>
+                                                                <span class="text-slate-350 tracking-wider">... p.15</span>
+                                                            </li>
+                                                            <li class="flex justify-between items-center">
+                                                                <span>09. Heritage Archive Vault</span>
+                                                                <span class="text-slate-350 tracking-wider">... p.17</span>
                                                             </li>
                                                         </ul>
                                                     </div>
-                                                    <div class="text-center pt-2 mt-1 border-t border-slate-200/80 flex justify-between items-center text-[7px] font-black text-slate-400 tracking-wider">
+                                                    <div class="text-center pt-1.5 mt-0.5 border-t border-slate-200/80 flex justify-between items-center text-[7px] font-black text-slate-400 tracking-wider">
                                                         <span>CONTENTS</span>
                                                         <span>SYSTEM v3.5.2</span>
                                                     </div>
@@ -1109,11 +1721,54 @@
                                         <div class="book-front">
                                             <!-- Exterior Face -->
                                             <div class="book-cover-exterior flex flex-col justify-between p-6">
-                                                <!-- Top branding -->
+                                                <!-- Top branding with White Square and University Logo -->
                                                 <div class="flex items-center justify-between">
                                                     <span class="text-[9px] font-black text-white/50 tracking-widest uppercase">GBLMS Edition</span>
-                                                    <div class="w-6 h-6 rounded-lg bg-white/10 flex items-center justify-center">
-                                                        <i data-lucide="library" class="w-3.5 h-3.5 text-brand-300"></i>
+                                                    <div class="w-7 h-8 rounded-lg bg-white p-0.5 flex items-center justify-center shadow-md shadow-black/25 border border-white/80 shrink-0">
+                                                        <svg viewBox="0 0 100 120" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+                                                            <!-- Sun Rays (Red) -->
+                                                            <path d="M 50 15 L 50 2" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" />
+                                                            <path d="M 38 18 L 26 8" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" />
+                                                            <path d="M 62 18 L 74 8" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" />
+                                                            <path d="M 29 26 L 15 19" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" />
+                                                            <path d="M 71 26 L 85 19" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" />
+                                                            <!-- Rising Sun (Red) -->
+                                                            <path d="M 32 28 A 18 18 0 0 1 68 28 Z" fill="#dc2626" />
+                                                            <!-- Shield Outline & Background (Royal Blue with Gold border) -->
+                                                            <path d="M 15 28 L 85 28 L 85 75 Q 85 98 50 108 Q 15 98 15 75 Z" fill="#1e3a8a" stroke="#d97706"
+                                                                stroke-width="3" stroke-linejoin="round" />
+                                                            <!-- Hexagon grid lines (Gold) -->
+                                                            <line x1="15" y1="36" x2="35" y2="46" stroke="#d97706" stroke-width="1.5" opacity="0.8" />
+                                                            <line x1="85" y1="36" x2="65" y2="46" stroke="#d97706" stroke-width="1.5" opacity="0.8" />
+                                                            <line x1="15" y1="68" x2="35" y2="58" stroke="#d97706" stroke-width="1.5" opacity="0.8" />
+                                                            <line x1="85" y1="68" x2="65" y2="58" stroke="#d97706" stroke-width="1.5" opacity="0.8" />
+                                                            <!-- Central Hexagon (White with Gold border) -->
+                                                            <polygon points="50,34 65,42.5 65,60 50,68.5 35,60 35,42.5" fill="#ffffff" stroke="#d97706"
+                                                                stroke-width="2" />
+                                                            <!-- Water Lily & Book combo inside Hexagon -->
+                                                            <path d="M 40 58 Q 45 56 50 59 Q 55 56 60 58 L 60 54 Q 55 52 50 55 Q 45 52 40 54 Z"
+                                                                fill="#dc2626" />
+                                                            <line x1="50" y1="55" x2="50" y2="59" stroke="#ffffff" stroke-width="1" />
+                                                            <path d="M 50 38 Q 47 46 50 53 Q 53 46 50 38 Z" fill="#dc2626" />
+                                                            <path d="M 50 53 Q 41 45 42 42 Q 47 43 50 51 Z" fill="#dc2626" />
+                                                            <path d="M 50 53 Q 36 51 38 48 Q 43 47 50 52 Z" fill="#dc2626" />
+                                                            <path d="M 50 53 Q 59 45 58 42 Q 53 43 50 51 Z" fill="#dc2626" />
+                                                            <path d="M 50 53 Q 64 51 62 48 Q 57 47 50 52 Z" fill="#dc2626" />
+                                                            <!-- Eyeball Shape at the bottom (White) -->
+                                                            <path d="M 28 80 Q 50 67 72 80 Q 50 93 28 80 Z" fill="#ffffff" />
+                                                            <!-- Globe pupil -->
+                                                            <circle cx="50" cy="80" r="7" fill="#1e3a8a" />
+                                                            <circle cx="50" cy="80" r="7" fill="none" stroke="#ffffff" stroke-width="0.8" />
+                                                            <ellipse cx="50" cy="80" rx="3" ry="7" fill="none" stroke="#ffffff" stroke-width="0.8" />
+                                                            <line x1="43" y1="80" x2="57" y2="80" stroke="#ffffff" stroke-width="0.8" />
+                                                            <!-- Golden Banner Ribbon at bottom -->
+                                                            <path d="M 8 102 L 20 95 L 80 95 L 92 102 L 86 112 L 50 114 L 14 112 Z" fill="#d97706"
+                                                                stroke="#b45309" stroke-width="1" />
+                                                            <path d="M 8 102 L 14 112 L 14 100 Z" fill="#92400e" />
+                                                            <path d="M 92 102 L 86 112 L 86 100 Z" fill="#92400e" />
+                                                            <text x="50" y="108" font-family="'Plus Jakarta Sans', sans-serif" font-weight="900"
+                                                                font-size="8" fill="#dc2626" text-anchor="middle" letter-spacing="1">GBLMS</text>
+                                                        </svg>
                                                     </div>
                                                 </div>
 
@@ -1179,10 +1834,6 @@
                     </div>
                 </div>
 
-
-                <!-- Bottom divider line -->
-                <div class="absolute bottom-0 inset-x-0 h-px bg-slate-200 pointer-events-none">
-                </div>
             </div>
 
             <!-- Curated Masterworks — Swiper Coverflow Carousel -->
@@ -1212,10 +1863,10 @@
                             <div class="coverflow-books" id="masterworksWrapper"></div>
                         </div>
                         <div class="coverflow-controls">
-                            <button class="coverflow-btn prev" id="masterworksPrevCF" onclick="prevCoverflow()">
+                            <button class="coverflow-btn prev" id="masterworksPrevCF" onclick="prevCoverflow(true)" aria-label="Previous Slide">
                                 <i data-lucide="chevron-left" class="w-5 h-5"></i>
                             </button>
-                            <button class="coverflow-btn next" id="masterworksNextCF" onclick="nextCoverflow()">
+                            <button class="coverflow-btn next" id="masterworksNextCF" onclick="nextCoverflow(true)" aria-label="Next Slide">
                                 <i data-lucide="chevron-right" class="w-5 h-5"></i>
                             </button>
                         </div>
@@ -1849,7 +2500,8 @@
     <!-- Swiper.js -->
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
     <!-- Core JavaScript -->
-    <script src="js/script.js"></script>
+    <script src="js/openlibrary-api.js?v=4.0"></script>
+    <script src="js/script.js?v=4.0"></script>
 </body>
 
 </html>

@@ -78,7 +78,7 @@ const CUSTOM_BOOK_APPLICATIONS_KEY = 'customBookApplications';
 
 // ==================== PAGINATION STATE ====================
 let catalogCurrentPage = 1;
-const CATALOG_PER_PAGE = 12;
+let CATALOG_PER_PAGE = 15;
 let adminCurrentPage = 1;
 const ADMIN_PER_PAGE = 10;
 
@@ -131,6 +131,62 @@ function showNotification(message, type = 'success') {
     }, 4000);
 }
 
+// ==================== AUTH CHECK & HERO SEARCH HANDLER ====================
+function isUserLoggedIn() {
+    return Boolean(
+        currentUser || 
+        localStorage.getItem('currentUser') || 
+        (document.body && document.body.classList.contains('session-authenticated'))
+    );
+}
+window.isUserLoggedIn = isUserLoggedIn;
+
+function handleHeroQuickSearch(event) {
+    if (event) event.preventDefault();
+
+    const input = document.getElementById('heroQuickSearchInput');
+    const val = input ? input.value.trim() : '';
+
+    if (!isUserLoggedIn()) {
+        if (val) {
+            sessionStorage.setItem('pendingSearchQuery', val);
+        }
+        showNotification('Please log in or register to search books!', 'info');
+        showLoginModal();
+        return false;
+    }
+
+    if (val) {
+        window.location.href = 'catalog.html?search=' + encodeURIComponent(val);
+    } else {
+        window.location.href = 'catalog.html';
+    }
+    return false;
+}
+window.handleHeroQuickSearch = handleHeroQuickSearch;
+
+function initHeroSearchFocus() {
+    const input = document.getElementById('heroQuickSearchInput');
+    const wrapper = document.querySelector('.hero-search-wrapper');
+    if (!input || !wrapper) return;
+
+    input.addEventListener('focus', () => {
+        wrapper.classList.add('is-focused');
+    });
+
+    input.addEventListener('blur', () => {
+        wrapper.classList.remove('is-focused');
+    });
+
+    wrapper.addEventListener('click', (e) => {
+        const btn = document.getElementById('heroQuickSearchBtn');
+        if (e.target !== btn && !btn?.contains(e.target)) {
+            input.focus();
+        }
+    });
+}
+window.initHeroSearchFocus = initHeroSearchFocus;
+
 // ==================== KNOWLEDGE AREAS DYNAMIC RENDERER ====================
 const KNOWLEDGE_AREAS_CONFIG = [
     { category: 'Technology', subtitle: 'Computer Science', desc: 'AI, algorithms, software craft & system design volumes.', icon: 'cpu', gradientFrom: 'brand-500', gradientTo: 'brand-600', iconBgFrom: 'brand-50', iconBgTo: 'brand-100', iconBorder: 'brand-200/60', iconText: 'brand-600', badgeBg: 'brand-50', badgeText: 'brand-600', badgeBorder: 'brand-100', arrowBg: 'brand-600' },
@@ -179,43 +235,46 @@ function renderKnowledgeAreas() {
 // ==================== DATABASE INTEGRATION (AXIOS) ====================
 async function fetchCatalogDatabase() {
     try {
-        // Cache bust: clear stale Unsplash covers so Open Library images load
-        const stored = localStorage.getItem('libraryBooks');
-        if (stored && stored.includes('unsplash.com')) {
-            localStorage.removeItem('libraryBooks');
-        }
+        // Force complete 135 books sync with Mathematics & Engineering
+        const DB_VERSION_KEY = 'gblms_catalog_db_version_v8';
+        const CURRENT_DB_VERSION = 'v8_135_books_math_eng_sync';
+        const savedVersion = localStorage.getItem(DB_VERSION_KEY);
+        const storedLegacy = localStorage.getItem('libraryBooks');
 
-        const storedClean = localStorage.getItem('libraryBooks');
-        if (storedClean) {
-            allBooks = JSON.parse(storedClean);
-
-            // Auto-migrate semesters up to 8th Semester to guarantee instant gorgeous visual presentation
-            const hasSemestersAbove4 = allBooks.some(b => b.semester && (
-                b.semester.includes("5th") ||
-                b.semester.includes("6th") ||
-                b.semester.includes("7th") ||
-                b.semester.includes("8th")
-            ));
-            if (!hasSemestersAbove4) {
-                allBooks = allBooks.map(book => {
-                    const semesters = [
-                        "1st Semester", "2nd Semester", "3rd Semester", "4th Semester",
-                        "5th Semester", "6th Semester", "7th Semester", "8th Semester"
-                    ];
-                    book.semester = semesters[book.id % semesters.length];
-                    return book;
-                });
-                localStorage.setItem('libraryBooks', JSON.stringify(allBooks));
+        let cacheValid = false;
+        if (savedVersion === CURRENT_DB_VERSION && storedLegacy) {
+            try {
+                const parsed = JSON.parse(storedLegacy);
+                if (Array.isArray(parsed) && parsed.length >= 135) {
+                    allBooks = parsed;
+                    cacheValid = true;
+                }
+            } catch (e) {
+                cacheValid = false;
             }
-        } else {
-            // Load from books.json relative to active folder path
-            const response = await axios.get('data/books.json');
-            allBooks = response.data;
         }
 
-        // Deterministic mock enterprise field injection
+        if (!cacheValid) {
+            try {
+                const response = await axios.get('data/books.json?t=' + Date.now());
+                if (response.data && Array.isArray(response.data) && response.data.length >= 135) {
+                    allBooks = response.data;
+                    localStorage.setItem('libraryBooks', JSON.stringify(allBooks));
+                    localStorage.setItem(DB_VERSION_KEY, CURRENT_DB_VERSION);
+                } else if (response.data) {
+                    allBooks = response.data;
+                }
+            } catch (netErr) {
+                const response = await axios.get('data/books.json');
+                allBooks = response.data;
+                localStorage.setItem('libraryBooks', JSON.stringify(allBooks));
+                localStorage.setItem(DB_VERSION_KEY, CURRENT_DB_VERSION);
+            }
+        }
+
+        // Preserve explicit course codes, course titles and semesters
         allBooks = allBooks.map(book => {
-            if (!book.isCustom) { // Re-inject or override semesters to get perfect 1st-8th Semester coverage
+            if (!book.semester) {
                 const semesters = [
                     "1st Semester", "2nd Semester", "3rd Semester", "4th Semester",
                     "5th Semester", "6th Semester", "7th Semester", "8th Semester"
@@ -230,6 +289,8 @@ async function fetchCatalogDatabase() {
             if (!book.department) {
                 const depts = {
                     "Technology": "Computer Science",
+                    "Engineering": "Electrical & Electronic Engineering",
+                    "Mathematics": "Mathematics & Statistics",
                     "Science": "Applied Physics",
                     "Business": "Business Administration",
                     "Fiction": "General Education",
@@ -260,7 +321,7 @@ async function fetchCatalogDatabase() {
             renderFeaturedList();
         }
         renderKnowledgeAreas();
-        if (pageId === 'catalog') renderCatalogGrid();
+        if (pageId === 'catalog') filterBooks(true);
         if (pageId === 'admin') updateAdminTable();
         if (pageId === 'dashboard') renderDashboardPortfolio();
         if (pageId === 'saved') renderSavedBooks();
@@ -1262,6 +1323,7 @@ function initializeApp() {
     injectWhatsAppButton();
     loadDownloads();
     initUserSession();   // ← Must run BEFORE fetchCatalogDatabase so currentUser is set
+    initHeroSearchFocus();
 
     // Standalone page auto-redirection if already authenticated
     const pageId = getCurrentPageId();
@@ -1649,46 +1711,115 @@ function injectLoginModalHTML() {
     if (!modal) return;
 
     modal.innerHTML = `
-        <div class="modal-card w-full max-w-[480px] bg-white border border-slate-100 rounded-3xl p-8 relative shadow-[0_25px_50px_-12px_rgba(30,58,138,0.15)] overflow-hidden">
-            <!-- Close Button -->
-            <button onclick="closeLoginModal()"
-                class="absolute top-5 right-5 w-9 h-9 rounded-full bg-slate-50 hover:bg-slate-100 text-slate-400 hover:text-slate-700 border border-slate-150 flex items-center justify-center transition-colors duration-250">
-                <i data-lucide="x" class="w-4 h-4"></i>
-            </button>
+        <div class="modal-card-glow-wrapper">
+            <!-- Atmospheric soft breathing neon glow aura -->
+            <div class="modal-glow-aura pointer-events-none"></div>
 
-            <!-- Role Selection Header -->
-            <div class="text-center mt-3 mb-8">
-                <div class="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-brand-50 text-brand-600 mb-3 border border-brand-100/50">
-                    <i data-lucide="key-round" class="w-6 h-6"></i>
-                </div>
-                <h3 class="text-2xl font-black text-slate-900 tracking-tight">Select Role</h3>
-                <p class="text-slate-400 text-xs font-semibold mt-1">Choose your role to access the portal</p>
-            </div>
+            <!-- Crisp rotating animated neon gradient border -->
+            <div class="modal-glow-border pointer-events-none"></div>
 
-            <!-- Options Grid -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                <!-- Admin Card -->
-                <div onclick="selectRole('admin')" 
-                    class="relative border border-slate-150 hover:border-brand-500 rounded-2xl p-6 text-center cursor-pointer bg-white hover:bg-brand-50/10 shadow-sm transition-colors duration-200 group">
-                    
-                    <!-- Icon badge -->
-                    <div class="w-14 h-14 rounded-2xl bg-brand-50 text-brand-600 flex items-center justify-center mx-auto mb-4 border border-brand-100 group-hover:bg-brand-100/50 transition-colors duration-200">
-                        <i data-lucide="shield" class="w-6 h-6"></i>
+            <!-- Main White Modal Card Body -->
+            <div class="modal-card w-full bg-white rounded-3xl p-7 md:p-8 relative shadow-[0_30px_70px_-15px_rgba(30,58,138,0.25)] overflow-hidden text-left z-10">
+                <!-- Subtle Ambient Backdrop Blurs -->
+                <div class="absolute -top-16 -right-16 w-44 h-44 rounded-full bg-brand-500/10 blur-2xl pointer-events-none"></div>
+                <div class="absolute -bottom-16 -left-16 w-44 h-44 rounded-full bg-accent-500/8 blur-2xl pointer-events-none"></div>
+
+                <!-- Close Button -->
+                <button onclick="closeLoginModal()"
+                    class="absolute top-5 right-5 w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-400 hover:text-slate-700 border border-slate-200/80 flex items-center justify-center transition-colors duration-200 z-20 cursor-pointer">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+
+                <!-- Role Selection Header -->
+                <div class="text-center mt-2 mb-7 relative z-10">
+                    <div class="w-16 h-18 mx-auto mb-3 select-none flex items-center justify-center transition-transform duration-300 hover:scale-105 filter drop-shadow-xs">
+                        <svg viewBox="0 0 100 120" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Sun Rays (Red) -->
+                            <path d="M 50 15 L 50 2" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" />
+                            <path d="M 38 18 L 26 8" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" />
+                            <path d="M 62 18 L 74 8" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" />
+                            <path d="M 29 26 L 15 19" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" />
+                            <path d="M 71 26 L 85 19" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" />
+                            <!-- Rising Sun (Red) -->
+                            <path d="M 32 28 A 18 18 0 0 1 68 28 Z" fill="#dc2626" />
+                            <!-- Shield Outline & Background (Royal Blue with Gold border) -->
+                            <path d="M 15 28 L 85 28 L 85 75 Q 85 98 50 108 Q 15 98 15 75 Z" fill="#1e3a8a" stroke="#d97706" stroke-width="3" stroke-linejoin="round" />
+                            <!-- Hexagon grid lines (Gold) -->
+                            <line x1="15" y1="36" x2="35" y2="46" stroke="#d97706" stroke-width="1.5" opacity="0.8" />
+                            <line x1="85" y1="36" x2="65" y2="46" stroke="#d97706" stroke-width="1.5" opacity="0.8" />
+                            <line x1="15" y1="68" x2="35" y2="58" stroke="#d97706" stroke-width="1.5" opacity="0.8" />
+                            <line x1="85" y1="68" x2="65" y2="58" stroke="#d97706" stroke-width="1.5" opacity="0.8" />
+                            <!-- Central Hexagon (White with Gold border) -->
+                            <polygon points="50,34 65,42.5 65,60 50,68.5 35,60 35,42.5" fill="#ffffff" stroke="#d97706" stroke-width="2" />
+                            <!-- Water Lily & Book combo inside Hexagon (Red shapla sitting on a red open book) -->
+                            <path d="M 40 58 Q 45 56 50 59 Q 55 56 60 58 L 60 54 Q 55 52 50 55 Q 45 52 40 54 Z" fill="#dc2626" />
+                            <line x1="50" y1="55" x2="50" y2="59" stroke="#ffffff" stroke-width="1" />
+                            <path d="M 50 38 Q 47 46 50 53 Q 53 46 50 38 Z" fill="#dc2626" />
+                            <path d="M 50 53 Q 41 45 42 42 Q 47 43 50 51 Z" fill="#dc2626" />
+                            <path d="M 50 53 Q 36 51 38 48 Q 43 47 50 52 Z" fill="#dc2626" />
+                            <path d="M 50 53 Q 59 45 58 42 Q 53 43 50 51 Z" fill="#dc2626" />
+                            <path d="M 50 53 Q 64 51 62 48 Q 57 47 50 52 Z" fill="#dc2626" />
+                            <!-- Eyeball Shape at the bottom (White) -->
+                            <path d="M 28 80 Q 50 67 72 80 Q 50 93 28 80 Z" fill="#ffffff" />
+                            <!-- Globe pupil -->
+                            <circle cx="50" cy="80" r="7" fill="#1e3a8a" />
+                            <circle cx="50" cy="80" r="7" fill="none" stroke="#ffffff" stroke-width="0.8" />
+                            <ellipse cx="50" cy="80" rx="3" ry="7" fill="none" stroke="#ffffff" stroke-width="0.8" />
+                            <line x1="43" y1="80" x2="57" y2="80" stroke="#ffffff" stroke-width="0.8" />
+                            <!-- Golden Banner Ribbon at bottom -->
+                            <path d="M 8 102 L 20 95 L 80 95 L 92 102 L 86 112 L 50 114 L 14 112 Z" fill="#d97706" stroke="#b45309" stroke-width="1" />
+                            <path d="M 8 102 L 14 112 L 14 100 Z" fill="#92400e" />
+                            <path d="M 92 102 L 86 112 L 86 100 Z" fill="#92400e" />
+                            <text x="50" y="108" font-family="'Plus Jakarta Sans', sans-serif" font-weight="900" font-size="8" fill="#dc2626" text-anchor="middle" letter-spacing="1">GBLMS</text>
+                        </svg>
                     </div>
-                    <h4 class="text-base font-extrabold text-slate-800 mb-1 group-hover:text-brand-600 transition-colors">Admin Portal</h4>
-                    <p class="text-[11px] text-slate-400 font-semibold leading-relaxed">Manage books, catalog data & systems</p>
+                    <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-50 border border-brand-200/70 text-brand-600 text-[10px] font-black uppercase tracking-wider mb-2">
+                        <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
+                        <span>Secure Access Gateway</span>
+                    </div>
+                    <h3 class="text-2xl font-black text-slate-900 tracking-tight">Select Access Portal</h3>
+                    <p class="text-slate-400 text-xs font-semibold mt-1">Choose your authentication workspace to access the platform</p>
                 </div>
 
-                <!-- User Card -->
-                <div onclick="selectRole('user')" 
-                    class="relative border border-slate-150 hover:border-accent-500 rounded-2xl p-6 text-center cursor-pointer bg-white hover:bg-accent-50/10 shadow-sm transition-colors duration-200 group">
-                    
-                    <!-- Icon badge -->
-                    <div class="w-14 h-14 rounded-2xl bg-accent-50 text-accent-600 flex items-center justify-center mx-auto mb-4 border border-accent-100 group-hover:bg-accent-100/50 transition-colors duration-200">
-                        <i data-lucide="user" class="w-6 h-6"></i>
+                <!-- Options Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 relative z-10">
+                    <!-- Admin Card -->
+                    <div onclick="selectRole('admin')" 
+                        class="relative border-2 border-slate-200 hover:border-brand-600 rounded-2xl p-5 cursor-pointer bg-white hover:bg-brand-50/20 shadow-sm hover:shadow-[0_0_25px_rgba(37,99,235,0.22)] hover:-translate-y-1.5 transition-all duration-300 group flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="w-12 h-12 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center border border-brand-100 group-hover:bg-brand-600 group-hover:text-white transition-all duration-300 shadow-xs">
+                                    <i data-lucide="shield" class="w-6 h-6"></i>
+                                </div>
+                                <span class="px-2 py-0.5 rounded-full bg-brand-50 text-brand-700 text-[9px] font-black uppercase tracking-wider border border-brand-200/50">Staff Only</span>
+                            </div>
+                            <h4 class="text-base font-black text-slate-900 mb-1 group-hover:text-brand-600 transition-colors">Admin Portal</h4>
+                            <p class="text-[11px] text-slate-500 font-semibold leading-relaxed">Full structural controls, catalog management & system logs</p>
+                        </div>
+                        <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-black text-brand-600">
+                            <span>Access Console</span>
+                            <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1.5 transition-transform duration-200"></i>
+                        </div>
                     </div>
-                    <h4 class="text-base font-extrabold text-slate-800 mb-1 group-hover:text-accent-600 transition-colors">User Portal</h4>
-                    <p class="text-[11px] text-slate-400 font-semibold leading-relaxed">Download and read academic resources</p>
+
+                    <!-- User Card -->
+                    <div onclick="selectRole('user')" 
+                        class="relative border-2 border-slate-200 hover:border-accent-500 rounded-2xl p-5 cursor-pointer bg-white hover:bg-accent-50/20 shadow-sm hover:shadow-[0_0_25px_rgba(220,38,38,0.22)] hover:-translate-y-1.5 transition-all duration-300 group flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="w-12 h-12 rounded-xl bg-accent-50 text-accent-600 flex items-center justify-center border border-accent-100 group-hover:bg-accent-600 group-hover:text-white transition-all duration-300 shadow-xs">
+                                    <i data-lucide="user" class="w-6 h-6"></i>
+                                </div>
+                                <span class="px-2 py-0.5 rounded-full bg-accent-50 text-accent-700 text-[9px] font-black uppercase tracking-wider border border-accent-200/50">Students & Faculty</span>
+                            </div>
+                            <h4 class="text-base font-black text-slate-900 mb-1 group-hover:text-accent-600 transition-colors">User Portal</h4>
+                            <p class="text-[11px] text-slate-500 font-semibold leading-relaxed">Read & download CSE textbooks, bookmarks & offline vaults</p>
+                        </div>
+                        <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-black text-accent-600">
+                            <span>Enter Workspace</span>
+                            <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1.5 transition-transform duration-200"></i>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1715,7 +1846,7 @@ function showLoginModal() {
         lucide.createIcons();
     }
 
-    const card = modal.querySelector('.modal-card');
+    const card = modal.querySelector('.modal-card-glow-wrapper') || modal.querySelector('.modal-card');
     if (card) {
         gsap.fromTo(card,
             { scale: 0.85, opacity: 0 },
@@ -1736,7 +1867,7 @@ function selectRole(role) {
 function closeLoginModal() {
     const modal = document.getElementById('loginModal');
     if (!modal) return;
-    const card = modal.querySelector('.modal-card');
+    const card = modal.querySelector('.modal-card-glow-wrapper') || modal.querySelector('.modal-card');
     if (!card) {
         modal.classList.add('hidden');
         modal.classList.remove('flex');
@@ -1911,13 +2042,21 @@ function ensureMemberCardDropdownLink() {
     const link = document.createElement('a');
     link.href = '#';
     link.id = 'dropdownMemberCardLink';
-    link.className = 'flex items-center gap-3 px-4 py-2 text-xs font-bold text-slate-655 hover:text-slate-900 hover:bg-slate-50 transition-colors duration-150 hidden';
+    link.className = 'group flex items-center justify-between px-2.5 py-2 rounded-xl text-xs font-bold text-slate-700 hover:text-amber-700 hover:bg-amber-50/60 transition-all duration-150 hidden';
     link.setAttribute('onclick', "navigateTo('member'); return false;");
     link.innerHTML = `
-        <i data-lucide="id-card" class="w-4 h-4 text-slate-400"></i>
-        <span>Add Member Card</span>
+        <div class="flex items-center gap-2.5 min-w-0">
+            <div class="w-7 h-7 rounded-lg bg-amber-50 group-hover:bg-amber-100/80 text-amber-600 flex items-center justify-center transition-colors shrink-0">
+                <i data-lucide="id-card" class="w-3.5 h-3.5"></i>
+            </div>
+            <span class="truncate">Add Member Card</span>
+        </div>
+        <span class="text-[8.5px] font-black text-amber-700 bg-amber-100/80 px-1.5 py-0.5 rounded-md leading-none uppercase shrink-0">CARD</span>
     `;
     profileLink.insertAdjacentElement('afterend', link);
+    if (window.lucide && typeof window.lucide.createIcons === 'function') {
+        try { window.lucide.createIcons({ root: link }); } catch (e) {}
+    }
 }
 
 function updateHeroMembershipButton() {
@@ -1983,22 +2122,51 @@ function updateSessionUI() {
         if (navUser) { navUser.classList.remove('hidden'); navUser.classList.add('flex'); }
 
         if (navUserName) navUserName.textContent = currentUser;
-        if (navUserRole) navUserRole.textContent = currentRole.toUpperCase();
+        if (navUserRole) {
+            navUserRole.textContent = currentRole.toUpperCase();
+            if (currentRole === 'admin') {
+                navUserRole.classList.add('role-admin');
+            } else {
+                navUserRole.classList.remove('role-admin');
+            }
+        }
+        const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
+        const emailLower = (currentUserEmail || localStorage.getItem('currentUserEmail') || '').toLowerCase();
+        const matchedUser = registeredUsers.find(u => (u.email || '').toLowerCase() === emailLower);
+        const avatarImage = (emailLower === 'admin@gmail.com' || currentRole === 'admin')
+            ? (localStorage.getItem('adminAvatar') || localStorage.getItem('currentUserAvatar'))
+            : ((matchedUser && (matchedUser.profileImage || matchedUser.memberPhoto)) || localStorage.getItem(`userAvatar_${emailLower}`) || localStorage.getItem('currentUserAvatar'));
+
         if (userAvatar) {
-            const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
-            const user = registeredUsers.find(u => u.email === currentUserEmail);
-            const avatarImage = currentUserEmail === 'admin@gmail.com'
-                ? localStorage.getItem('adminAvatar')
-                : user?.profileImage;
             if (avatarImage) {
                 userAvatar.innerHTML = `<img src="${avatarImage}" class="w-full h-full object-cover rounded-full" style="max-width: 100%; max-height: 100%;" />`;
             } else {
                 userAvatar.innerHTML = '';
-                userAvatar.textContent = currentUser.charAt(0);
+                userAvatar.textContent = currentUser.charAt(0).toUpperCase();
             }
         }
         if (dropdownUserName) dropdownUserName.textContent = currentUser;
-        if (dropdownUserRole) dropdownUserRole.textContent = currentRole.toUpperCase();
+        const dropdownUserEmail = document.getElementById('dropdownUserEmail');
+        if (dropdownUserEmail) {
+            dropdownUserEmail.textContent = currentUserEmail || (currentRole === 'admin' ? 'admin@gblms.edu' : `${currentUser.toLowerCase().replace(/\s+/g, '')}@student.lms`);
+        }
+        const dropdownAvatarMini = document.getElementById('dropdownAvatarMini');
+        if (dropdownAvatarMini) {
+            if (avatarImage) {
+                dropdownAvatarMini.innerHTML = `<img src="${avatarImage}" class="w-full h-full object-cover rounded-xl" style="max-width: 100%; max-height: 100%;" />`;
+            } else {
+                dropdownAvatarMini.innerHTML = '';
+                dropdownAvatarMini.textContent = currentUser.charAt(0).toUpperCase();
+            }
+        }
+        if (dropdownUserRole) {
+            dropdownUserRole.textContent = currentRole.toUpperCase();
+            if (currentRole === 'admin') {
+                dropdownUserRole.className = 'inline-flex items-center text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200/90 leading-none shrink-0 shadow-xs';
+            } else {
+                dropdownUserRole.className = 'inline-flex items-center text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-blue-50 text-brand-700 border border-brand-200/90 leading-none shrink-0 shadow-xs';
+            }
+        }
 
         if (savedNavLink) savedNavLink.classList.remove('hidden');
         if (dropdownSavedLink) dropdownSavedLink.classList.remove('hidden');
@@ -2048,30 +2216,127 @@ function updateSessionUI() {
 }
 
 // ==================== PROFILE PAGE CONTROLLER ====================
+// ==================== AVATAR COMPRESSION & PERSISTENCE HELPERS ====================
+function compressImageToDataUrl(file, maxWidth = 280, maxHeight = 280, quality = 0.85) {
+    return new Promise((resolve, reject) => {
+        if (!file || !file.type.startsWith('image/')) {
+            reject(new Error('Please select a valid image file (JPG, PNG, WebP).'));
+            return;
+        }
+        const reader = new FileReader();
+        reader.onerror = () => reject(new Error('Failed to read image file.'));
+        reader.onload = (e) => {
+            const img = new Image();
+            img.onerror = () => reject(new Error('Failed to decode image data.'));
+            img.onload = () => {
+                try {
+                    const width = img.width;
+                    const height = img.height;
+                    const canvas = document.createElement('canvas');
+
+                    // Center-crop to square for beautiful avatar presentation
+                    const minSide = Math.min(width, height);
+                    const startX = (width - minSide) / 2;
+                    const startY = (height - minSide) / 2;
+                    const targetSize = Math.min(maxWidth, Math.max(minSide, 128), 320);
+
+                    canvas.width = targetSize;
+                    canvas.height = targetSize;
+                    const ctx = canvas.getContext('2d');
+                    ctx.imageSmoothingEnabled = true;
+                    ctx.imageSmoothingQuality = 'high';
+                    ctx.drawImage(img, startX, startY, minSide, minSide, 0, 0, targetSize, targetSize);
+
+                    const dataUrl = canvas.toDataURL('image/jpeg', quality);
+                    resolve(dataUrl);
+                } catch (canvasErr) {
+                    // Fallback to raw data url if canvas has issues
+                    resolve(e.target.result);
+                }
+            };
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
+function saveUserAvatarGlobally(avatarDataUrl) {
+    if (!avatarDataUrl) return;
+    try {
+        localStorage.setItem('currentUserAvatar', avatarDataUrl);
+        const email = (currentUserEmail || localStorage.getItem('currentUserEmail') || '').toLowerCase();
+        if (email) {
+            localStorage.setItem(`userAvatar_${email}`, avatarDataUrl);
+        }
+        if (email === 'admin@gmail.com' || currentRole === 'admin') {
+            localStorage.setItem('adminAvatar', avatarDataUrl);
+        }
+
+        // Persist to registeredUsers array
+        let registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
+        let userIndex = registeredUsers.findIndex(u => (u.email || '').toLowerCase() === email);
+        if (userIndex !== -1) {
+            registeredUsers[userIndex].profileImage = avatarDataUrl;
+            localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
+        } else if (email && email !== 'admin@gmail.com') {
+            registeredUsers.push({
+                name: currentUser || 'Member User',
+                email: email,
+                profileImage: avatarDataUrl
+            });
+            localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
+        }
+
+        // Update nav avatars immediately across the page
+        const userAvatar = document.getElementById('userAvatar');
+        if (userAvatar) {
+            userAvatar.innerHTML = `<img src="${avatarDataUrl}" class="w-full h-full object-cover rounded-full" style="max-width: 100%; max-height: 100%;" />`;
+        }
+        const dropdownAvatarMini = document.getElementById('dropdownAvatarMini');
+        if (dropdownAvatarMini) {
+            dropdownAvatarMini.innerHTML = `<img src="${avatarDataUrl}" class="w-full h-full object-cover rounded-xl" style="max-width: 100%; max-height: 100%;" />`;
+        }
+    } catch (err) {
+        console.error("Failed to save avatar globally:", err);
+    }
+}
+
+// ==================== PROFILE PAGE CONTROLLER ====================
 function initProfilePage() {
     if (!currentUserEmail) {
-        // Show login modal instead of redirecting — keep user on profile.html
+        currentUserEmail = localStorage.getItem('currentUserEmail');
+    }
+    if (!currentUser && !currentUserEmail) {
         setTimeout(() => showLoginModal(), 150);
         return;
     }
 
+    const email = (currentUserEmail || localStorage.getItem('currentUserEmail') || '').toLowerCase();
     const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
-    let user = registeredUsers.find(u => u.email === currentUserEmail);
+    let user = registeredUsers.find(u => (u.email || '').toLowerCase() === email);
 
-    // If it's the admin logging in, they won't be in registeredUsers. Let's mock a user object for admin.
-    if (currentUserEmail === 'admin@gmail.com') {
+    // If it's the admin logging in, construct or read admin profile
+    if (email === 'admin@gmail.com' || currentRole === 'admin') {
         user = {
-            name: currentUser || 'Admin Manager',
-            email: 'admin@gmail.com',
+            name: currentUser || localStorage.getItem('currentUserName') || 'Admin Manager',
+            email: email || 'admin@gmail.com',
             phone: localStorage.getItem('adminPhone') || '',
             department: localStorage.getItem('adminDept') || 'Administration',
             studentId: localStorage.getItem('adminId') || 'ADM-001',
             bio: localStorage.getItem('adminBio') || 'System administrator for GBLMS database controls.',
-            profileImage: localStorage.getItem('adminAvatar') || ''
+            profileImage: localStorage.getItem('adminAvatar') || localStorage.getItem('currentUserAvatar') || ''
+        };
+    } else if (!user) {
+        user = {
+            name: currentUser || 'Reader',
+            email: email || '',
+            phone: '',
+            department: '',
+            studentId: '',
+            bio: '',
+            profileImage: localStorage.getItem(`userAvatar_${email}`) || localStorage.getItem('currentUserAvatar') || ''
         };
     }
-
-    if (!user) return;
 
     // Populating UI Elements
     const pName = document.getElementById('profileName');
@@ -2085,68 +2350,269 @@ function initProfilePage() {
     const pNameHeader = document.getElementById('profileNameHeader');
     const pRoleHeader = document.getElementById('profileRoleHeader');
 
-    if (pName) pName.value = user.name || '';
-    if (pEmail) pEmail.value = user.email || '';
+    if (pName) pName.value = user.name || currentUser || '';
+    if (pEmail) pEmail.value = user.email || currentUserEmail || '';
     if (pPhone) pPhone.value = user.phone || '';
     if (pDept) pDept.value = user.department || '';
     if (pId) pId.value = user.studentId || '';
     if (pBio) pBio.value = user.bio || '';
-    if (pNameHeader) pNameHeader.textContent = user.name || currentUser;
-    if (pRoleHeader) pRoleHeader.textContent = currentRole.toUpperCase();
+    if (pNameHeader) pNameHeader.textContent = user.name || currentUser || 'User';
+    if (pRoleHeader) pRoleHeader.textContent = (currentRole || 'USER').toUpperCase();
 
     // Render large profile avatar
+    const effectiveAvatar = user.profileImage 
+        || (email === 'admin@gmail.com' ? localStorage.getItem('adminAvatar') : null)
+        || localStorage.getItem(`userAvatar_${email}`)
+        || localStorage.getItem('currentUserAvatar')
+        || '';
+
     if (pAvatarPreview) {
-        if (user.profileImage) {
-            pAvatarPreview.src = user.profileImage;
+        if (effectiveAvatar) {
+            pAvatarPreview.src = effectiveAvatar;
             pAvatarPreview.classList.remove('hidden');
             if (pAvatarText) pAvatarText.classList.add('hidden');
         } else {
             pAvatarPreview.classList.add('hidden');
             if (pAvatarText) {
-                pAvatarText.textContent = (user.name || currentUser).charAt(0).toUpperCase();
+                pAvatarText.textContent = (user.name || currentUser || 'U').charAt(0).toUpperCase();
                 pAvatarText.classList.remove('hidden');
             }
         }
     }
 
-    // Set up file upload listener
+    // Set up file upload listener to open interactive crop & scale modal
     const fileInput = document.getElementById('profileImageInput');
-    if (fileInput) {
+    if (fileInput && !fileInput.__hasAvatarListener) {
+        fileInput.__hasAvatarListener = true;
         fileInput.addEventListener('change', function (e) {
-            const file = e.target.files[0];
+            const file = e.target.files && e.target.files[0];
             if (!file) return;
 
-            // Enforce file size limit (e.g. 1.5MB to fit in localStorage safely)
-            if (file.size > 1.5 * 1024 * 1024) {
-                showNotification("Image too large. Please select an image under 1.5MB.", "error");
+            if (!file.type.startsWith('image/')) {
+                showNotification("Please select a valid image file (JPG, PNG, WebP).", "error");
                 return;
             }
 
             const reader = new FileReader();
-            reader.onload = function (event) {
-                const base64Data = event.target.result;
-                if (pAvatarPreview) {
-                    pAvatarPreview.src = base64Data;
-                    pAvatarPreview.classList.remove('hidden');
-                    if (pAvatarText) pAvatarText.classList.add('hidden');
-                }
-                // Temporarily store base64 in dataset to save on form submit
-                document.getElementById('profileCard').dataset.tempAvatar = base64Data;
-                showNotification("Image uploaded successfully. Click Save to persist.", "success");
+            reader.onerror = () => showNotification("Failed to read image file.", "error");
+            reader.onload = (ev) => {
+                const img = new Image();
+                img.onerror = () => showNotification("Failed to decode image data.", "error");
+                img.onload = () => {
+                    openAvatarCropper(img);
+                };
+                img.src = ev.target.result;
             };
             reader.readAsDataURL(file);
         });
     }
 }
 
+// ==================== INTERACTIVE AVATAR CROPPER & POSITION CONTROLLER ====================
+let cropState = {
+    img: null,
+    scale: 1,
+    baseScale: 1,
+    zoomMultiplier: 1,
+    offsetX: 0,
+    offsetY: 0,
+    rotation: 0,
+    isDragging: false,
+    startX: 0,
+    startY: 0
+};
+
+function openAvatarCropper(imgElement) {
+    cropState.img = imgElement;
+    cropState.rotation = 0;
+    cropState.offsetX = 0;
+    cropState.offsetY = 0;
+    cropState.zoomMultiplier = 1;
+
+    const modal = document.getElementById('avatarCropModal');
+    const canvas = document.getElementById('cropCanvas');
+    if (!canvas || !modal) return;
+
+    // Canvas internal resolution
+    canvas.width = 260;
+    canvas.height = 260;
+
+    // Calculate base scale to fill circular viewport
+    const scaleX = canvas.width / imgElement.width;
+    const scaleY = canvas.height / imgElement.height;
+    cropState.baseScale = Math.max(scaleX, scaleY);
+    cropState.scale = cropState.baseScale;
+
+    // Reset zoom slider
+    const slider = document.getElementById('cropZoomSlider');
+    if (slider) {
+        slider.value = 1;
+        slider.min = 0.6;
+        slider.max = 3.0;
+        slider.step = 0.05;
+    }
+    const zoomText = document.getElementById('cropZoomText');
+    if (zoomText) zoomText.textContent = '100% Zoom';
+
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+
+    initCropperDragListeners();
+    renderCropCanvas();
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+function closeAvatarCropModal() {
+    const modal = document.getElementById('avatarCropModal');
+    if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+    const fileInput = document.getElementById('profileImageInput');
+    if (fileInput) fileInput.value = '';
+}
+
+function renderCropCanvas() {
+    const canvas = document.getElementById('cropCanvas');
+    if (!canvas || !cropState.img) return;
+    const ctx = canvas.getContext('2d');
+    const width = canvas.width;
+    const height = canvas.height;
+
+    ctx.clearRect(0, 0, width, height);
+    ctx.save();
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+
+    // Move to center of canvas for rotation and pan offset
+    const centerX = width / 2;
+    const centerY = height / 2;
+    ctx.translate(centerX + cropState.offsetX, centerY + cropState.offsetY);
+    ctx.rotate((cropState.rotation * Math.PI) / 180);
+    ctx.scale(cropState.scale, cropState.scale);
+
+    // Draw image centered at (0, 0)
+    ctx.drawImage(cropState.img, -cropState.img.width / 2, -cropState.img.height / 2);
+    ctx.restore();
+}
+
+function onCropZoomInput(val) {
+    const num = parseFloat(val);
+    if (isNaN(num)) return;
+    cropState.zoomMultiplier = num;
+    cropState.scale = cropState.baseScale * cropState.zoomMultiplier;
+    const zoomText = document.getElementById('cropZoomText');
+    if (zoomText) zoomText.textContent = `${Math.round(cropState.zoomMultiplier * 100)}% Zoom`;
+    renderCropCanvas();
+}
+
+function adjustCropZoom(delta) {
+    const slider = document.getElementById('cropZoomSlider');
+    let nextZoom = Math.max(0.6, Math.min(3.0, (cropState.zoomMultiplier || 1) + delta));
+    nextZoom = Math.round(nextZoom * 100) / 100;
+    if (slider) slider.value = nextZoom;
+    onCropZoomInput(nextZoom);
+}
+
+function resetCropTransform() {
+    cropState.offsetX = 0;
+    cropState.offsetY = 0;
+    cropState.rotation = 0;
+    adjustCropZoom(1 - cropState.zoomMultiplier);
+    renderCropCanvas();
+}
+
+function rotateCropImage() {
+    cropState.rotation = (cropState.rotation + 90) % 360;
+    renderCropCanvas();
+}
+
+function applyAvatarCrop() {
+    const canvas = document.getElementById('cropCanvas');
+    if (!canvas || !cropState.img) return;
+
+    try {
+        // Export high-quality compressed JPEG from the canvas view
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.86);
+
+        // Update profile preview
+        const pAvatarPreview = document.getElementById('profileAvatarPreview');
+        const pAvatarText = document.getElementById('profileAvatarText');
+        if (pAvatarPreview) {
+            pAvatarPreview.src = dataUrl;
+            pAvatarPreview.classList.remove('hidden');
+            if (pAvatarText) pAvatarText.classList.add('hidden');
+        }
+
+        // Cache in dataset for form submit
+        const profileCard = document.getElementById('profileCard');
+        if (profileCard) profileCard.dataset.tempAvatar = dataUrl;
+
+        // Persist immediately across storage
+        saveUserAvatarGlobally(dataUrl);
+
+        closeAvatarCropModal();
+        showNotification("Profile picture positioned and saved successfully!", "success");
+    } catch (err) {
+        console.error("Failed to apply crop:", err);
+        showNotification("Error applying picture crop.", "error");
+    }
+}
+
+function initCropperDragListeners() {
+    const viewport = document.getElementById('cropViewport');
+    if (!viewport || viewport.__hasCropperListeners) return;
+    viewport.__hasCropperListeners = true;
+
+    const onPointerDown = (e) => {
+        cropState.isDragging = true;
+        cropState.startX = e.clientX || (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
+        cropState.startY = e.clientY || (e.touches && e.touches[0] ? e.touches[0].clientY : 0);
+        viewport.style.cursor = 'grabbing';
+    };
+
+    const onPointerMove = (e) => {
+        if (!cropState.isDragging) return;
+        const currentX = e.clientX || (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
+        const currentY = e.clientY || (e.touches && e.touches[0] ? e.touches[0].clientY : 0);
+        const dx = currentX - cropState.startX;
+        const dy = currentY - cropState.startY;
+        cropState.startX = currentX;
+        cropState.startY = currentY;
+
+        cropState.offsetX += dx;
+        cropState.offsetY += dy;
+        renderCropCanvas();
+    };
+
+    const onPointerUp = () => {
+        cropState.isDragging = false;
+        viewport.style.cursor = 'grab';
+    };
+
+    viewport.addEventListener('mousedown', onPointerDown);
+    window.addEventListener('mousemove', onPointerMove);
+    window.addEventListener('mouseup', onPointerUp);
+
+    viewport.addEventListener('touchstart', onPointerDown, { passive: true });
+    window.addEventListener('touchmove', onPointerMove, { passive: true });
+    window.addEventListener('touchend', onPointerUp);
+
+    viewport.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        const delta = e.deltaY < 0 ? 0.08 : -0.08;
+        adjustCropZoom(delta);
+    }, { passive: false });
+}
+
 function saveUserProfile(event) {
     if (event) event.preventDefault();
 
-    const name = document.getElementById('profileName').value.trim();
-    const phone = document.getElementById('profilePhone').value.trim();
-    const department = document.getElementById('profileDept').value.trim();
-    const studentId = document.getElementById('profileId').value.trim();
-    const bio = document.getElementById('profileBio').value.trim();
+    const name = document.getElementById('profileName')?.value.trim();
+    const phone = document.getElementById('profilePhone')?.value.trim() || '';
+    const department = document.getElementById('profileDept')?.value.trim() || '';
+    const studentId = document.getElementById('profileId')?.value.trim() || '';
+    const bio = document.getElementById('profileBio')?.value.trim() || '';
     const tempAvatar = document.getElementById('profileCard')?.dataset.tempAvatar;
 
     if (!name) {
@@ -2154,54 +2620,80 @@ function saveUserProfile(event) {
         return;
     }
 
-    if (currentUserEmail === 'admin@gmail.com') {
+    const email = (currentUserEmail || localStorage.getItem('currentUserEmail') || '').toLowerCase();
+
+    if (email === 'admin@gmail.com' || currentRole === 'admin') {
         localStorage.setItem('adminPhone', phone);
         localStorage.setItem('adminDept', department);
         localStorage.setItem('adminId', studentId);
         localStorage.setItem('adminBio', bio);
         if (tempAvatar) {
-            localStorage.setItem('adminAvatar', tempAvatar);
+            saveUserAvatarGlobally(tempAvatar);
         }
-        // Name update for admin
         currentUser = name;
-        saveSession('admin', name, 'admin@gmail.com');
+        saveSession('admin', name, email || 'admin@gmail.com');
     } else {
-        const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
-        const userIndex = registeredUsers.findIndex(u => u.email === currentUserEmail);
+        let registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
+        let userIndex = registeredUsers.findIndex(u => (u.email || '').toLowerCase() === email);
+        const avatarToSave = tempAvatar || localStorage.getItem(`userAvatar_${email}`) || localStorage.getItem('currentUserAvatar') || '';
+
         if (userIndex !== -1) {
             registeredUsers[userIndex].name = name;
             registeredUsers[userIndex].phone = phone;
             registeredUsers[userIndex].department = department;
             registeredUsers[userIndex].studentId = studentId;
             registeredUsers[userIndex].bio = bio;
-            if (tempAvatar) {
-                registeredUsers[userIndex].profileImage = tempAvatar;
-            }
-            localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
-
-            currentUser = name;
-            saveSession(currentRole, name, currentUserEmail);
+            if (avatarToSave) registeredUsers[userIndex].profileImage = avatarToSave;
+        } else {
+            registeredUsers.push({
+                name: name,
+                email: email,
+                phone: phone,
+                department: department,
+                studentId: studentId,
+                bio: bio,
+                profileImage: avatarToSave || ''
+            });
         }
+        localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
+
+        currentUser = name;
+        saveSession(currentRole || 'student', name, email);
+        if (avatarToSave) saveUserAvatarGlobally(avatarToSave);
     }
 
     // Refresh layout display
     const pNameHeader = document.getElementById('profileNameHeader');
     if (pNameHeader) pNameHeader.textContent = name;
 
+    const navUserName = document.getElementById('navUserName');
+    if (navUserName) navUserName.textContent = name;
+
     updateSessionUI();
-    if (tempAvatar) {
-        const userAvatar = document.getElementById('userAvatar');
-        if (userAvatar) {
-            userAvatar.innerHTML = `<img src="${tempAvatar}" class="w-full h-full object-cover rounded-full" style="max-width: 100%; max-height: 100%;" />`;
-        }
-        const profileCard = document.getElementById('profileCard');
-        if (profileCard) delete profileCard.dataset.tempAvatar;
-    }
+
+    // Store pending toast for arrival on home
     localStorage.setItem('pendingPortalToast', JSON.stringify({
-        message: 'Profile updated successfully.',
+        message: 'Profile updated successfully!',
         type: 'success'
     }));
-    navigateTo('home');
+
+    // Auto-minimize animation on profile card & navigate to home
+    const profileCard = document.getElementById('profileCard');
+    const mainCard = profileCard ? profileCard.closest('.max-w-4xl') : document.querySelector('main');
+    if (mainCard && typeof gsap !== 'undefined') {
+        gsap.to(mainCard, {
+            scale: 0.88,
+            y: 35,
+            opacity: 0,
+            duration: 0.35,
+            ease: "power2.inOut",
+            onComplete: () => {
+                navigateTo('home');
+            }
+        });
+    } else {
+        navigateTo('home');
+    }
 }
 
 function toggleUserDropdown(event) {
@@ -2212,6 +2704,11 @@ function toggleUserDropdown(event) {
     const menu = document.getElementById('userDropdownMenu');
     const chevron = document.getElementById('dropdownChevron');
     if (!menu) return;
+
+    if (!menu.__hasStopProp) {
+        menu.addEventListener('click', (e) => e.stopPropagation());
+        menu.__hasStopProp = true;
+    }
 
     const isHidden = menu.classList.contains('hidden');
 
@@ -2330,6 +2827,13 @@ window.addEventListener('click', () => {
     closeAllActionDropdowns(false);
 });
 
+document.addEventListener('touchstart', (e) => {
+    const navUser = document.getElementById('navUser');
+    if (navUser && !navUser.contains(e.target)) {
+        closeUserDropdown();
+    }
+}, { passive: true });
+
 // ==================== CORE ROUTING SYSTEM ====================
 function getCurrentPageId() {
     const path = window.location.pathname;
@@ -2413,6 +2917,35 @@ function checkPendingFilters() {
             filterBooks();
         }
         localStorage.removeItem('pendingCategoryFilter');
+    }
+
+    if (getCurrentPageId() === 'catalog') {
+        const urlParams = new URLSearchParams(window.location.search);
+        const searchQuery = urlParams.get('search') || localStorage.getItem('pendingSearchQuery');
+        const searchMode = urlParams.get('mode') || localStorage.getItem('pendingSearchMode');
+
+        if (searchQuery && !isUserLoggedIn()) {
+            showNotification('Please log in or register to search books!', 'info');
+            showLoginModal();
+            localStorage.removeItem('pendingSearchQuery');
+            localStorage.removeItem('pendingSearchMode');
+            return;
+        }
+
+        if (searchMode === 'openlibrary' || searchMode === 'web') {
+            switchCatalogSearchMode('openlibrary', searchQuery || '');
+            if (searchQuery && window.searchCustomWebBook) {
+                setTimeout(() => window.searchCustomWebBook(searchQuery), 350);
+            }
+        } else if (searchQuery) {
+            const input = document.getElementById('searchInput');
+            if (input) {
+                input.value = searchQuery;
+                filterBooks();
+            }
+        }
+        localStorage.removeItem('pendingSearchQuery');
+        localStorage.removeItem('pendingSearchMode');
     }
 
     const pendingAdminTab = localStorage.getItem('pendingAdminTab');
@@ -2569,9 +3102,15 @@ function renderFeaturedSlider() {
             </div>
         `;
         card.addEventListener('click', (e) => {
-            if (Math.abs(dragOffset) > 10) {
+            if (Math.abs(dragOffset) > 8) {
                 e.preventDefault();
                 e.stopPropagation();
+                return;
+            }
+            if (index !== currentCoverflowIndex) {
+                e.preventDefault();
+                e.stopPropagation();
+                goToCoverflowSlide(index);
                 return;
             }
             openBookModal(book.id);
@@ -2656,17 +3195,28 @@ function updateCoverflowPosition() {
     });
 }
 
-function nextCoverflow() {
+function nextCoverflow(isManual = false) {
+    if (!coverflowBooks || !coverflowBooks.length) return;
     currentCoverflowIndex = (currentCoverflowIndex + 1) % coverflowBooks.length;
     updateCoverflowPosition();
+    if (isManual) {
+        stopCoverflowSlideshow();
+        startCoverflowSlideshow();
+    }
 }
 
-function prevCoverflow() {
+function prevCoverflow(isManual = false) {
+    if (!coverflowBooks || !coverflowBooks.length) return;
     currentCoverflowIndex = (currentCoverflowIndex - 1 + coverflowBooks.length) % coverflowBooks.length;
     updateCoverflowPosition();
+    if (isManual) {
+        stopCoverflowSlideshow();
+        startCoverflowSlideshow();
+    }
 }
 
 function goToCoverflowSlide(index) {
+    if (!coverflowBooks || !coverflowBooks.length) return;
     currentCoverflowIndex = index;
     updateCoverflowPosition();
     stopCoverflowSlideshow();
@@ -2675,13 +3225,13 @@ function goToCoverflowSlide(index) {
 
 function handleCoverflowKeyboard(event) {
     if (currentSection !== 'home') return;
-    if (event.key === 'ArrowLeft') { prevCoverflow(); stopCoverflowSlideshow(); startCoverflowSlideshow(); }
-    if (event.key === 'ArrowRight') { nextCoverflow(); stopCoverflowSlideshow(); startCoverflowSlideshow(); }
+    if (event.key === 'ArrowLeft') { prevCoverflow(true); }
+    if (event.key === 'ArrowRight') { nextCoverflow(true); }
 }
 
 function startCoverflowSlideshow() {
     if (coverflowInterval) clearInterval(coverflowInterval);
-    coverflowInterval = setInterval(() => nextCoverflow(), 4000);
+    coverflowInterval = setInterval(() => nextCoverflow(false), 2400);
 }
 
 function stopCoverflowSlideshow() {
@@ -2754,12 +3304,12 @@ function addCoverflowTouchSupport(element) {
             wrapper.style.transform = '';
         }
 
-        // Action threshold
-        const threshold = 65;
+        // Action threshold - lowered for instant snappy response
+        const threshold = 35;
         if (dragOffset > threshold) {
-            prevCoverflow();
+            prevCoverflow(true);
         } else if (dragOffset < -threshold) {
-            nextCoverflow();
+            nextCoverflow(true);
         } else {
             updateCoverflowPosition();
         }
@@ -2838,10 +3388,12 @@ function createBookCard(book, options = {}) {
     const bookIdNum = Number(book.id);
     const isSaved = userDownloads.some(id => Number(id) === bookIdNum);
     const card = document.createElement('div');
-    card.className = "bg-white border border-slate-200 rounded-3xl overflow-hidden hover:border-brand-500/25 hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between group shadow-sm p-3 relative text-left";
+    card.className = "bg-white border border-slate-200 rounded-2xl overflow-hidden hover:border-brand-500/25 hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between group shadow-sm p-2.5 sm:p-3 relative text-left";
 
     const categoryTextColors = {
         "Technology": "text-brand-600",
+        "Engineering": "text-blue-600",
+        "Mathematics": "text-teal-600",
         "Science": "text-accent-600",
         "Fiction": "text-pink-600",
         "History": "text-amber-600",
@@ -2854,44 +3406,44 @@ function createBookCard(book, options = {}) {
         isCustomBook &&
         (!book.ownerEmail || !currentUserEmail || (book.ownerEmail || '').toLowerCase() === currentUserEmail.toLowerCase());
     const approvalBadge = canManageCustomBook && approvalStatus ? `
-        <span class="inline-flex items-center gap-1.5 text-[9px] font-black tracking-widest uppercase px-2 py-1 rounded-lg border mb-2 ${getBookApprovalStatusClasses(approvalStatus)}">
+        <span class="inline-flex items-center gap-1 text-[8.5px] font-black tracking-widest uppercase px-2 py-0.5 rounded-lg border mb-1.5 ${getBookApprovalStatusClasses(approvalStatus)}">
             <i data-lucide="${approvalStatus === 'approved' ? 'check-circle' : approvalStatus === 'rejected' ? 'x-circle' : 'clock'}" class="w-3 h-3"></i>
-            ${approvalStatus === 'approved' ? 'Approved' : approvalStatus === 'rejected' ? 'Rejected' : 'Pending Review'}
+            ${approvalStatus === 'approved' ? 'Approved' : approvalStatus === 'rejected' ? 'Rejected' : 'Pending'}
         </span>
     ` : '';
     const customBookActions = canManageCustomBook ? `
-        <div class="flex items-center justify-end gap-2 flex-wrap">
+        <div class="flex items-center justify-end gap-1.5 flex-wrap">
             ${approvalStatus !== 'approved' ? `
             <button onclick="event.stopPropagation(); editCustomBook(${book.id});" 
-                    class="flex items-center gap-1.5 py-1.5 px-3 rounded-lg transition-all duration-200 select-none text-slate-600 bg-slate-50 hover:bg-slate-100/80 border border-slate-200" 
+                    class="flex items-center gap-1 py-1 px-2 rounded-lg transition-all duration-200 select-none text-slate-600 bg-slate-50 hover:bg-slate-100/80 border border-slate-200 text-[9px] font-black uppercase cursor-pointer" 
                     title="Edit Before Approval">
-                <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
-                <span class="text-[10px] font-black uppercase tracking-wider">EDIT</span>
+                <i data-lucide="pencil" class="w-3 h-3"></i>
+                <span>EDIT</span>
             </button>
             ` : ''}
             ${(!approvalStatus || approvalStatus === 'rejected') ? `
             <button onclick="event.stopPropagation(); publishCustomBook(${book.id});" 
-                    class="flex items-center gap-1.5 py-1.5 px-3 rounded-lg transition-all duration-200 select-none text-brand-600 bg-brand-50 hover:bg-brand-100/80 border border-brand-100" 
+                    class="flex items-center gap-1 py-1 px-2 rounded-lg transition-all duration-200 select-none text-brand-600 bg-brand-50 hover:bg-brand-100/80 border border-brand-100 text-[9px] font-black uppercase cursor-pointer" 
                     title="Publish for Admin Approval">
-                <i data-lucide="send" class="w-3.5 h-3.5"></i>
-                <span class="text-[10px] font-black uppercase tracking-wider">${approvalStatus === 'rejected' ? 'PUBLISH AGAIN' : 'PUBLISH'}</span>
+                <i data-lucide="send" class="w-3 h-3"></i>
+                <span>${approvalStatus === 'rejected' ? 'RETRY' : 'PUBLISH'}</span>
             </button>
             ` : ''}
             <button onclick="event.stopPropagation(); deleteCustomBook(${book.id});" 
-                    class="flex items-center gap-1.5 py-1.5 px-3 rounded-lg transition-all duration-200 select-none text-red-600 bg-red-50 hover:bg-red-100/80 border border-red-100" 
+                    class="flex items-center gap-1 py-1 px-2 rounded-lg transition-all duration-200 select-none text-red-600 bg-red-50 hover:bg-red-100/80 border border-red-100 text-[9px] font-black uppercase cursor-pointer" 
                     title="Remove Custom Book">
-                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-                <span class="text-[10px] font-black uppercase tracking-wider">REMOVE</span>
+                <i data-lucide="trash-2" class="w-3 h-3"></i>
+                <span>DEL</span>
             </button>
         </div>
     ` : '';
 
     card.innerHTML = `
         <!-- Book Cover with Premium Hover Overlay -->
-        <div class="relative w-full aspect-[3/4] bg-slate-50 rounded-2xl overflow-hidden shadow-sm group-hover:shadow-md transition-shadow duration-300">
+        <div class="relative w-full aspect-[3/4] bg-slate-50 rounded-xl overflow-hidden shadow-sm group-hover:shadow-md transition-shadow duration-300">
             <!-- 1. Pulsing Loading Skeleton -->
-            <div class="skeleton-loader absolute inset-0 bg-slate-300 animate-pulse flex items-center justify-center">
-                <i data-lucide="book-open" class="w-8 h-8 text-slate-400 animate-bounce"></i>
+            <div class="skeleton-loader absolute inset-0 bg-slate-200 animate-pulse flex items-center justify-center">
+                <i data-lucide="book-open" class="w-7 h-7 text-slate-400 animate-bounce"></i>
             </div>
             
             <!-- 2. Real Image (initially opacity-0, becomes opacity-100 on load) -->
@@ -2901,56 +3453,93 @@ function createBookCard(book, options = {}) {
                  onerror="handleImageError(this)">
 
             <!-- 3. Fallback Cover Container -->
-            <div class="fallback-cover absolute inset-0 hidden flex flex-col justify-between p-4 bg-gradient-to-br from-slate-50 to-slate-100 border border-slate-200/60 text-center select-none rounded-2xl">
-                <div class="flex-grow flex flex-col items-center justify-center gap-2">
-                    <i data-lucide="book-open" class="w-8 h-8 text-slate-400"></i>
-                    <div class="text-[13px] font-black text-slate-700 leading-snug px-1 line-clamp-3">${book.title}</div>
+            <div class="fallback-cover absolute inset-0 hidden flex flex-col justify-between p-3 bg-gradient-to-br from-slate-50 to-slate-100 border border-slate-200/60 text-center select-none rounded-xl">
+                <div class="flex-grow flex flex-col items-center justify-center gap-1.5">
+                    <i data-lucide="book-open" class="w-7 h-7 text-slate-400"></i>
+                    <div class="text-[12px] font-black text-slate-700 leading-snug px-1 line-clamp-3">${book.title}</div>
                     <div class="text-[10px] font-bold text-slate-400 truncate w-full">by ${book.author}</div>
                 </div>
-                <div class="text-[9px] font-extrabold uppercase tracking-widest text-slate-400 mt-2">${book.category}</div>
+                <div class="text-[8.5px] font-extrabold uppercase tracking-widest text-slate-400 mt-1">${book.category}</div>
             </div>
 
-            <!-- 4. Hover Overlay -->
-            <div class="absolute inset-0 bg-slate-950/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center p-4 backdrop-blur-[2px]">
-                <button onclick="openBookModal(${book.id})" class="px-6 py-2.5 bg-white/95 text-slate-900 rounded-xl text-xs font-extrabold active:scale-95 transition-transform shadow-md hover:bg-white hover:text-brand-600 flex items-center gap-1.5">
-                    <i data-lucide="eye" class="w-3.5 h-3.5"></i>
-                    <span>Inspect Details</span>
+            <!-- 4. Hover Overlay with Inspect & Direct Free Read Button -->
+            <div class="absolute inset-0 bg-slate-950/25 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center p-3 backdrop-blur-[2px] gap-1.5">
+                <button onclick="openBookModal(${book.id})" class="px-3 py-1.5 bg-white/95 text-slate-900 rounded-xl text-[11px] font-extrabold active:scale-95 transition-transform shadow-md hover:bg-white hover:text-brand-600 flex items-center gap-1 cursor-pointer">
+                    <i data-lucide="eye" class="w-3 h-3"></i>
+                    <span>Inspect</span>
                 </button>
+                ${book.pdfUrl ? `
+                <a href="${book.readUrl || book.pdfUrl}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();" class="p-1.5 bg-emerald-600 text-white rounded-xl text-[11px] font-extrabold active:scale-95 transition-transform shadow-md hover:bg-emerald-500 flex items-center justify-center cursor-pointer" title="Direct Free Read / PDF">
+                    <i data-lucide="book-open" class="w-3.5 h-3.5"></i>
+                </a>
+                ` : ''}
             </div>
+
+            <!-- 5. Semester Badge for BSc in CSE Courses -->
+            ${book.semester ? `
+            <div class="absolute top-2 left-2 z-10 pointer-events-none">
+                <span class="inline-flex items-center gap-1 text-[8px] font-black uppercase px-2 py-0.5 rounded-full bg-slate-900/85 backdrop-blur-md text-white shadow-sm border border-white/20">
+                    <i data-lucide="graduation-cap" class="w-2.5 h-2.5 text-brand-400"></i> ${book.semester.replace(' Semester', ' Sem')}
+                </span>
+            </div>
+            ` : ''}
+
+            <!-- 6. New Volume Ribbon Badge -->
+            ${(book.isNew || (book.dateAdded && Date.now() - book.dateAdded < 86400000 * 3)) ? `
+            <div class="absolute top-2 right-2 z-10 pointer-events-none">
+                <span class="inline-flex items-center gap-1 text-[8.5px] font-black uppercase px-2 py-0.5 rounded-full bg-emerald-600 text-white shadow-md border border-white/20">
+                    <i data-lucide="sparkles" class="w-2.5 h-2.5"></i> NEW
+                </span>
+            </div>
+            ` : ''}
         </div>
         
         <!-- Book Details context block -->
-        <div class="pt-3 px-1 flex-grow flex flex-col justify-between text-left">
+        <div class="pt-2.5 px-0.5 flex-grow flex flex-col justify-between text-left">
             <div>
                 ${approvalBadge}
-                <!-- Curated Category Tag -->
-                <span class="text-[9px] font-black tracking-widest ${categoryTextColor} uppercase block mb-1.5">${book.category}</span>
+                <!-- Category & Course Code Tag -->
+                <div class="flex items-center justify-between gap-1 mb-1">
+                    <span class="text-[8.5px] font-black tracking-widest ${categoryTextColor} uppercase">${book.category}</span>
+                    ${book.courseCode ? `
+                    <span class="text-[8px] font-black tracking-wider uppercase px-1.5 py-0.5 rounded bg-brand-50 text-brand-700 border border-brand-200/80">
+                        ${book.courseCode}
+                    </span>
+                    ` : ''}
+                </div>
                 
                 <!-- Highly polished title -->
-                <h4 class="font-extrabold text-[15px] text-slate-800 line-clamp-2 group-hover:text-brand-600 transition-colors duration-200 leading-snug cursor-pointer" onclick="openBookModal(${book.id})">${book.title}</h4>
+                <h4 class="font-extrabold text-[13px] sm:text-[13.5px] text-slate-800 line-clamp-2 group-hover:text-brand-600 transition-colors duration-200 leading-snug cursor-pointer" onclick="openBookModal(${book.id})" title="${book.title}">${book.title}</h4>
                 
                 <!-- Subtitle Author -->
-                <p class="text-[12px] font-medium text-slate-400 mt-1 line-clamp-1">by ${book.author}</p>
+                <p class="text-[11px] font-medium text-slate-400 mt-0.5 line-clamp-1">by ${book.author}</p>
             </div>
             
-            <!-- Bottom Interactive Controls Row -->
-            <div class="flex justify-between items-center mt-3.5 pt-2.5 border-t border-slate-200/60">
-                <!-- Rating Indicators -->
-                <span class="text-[12px] font-extrabold text-amber-500 flex items-center gap-1">
-                    <i data-lucide="star" class="w-3.5 h-3.5 fill-current"></i>
-                    <span>${book.rating || '4.5'}</span>
+            <!-- Bottom Interactive Controls Row (Without Star Rating, With Free PDF Status) -->
+            <div class="flex justify-between items-center mt-3 pt-2 border-t border-slate-100">
+                <!-- Academic Status / 100% Free Indicator -->
+                ${book.isFreeFullText || book.pdfUrl ? `
+                <span class="text-[9.5px] font-extrabold text-emerald-600 flex items-center gap-1" title="100% Free Full-Text PDF (No Login / No Account Required)">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span>Free PDF</span>
                 </span>
+                ` : `
+                <span class="text-[10px] font-bold text-slate-400 flex items-center gap-1.5">
+                    <span class="w-1.5 h-1.5 rounded-full ${book.status === 'Reserved' ? 'bg-amber-500' : 'bg-emerald-500'}"></span>
+                    <span>${book.status || 'Available'}</span>
+                </span>
+                `}
                 
                 <!-- Premium Toggle bookmark/save indicator -->
                 ${canManageCustomBook ? customBookActions : `
                 <button onclick="event.stopPropagation(); quickBuffer(${book.id});" 
-                        class="flex items-center gap-1.5 py-1.5 px-3 rounded-lg transition-all duration-200 select-none ${isSaved
+                        class="flex items-center gap-1 py-1 px-2.5 rounded-lg transition-all duration-200 select-none cursor-pointer ${isSaved
             ? 'text-emerald-600 bg-emerald-50 hover:bg-emerald-100/80 border border-emerald-100'
             : 'text-slate-400 hover:text-brand-600 hover:bg-brand-50/50'
         }" 
                         title="${isSaved ? 'Buffered Locally' : 'Buffer to Offline Cache'}">
                     <i data-lucide="${isSaved ? 'check' : 'bookmark'}" class="w-3.5 h-3.5 ${isSaved ? 'stroke-[2.5]' : ''}"></i>
-                    <span class="text-[10px] font-black uppercase tracking-wider">${isSaved ? 'SAVED' : 'SAVE'}</span>
+                    <span class="text-[9.5px] font-black uppercase tracking-wider">${isSaved ? 'SAVED' : 'SAVE'}</span>
                 </button>
                 `}
             </div>
@@ -2959,10 +3548,323 @@ function createBookCard(book, options = {}) {
     return card;
 }
 
+let catalogSearchMode = 'local';
+let catalogSearchDebounceTimer = null;
+
+function switchCatalogSearchMode(mode, optionalQuery = '') {
+    setCatalogSearchMode(mode, optionalQuery);
+}
+
+function setCatalogSearchMode(mode, optionalQuery = '') {
+    catalogSearchMode = mode;
+    if (window.GBLMS_OpenLibrary) {
+        window.GBLMS_OpenLibrary.setMode(mode);
+    }
+    const localBtn = document.getElementById('catalogModeLocalBtn');
+    const openLibBtn = document.getElementById('catalogModeOpenLibBtn');
+    const searchInput = document.getElementById('searchInput');
+    const searchStdIcon = document.getElementById('searchStandardIcon');
+    const searchAiIcon = document.getElementById('searchAiIcon');
+    const searchActionBtn = document.getElementById('searchActionBtn');
+    const searchClearBtn = document.getElementById('searchClearBtn');
+    const searchModeDesc = document.getElementById('searchModeDescription');
+    const searchSwitchHint = document.getElementById('searchSwitchHintBtn');
+
+    if (localBtn && openLibBtn) {
+        const localBadge = document.getElementById('localBooksCountBadge');
+        const openLibBadge = document.getElementById('openLibBadge') || openLibBtn.querySelector('span.uppercase');
+
+        if (mode === 'local') {
+            // Local mode is ACTIVE (Solid blue background + pure white text)
+            localBtn.className = "catalog-mode-btn active-mode flex-1 w-1/2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 focus:outline-none";
+            localBtn.style.setProperty('background', '#2563eb', 'important');
+            localBtn.style.setProperty('background-color', '#2563eb', 'important');
+            localBtn.style.setProperty('color', '#ffffff', 'important');
+            localBtn.style.setProperty('border-color', '#1d4ed8', 'important');
+            localBtn.querySelectorAll('*').forEach(el => {
+                el.style.setProperty('color', '#ffffff', 'important');
+                el.style.setProperty('stroke', '#ffffff', 'important');
+            });
+            if (localBadge) {
+                localBadge.style.setProperty('background-color', 'rgba(255, 255, 255, 0.25)', 'important');
+                localBadge.style.setProperty('color', '#ffffff', 'important');
+                localBadge.style.setProperty('border-color', 'rgba(255, 255, 255, 0.4)', 'important');
+            }
+
+            // Web search mode is INACTIVE (transparent background + slate text)
+            openLibBtn.className = "catalog-mode-btn flex-1 w-1/2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 focus:outline-none";
+            openLibBtn.style.setProperty('background', 'transparent', 'important');
+            openLibBtn.style.setProperty('background-color', 'transparent', 'important');
+            openLibBtn.style.setProperty('color', '#64748b', 'important');
+            openLibBtn.style.setProperty('border-color', 'transparent', 'important');
+            openLibBtn.querySelectorAll('*').forEach(el => {
+                el.style.setProperty('color', '#64748b', 'important');
+                el.style.setProperty('stroke', '#64748b', 'important');
+            });
+            if (openLibBadge) {
+                openLibBadge.style.setProperty('background', '#e2e8f0', 'important');
+                openLibBadge.style.setProperty('background-color', '#e2e8f0', 'important');
+                openLibBadge.style.setProperty('color', '#475569', 'important');
+                openLibBadge.style.setProperty('border-color', '#cbd5e1', 'important');
+            }
+
+            if (searchInput) {
+                searchInput.placeholder = "Find books by title, author, or category in library...";
+                if (optionalQuery) searchInput.value = optionalQuery;
+            }
+            if (searchStdIcon) searchStdIcon.classList.remove('hidden');
+            if (searchAiIcon) searchAiIcon.classList.add('hidden');
+            if (searchActionBtn) {
+                searchActionBtn.classList.remove('hidden');
+                const actionText = document.getElementById('searchActionBtnText');
+                if (actionText) actionText.textContent = "Find Books";
+                const actionIcon = document.getElementById('searchActionBtnIcon');
+                if (actionIcon) actionIcon.setAttribute('data-lucide', 'search');
+            }
+            if (searchModeDesc) searchModeDesc.textContent = `Searching ${window.allBooks ? window.allBooks.length : 135} local university catalog volumes`;
+            if (searchSwitchHint) searchSwitchHint.textContent = "Switch to Web Search →";
+            filterBooks(true);
+            if (window.lucide) lucide.createIcons();
+            return;
+        } else {
+            // Web search mode is ACTIVE (Solid blue background + pure white text)
+            openLibBtn.className = "catalog-mode-btn active-mode-web flex-1 w-1/2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 focus:outline-none";
+            openLibBtn.style.setProperty('background', '#2563eb', 'important');
+            openLibBtn.style.setProperty('background-color', '#2563eb', 'important');
+            openLibBtn.style.setProperty('color', '#ffffff', 'important');
+            openLibBtn.style.setProperty('border-color', '#1d4ed8', 'important');
+            openLibBtn.querySelectorAll('*').forEach(el => {
+                el.style.setProperty('color', '#ffffff', 'important');
+                el.style.setProperty('stroke', '#ffffff', 'important');
+            });
+            if (openLibBadge) {
+                openLibBadge.style.setProperty('background', '#ffffff', 'important');
+                openLibBadge.style.setProperty('background-color', '#ffffff', 'important');
+                openLibBadge.style.setProperty('color', '#2563eb', 'important');
+                openLibBadge.style.setProperty('border-color', '#ffffff', 'important');
+            }
+
+            // Local mode is INACTIVE (transparent background + slate text)
+            localBtn.className = "catalog-mode-btn flex-1 w-1/2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 focus:outline-none";
+            localBtn.style.setProperty('background', 'transparent', 'important');
+            localBtn.style.setProperty('background-color', 'transparent', 'important');
+            localBtn.style.setProperty('color', '#64748b', 'important');
+            localBtn.style.setProperty('border-color', 'transparent', 'important');
+            localBtn.querySelectorAll('*').forEach(el => {
+                el.style.setProperty('color', '#64748b', 'important');
+                el.style.setProperty('stroke', '#64748b', 'important');
+            });
+            if (localBadge) {
+                localBadge.style.setProperty('background', '#e2e8f0', 'important');
+                localBadge.style.setProperty('background-color', '#e2e8f0', 'important');
+                localBadge.style.setProperty('color', '#475569', 'important');
+                localBadge.style.setProperty('border-color', '#cbd5e1', 'important');
+            }
+
+            if (searchInput) {
+                searchInput.placeholder = "Search any book in the world (e.g. Artificial Intelligence, Clean Code)...";
+                if (optionalQuery) searchInput.value = optionalQuery;
+            }
+            if (searchStdIcon) searchStdIcon.classList.add('hidden');
+            if (searchAiIcon) searchAiIcon.classList.remove('hidden');
+            if (searchActionBtn) {
+                searchActionBtn.classList.remove('hidden');
+                const actionText = document.getElementById('searchActionBtnText');
+                if (actionText) actionText.textContent = "Find Book";
+                const actionIcon = document.getElementById('searchActionBtnIcon');
+                if (actionIcon) actionIcon.setAttribute('data-lucide', 'search');
+            }
+            if (searchModeDesc) searchModeDesc.textContent = "Live Web Search across 40M+ Books & Free PDFs";
+            if (searchSwitchHint) searchSwitchHint.textContent = "← Switch to Find Books";
+
+            const query = searchInput ? searchInput.value.trim() : '';
+            if (query) {
+                if (window.searchCustomWebBook) {
+                    window.searchCustomWebBook(query);
+                } else {
+                    executeOpenLibraryCatalogSearch(query);
+                }
+            } else {
+                if (searchInput) {
+                    searchInput.focus();
+                }
+            }
+            if (window.lucide) lucide.createIcons();
+            return;
+        }
+    }
+
+    if (optionalQuery && searchInput) {
+        searchInput.value = optionalQuery;
+    }
+
+    handleCatalogSearchInput();
+}
+
+function handleCatalogSearchEnter() {
+    const searchInput = document.getElementById('searchInput');
+    const query = searchInput ? searchInput.value.trim() : '';
+    if (!query) return;
+
+    if (!isUserLoggedIn()) {
+        if (searchInput) searchInput.blur();
+        showNotification('Please log in or register to search books!', 'info');
+        showLoginModal();
+        return;
+    }
+
+    if (catalogSearchMode === 'openlibrary') {
+        if (window.searchCustomWebBook) {
+            window.searchCustomWebBook(query);
+        } else {
+            executeOpenLibraryCatalogSearch(query);
+        }
+    } else {
+        // In local mode: check if local results exist
+        const matches = (window.allBooks || []).filter(b => 
+            (b.title && b.title.toLowerCase().includes(query.toLowerCase())) ||
+            (b.author && b.author.toLowerCase().includes(query.toLowerCase())) ||
+            (b.category && b.category.toLowerCase().includes(query.toLowerCase()))
+        );
+        if (matches.length === 0) {
+            // Not in local collection -> switch to custom web search and open source PDF popup!
+            switchCatalogSearchMode('openlibrary', query);
+        } else {
+            filterBooks(true);
+        }
+    }
+}
+
+function handleCatalogSearchInput() {
+    const searchInput = document.getElementById('searchInput');
+    const query = searchInput ? searchInput.value.trim() : '';
+    const clearBtn = document.getElementById('searchClearBtn');
+
+    if (clearBtn) {
+        if (query.length > 0) clearBtn.classList.remove('hidden');
+        else clearBtn.classList.add('hidden');
+    }
+
+    if (query.length > 0 && !isUserLoggedIn()) {
+        if (searchInput) searchInput.blur();
+        showNotification('Please log in or register to search books!', 'info');
+        showLoginModal();
+        return;
+    }
+
+    if (catalogSearchMode === 'local') {
+        filterBooks();
+        return;
+    }
+
+    clearTimeout(catalogSearchDebounceTimer);
+    const spinner = document.getElementById('searchSpinner');
+
+    if (!query) {
+        if (spinner) spinner.classList.add('hidden');
+        executeOpenLibraryCatalogSearch('bestseller');
+        return;
+    }
+
+    if (spinner) spinner.classList.remove('hidden');
+
+    catalogSearchDebounceTimer = setTimeout(async () => {
+        await executeOpenLibraryCatalogSearch(query);
+        if (spinner) spinner.classList.add('hidden');
+    }, 380);
+}
+
+async function executeOpenLibraryCatalogSearch(query) {
+    const grid = document.getElementById('booksGrid');
+    if (!grid) return;
+
+    grid.innerHTML = `
+        <div class="col-span-full py-20 flex flex-col items-center justify-center text-center gap-3">
+            <div class="w-12 h-12 rounded-2xl bg-brand-50 text-brand-600 flex items-center justify-center animate-spin">
+                <i data-lucide="loader-2" class="w-6 h-6"></i>
+            </div>
+            <p class="text-xs font-bold text-slate-500">Searching Web Archives, Google Web, and Universal Repositories...</p>
+        </div>
+    `;
+    if (window.lucide) lucide.createIcons();
+
+    try {
+        const { docs, aborted } = await window.GBLMS_OpenLibrary.search(query, { limit: 24 });
+        if (aborted) return;
+
+        grid.innerHTML = '';
+        if (!docs || docs.length === 0) {
+            grid.innerHTML = `
+                <div class="col-span-full py-16 flex flex-col items-center justify-center text-center gap-4 bg-white border border-slate-200 rounded-3xl shadow-sm">
+                    <div class="w-16 h-16 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-400 mb-2">
+                        <i data-lucide="search-x" class="w-8 h-8"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-black text-slate-800">No matches found for "${query}"</h3>
+                        <p class="text-slate-500 text-xs mt-1">Try another keyword, author name, or click "Find Book" for deep web discovery.</p>
+                    </div>
+                </div>
+            `;
+            if (window.lucide) lucide.createIcons();
+            return;
+        }
+
+        docs.forEach(book => {
+            grid.appendChild(window.GBLMS_OpenLibrary.createCard(book));
+        });
+
+        if (window.lucide) lucide.createIcons();
+
+        const rangeText = document.getElementById('catalogRangeText');
+        const totalBadge = document.getElementById('catalogTotalBadge');
+        if (rangeText) rangeText.textContent = `1–${docs.length}`;
+        if (totalBadge) totalBadge.textContent = `${docs.length} Web`;
+
+        const pag = document.getElementById('catalogPagination');
+        if (pag) {
+            pag.innerHTML = `
+                <div class="w-full text-center py-4 text-xs font-bold text-slate-400">
+                    Showing top ${docs.length} verified volumes from Universal Academic &amp; Web Database
+                </div>
+            `;
+        }
+    } catch (err) {
+        grid.innerHTML = `
+            <div class="col-span-full py-16 text-center text-rose-500">
+                <p class="text-xs font-bold">Failed to connect to Open Library API: ${err.message}</p>
+                <button onclick="handleCatalogSearchInput()" class="mt-3 px-4 py-2 bg-slate-100 text-slate-700 rounded-xl text-xs font-bold hover:bg-slate-200 cursor-pointer">Retry Search</button>
+            </div>
+        `;
+    }
+}
+
+function renderOpenLibraryCatalogEmptyState() {
+    executeOpenLibraryCatalogSearch('bestseller');
+}
+
 function clearSearch() {
     const input = document.getElementById('searchInput');
     if (input) input.value = '';
-    filterBooks();
+    if (catalogSearchMode === 'openlibrary') {
+        setCatalogSearchMode('local');
+    } else {
+        handleCatalogSearchInput();
+    }
+}
+
+function setCatalogPageSize(size) {
+    CATALOG_PER_PAGE = size;
+    catalogCurrentPage = 1;
+
+    document.querySelectorAll('.page-size-btn').forEach(btn => {
+        btn.className = "page-size-btn px-2.5 py-1 rounded-lg text-xs font-black transition-all bg-slate-100 hover:bg-slate-200 text-slate-600 cursor-pointer active:scale-95 flex items-center gap-1";
+    });
+    const activeBtn = document.getElementById(size === 15 ? 'pageSizeBtn15' : (size === 30 ? 'pageSizeBtn30' : 'pageSizeBtnAll'));
+    if (activeBtn) {
+        activeBtn.className = "page-size-btn px-3 py-1 rounded-lg text-xs font-black transition-all bg-brand-600 text-white shadow-sm shadow-brand-500/20 cursor-pointer active:scale-95 flex items-center gap-1";
+    }
+
+    filterBooks(true);
 }
 
 function filterBooks(resetPage = true) {
@@ -2980,17 +3882,35 @@ function filterBooks(resetPage = true) {
     if (!grid) return;
 
     const searchVal = searchInput ? searchInput.value.toLowerCase().trim() : '';
+    if (searchVal && !isUserLoggedIn()) {
+        if (searchInput) {
+            searchInput.value = '';
+            searchInput.blur();
+        }
+        showNotification('Please log in or register to search books!', 'info');
+        showLoginModal();
+        return;
+    }
     const catVal = categoryFilter ? categoryFilter.value : '';
     const semVal = semesterFilter ? semesterFilter.value : '';
     const statusVal = statusFilter ? statusFilter.value : '';
-    const sortVal = sortControl ? sortControl.value : 'title-asc';
+    const sortVal = sortControl ? sortControl.value : 'recent-added';
+
+    if (catalogSearchMode === 'openlibrary') {
+        const query = [catVal, searchVal].filter(Boolean).join(' ') || 'bestseller';
+        executeOpenLibraryCatalogSearch(query);
+        return;
+    }
 
     let filtered = allBooks.filter(book => {
         if (!isCatalogVisibleBook(book)) return false;
 
         const matchesSearch = book.title.toLowerCase().includes(searchVal) ||
             book.author.toLowerCase().includes(searchVal) ||
-            book.isbn.includes(searchVal);
+            book.isbn.includes(searchVal) ||
+            (book.courseCode && book.courseCode.toLowerCase().includes(searchVal)) ||
+            (book.courseTitle && book.courseTitle.toLowerCase().includes(searchVal)) ||
+            (book.semester && book.semester.toLowerCase().includes(searchVal));
 
         const matchesCategory = !catVal || book.category === catVal;
         const matchesSemester = !semVal || book.semester === semVal;
@@ -3000,7 +3920,9 @@ function filterBooks(resetPage = true) {
     });
 
     // Handle curating sort specifications
-    if (sortVal === 'title-asc') {
+    if (sortVal === 'recent-added') {
+        filtered.sort((a, b) => (b.dateAdded || b.id || 0) - (a.dateAdded || a.id || 0));
+    } else if (sortVal === 'title-asc') {
         filtered.sort((a, b) => a.title.localeCompare(b.title));
     } else if (sortVal === 'title-desc') {
         filtered.sort((a, b) => b.title.localeCompare(a.title));
@@ -3017,18 +3939,39 @@ function filterBooks(resetPage = true) {
     const start = (catalogCurrentPage - 1) * CATALOG_PER_PAGE;
     const paginated = filtered.slice(start, start + CATALOG_PER_PAGE);
 
+    // Update range and total indicators
+    const rangeText = document.getElementById('catalogRangeText');
+    const totalBadge = document.getElementById('catalogTotalBadge');
+    if (totalBadge) totalBadge.textContent = totalFiltered;
+    const showAllSpan = document.querySelector('#pageSizeBtnAll span');
+    if (showAllSpan) showAllSpan.textContent = `Show All (${totalFiltered})`;
+    if (rangeText) {
+        if (totalFiltered === 0) {
+            rangeText.textContent = '0';
+        } else {
+            const end = Math.min(start + paginated.length, totalFiltered);
+            rangeText.textContent = `${start + 1}–${end}`;
+        }
+    }
+
     grid.innerHTML = '';
 
     if (filtered.length === 0) {
         grid.innerHTML = `
-            <div class="col-span-full py-16 flex flex-col items-center justify-center text-center gap-4 bg-white border border-slate-200 rounded-3xl shadow-sm">
-                <div class="w-16 h-16 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-400 mb-2">
-                    <i data-lucide="search-code" class="w-8 h-8"></i>
+            <div class="col-span-full py-16 px-6 flex flex-col items-center justify-center text-center gap-4 bg-gradient-to-br from-brand-50/50 via-white to-slate-50 border border-brand-200/80 rounded-3xl shadow-sm">
+                <div class="w-16 h-16 rounded-2xl bg-white border border-brand-200 flex items-center justify-center text-brand-600 shadow-md">
+                    <i data-lucide="globe" class="w-8 h-8 animate-pulse"></i>
                 </div>
-                <div>
-                    <h3 class="text-lg font-black text-slate-800">No matching indexes found</h3>
-                    <p class="text-slate-500 text-xs mt-1">Adjust search identifiers or subject classification categories.</p>
+                <div class="max-w-md">
+                    <h3 class="text-lg font-black text-slate-800">No local copy matching "${searchVal}"</h3>
+                    <p class="text-slate-500 text-xs mt-1">Want to find real books worldwide? Search tens of millions of records on Open Library (100% Free API) and import into your library with 1 click!</p>
                 </div>
+                ${searchVal ? `
+                <button type="button" onclick="switchCatalogSearchMode('openlibrary', '${searchVal.replace(/'/g, "\\'")}'); if(window.searchCustomWebBook){ window.searchCustomWebBook('${searchVal.replace(/'/g, "\\'")}'); }" class="px-5 py-3 bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white rounded-xl text-xs font-black shadow-lg shadow-brand-500/25 active:scale-95 transition-all flex items-center gap-2 cursor-pointer">
+                    <i data-lucide="sparkles" class="w-4 h-4 text-amber-300"></i>
+                    <span>Search Web Archives &amp; Find Source PDF for "${searchVal}"</span>
+                </button>
+                ` : ''}
             </div>
         `;
         document.getElementById('catalogPagination') && (document.getElementById('catalogPagination').innerHTML = '');
@@ -3067,6 +4010,14 @@ function updateCatalogStats() {
     const visibleBooks = allBooks.filter(isCatalogVisibleBook);
 
     if (totalCountEl) totalCountEl.textContent = visibleBooks.length;
+    const localLibraryBadge = document.getElementById('localLibraryBadge');
+    if (localLibraryBadge) localLibraryBadge.textContent = visibleBooks.length;
+    const localBooksCountBadge = document.getElementById('localBooksCountBadge');
+    if (localBooksCountBadge) localBooksCountBadge.textContent = visibleBooks.length;
+    const searchModeDesc = document.getElementById('searchModeDescription');
+    if (searchModeDesc && catalogSearchMode === 'local') {
+        searchModeDesc.textContent = `Searching ${visibleBooks.length} local university catalog volumes`;
+    }
     if (availableCountEl) {
         availableCountEl.textContent = visibleBooks.filter(b => b.status === 'Available').length;
     }
@@ -3142,6 +4093,7 @@ function removeFilter(filterId) {
     if (filter) {
         filter.value = '';
         syncCustomSelects();
+        syncFilterToggles();
         filter.dispatchEvent(new Event('change'));
     }
 }
@@ -3155,9 +4107,118 @@ function clearAllFilters() {
         }
     });
     syncCustomSelects();
+    syncFilterToggles();
     const cat = document.getElementById('categoryFilter');
     if (cat) {
         cat.dispatchEvent(new Event('change'));
+    }
+}
+
+function setSemesterFilter(sem) {
+    const semSelect = document.getElementById('semesterFilter');
+    if (semSelect) {
+        semSelect.value = sem;
+    }
+    syncCustomSelects();
+    syncFilterToggles();
+    document.querySelectorAll('.cse-sem-btn').forEach(btn => {
+        if (btn.dataset.sem === sem) {
+            btn.className = "cse-sem-btn flex-1 min-w-fit justify-center px-3.5 py-2 rounded-xl text-xs font-black transition-all bg-white text-slate-900 shadow-md cursor-pointer active:scale-95 flex items-center gap-1.5";
+        } else {
+            btn.className = "cse-sem-btn flex-1 min-w-fit justify-center px-3 py-2 rounded-xl text-xs font-extrabold transition-all bg-white/10 hover:bg-white text-slate-200 hover:text-slate-900 cursor-pointer active:scale-95 flex items-center gap-1.5";
+        }
+    });
+    filterBooks(true);
+}
+
+function setCategoryFilter(cat) {
+    if (catalogSearchMode === 'openlibrary') {
+        setCatalogSearchMode('local');
+    }
+    const catSelect = document.getElementById('categoryFilter');
+    if (catSelect) {
+        catSelect.value = cat;
+    }
+    syncFilterToggles();
+    syncCustomSelects();
+    filterBooks(true);
+}
+
+function setAvailabilityFilter(status) {
+    const statusSelect = document.getElementById('statusFilter');
+    if (statusSelect) {
+        statusSelect.value = status;
+    }
+    syncFilterToggles();
+    syncCustomSelects();
+    filterBooks(true);
+}
+
+function toggleAdvancedFilterDrawer() {
+    const drawer = document.getElementById('advFiltersDrawer');
+    const chevron = document.getElementById('advFiltersChevron');
+    const btn = document.getElementById('advFiltersToggleBtn');
+    if (!drawer) return;
+    const isHidden = drawer.classList.contains('hidden');
+    if (isHidden) {
+        drawer.classList.remove('hidden');
+        if (chevron) chevron.classList.add('rotate-180');
+        if (btn) btn.classList.add('bg-brand-50', 'border-brand-300', 'text-brand-700');
+        if (window.gsap) gsap.fromTo(drawer, { opacity: 0, y: -8 }, { opacity: 1, y: 0, duration: 0.25, ease: "power2.out" });
+    } else {
+        drawer.classList.add('hidden');
+        if (chevron) chevron.classList.remove('rotate-180');
+        if (btn) btn.classList.remove('bg-brand-50', 'border-brand-300', 'text-brand-700');
+    }
+}
+
+function syncFilterToggles() {
+    const catSelect = document.getElementById('categoryFilter');
+    const currentCat = catSelect ? catSelect.value : '';
+    document.querySelectorAll('.cat-toggle-btn').forEach(btn => {
+        if (btn.dataset.cat === currentCat) {
+            btn.className = "cat-toggle-btn flex-1 min-w-fit justify-center px-4.5 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold transition-all bg-brand-600 text-white shadow-md shadow-brand-500/20 cursor-pointer active:scale-95 flex items-center gap-2";
+        } else {
+            btn.className = "cat-toggle-btn flex-1 min-w-fit justify-center px-4.5 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold transition-all bg-slate-100 hover:bg-slate-200/80 text-slate-700 cursor-pointer active:scale-95 flex items-center gap-2";
+        }
+    });
+
+    const semSelect = document.getElementById('semesterFilter');
+    const currentSem = semSelect ? semSelect.value : '';
+    document.querySelectorAll('.cse-sem-btn').forEach(btn => {
+        if (btn.dataset.sem === currentSem) {
+            btn.className = "cse-sem-btn flex-1 min-w-fit justify-center px-3.5 py-2 rounded-xl text-xs font-black transition-all bg-white text-slate-900 shadow-md cursor-pointer active:scale-95 flex items-center gap-1.5";
+        } else {
+            btn.className = "cse-sem-btn flex-1 min-w-fit justify-center px-3 py-2 rounded-xl text-xs font-extrabold transition-all bg-white/10 hover:bg-white text-slate-200 hover:text-slate-900 cursor-pointer active:scale-95 flex items-center gap-1.5";
+        }
+    });
+
+    const statusSelect = document.getElementById('statusFilter');
+    const currentStatus = statusSelect ? statusSelect.value : '';
+    const btnAll = document.getElementById('availToggleAll');
+    const btnInStock = document.getElementById('availToggleInStock');
+    if (btnAll && btnInStock) {
+        if (currentStatus === 'Available') {
+            btnAll.className = "avail-toggle-btn px-3 py-1.5 rounded-xl text-xs font-extrabold transition-all text-slate-500 hover:text-slate-800 cursor-pointer active:scale-95 flex items-center gap-1.5";
+            btnInStock.className = "avail-toggle-btn px-3 py-1.5 rounded-xl text-xs font-extrabold transition-all bg-emerald-600 text-white shadow-sm shadow-emerald-500/20 cursor-pointer active:scale-95 flex items-center gap-1.5";
+        } else {
+            btnAll.className = "avail-toggle-btn px-3 py-1.5 rounded-xl text-xs font-extrabold transition-all bg-white text-slate-800 shadow-sm cursor-pointer active:scale-95 flex items-center gap-1.5";
+            btnInStock.className = "avail-toggle-btn px-3 py-1.5 rounded-xl text-xs font-extrabold transition-all text-slate-500 hover:text-slate-800 cursor-pointer active:scale-95 flex items-center gap-1.5";
+        }
+    }
+
+    const badge = document.getElementById('activeFiltersBadge');
+    if (badge) {
+        let activeCount = 0;
+        if (currentCat) activeCount++;
+        if (currentStatus) activeCount++;
+        if (currentSem) activeCount++;
+        if (activeCount > 0) {
+            badge.textContent = `${activeCount} Active`;
+            badge.classList.remove('hidden');
+        } else {
+            badge.classList.add('hidden');
+        }
     }
 }
 
@@ -3735,8 +4796,11 @@ function switchAdminTab(tabId, tabBtn) {
         panel.classList.add('hidden');
     });
 
-    tabBtn.classList.add('active', 'text-brand-600');
-    tabBtn.classList.remove('text-slate-500');
+    const activeBtn = tabBtn || document.getElementById(`${tabId}TabBtn`) || document.querySelector(`[onclick*="'${tabId}'"]`);
+    if (activeBtn) {
+        activeBtn.classList.add('active', 'text-brand-600');
+        activeBtn.classList.remove('text-slate-500');
+    }
 
     const activePanel = document.getElementById(`${tabId}Tab`);
     if (activePanel) {
@@ -3752,7 +4816,199 @@ function switchAdminTab(tabId, tabBtn) {
         if (tabId === 'bookApprovals') {
             renderCustomBookApprovals();
         }
+        if (tabId === 'openLibraryImport') {
+            const input = document.getElementById('adminApiSearchInput');
+            if (input && !input.value) {
+                quickAdminApiSearch('Computer Science');
+            }
+        }
     }
+}
+
+// ==================== ADMIN OPEN LIBRARY API INTEGRATION ====================
+async function adminAutoFillFromOpenLibrary() {
+    const input = document.getElementById('adminQuickLookupInput');
+    const query = input ? input.value.trim() : '';
+    if (!query) {
+        showNotification("Please enter a book title or ISBN to auto-fill.", "error");
+        return;
+    }
+
+    const btn = document.getElementById('adminAutoFillBtn');
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = `<i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i><span>Fetching...</span>`;
+        if (window.lucide) lucide.createIcons();
+    }
+
+    const suggestionsEl = document.getElementById('adminLookupSuggestions');
+
+    try {
+        const { docs } = await window.GBLMS_OpenLibrary.search(query, { limit: 6 });
+        if (!docs || docs.length === 0) {
+            showNotification(`No books found on Open Library for "${query}".`, "error");
+            if (suggestionsEl) suggestionsEl.classList.add('hidden');
+            return;
+        }
+
+        if (docs.length === 1) {
+            applyAdminAutoFillBook(docs[0]);
+            showNotification(`Auto-filled metadata for "${docs[0].title}"!`, "success");
+            if (suggestionsEl) suggestionsEl.classList.add('hidden');
+        } else {
+            if (suggestionsEl) {
+                suggestionsEl.innerHTML = docs.map((b, idx) => `
+                    <div class="p-3 hover:bg-brand-50/80 cursor-pointer transition-colors flex items-center gap-3 text-left" onclick="selectAdminSuggestionByIndex(${idx})">
+                        <img src="${b.cover}" class="w-10 h-14 object-cover rounded-lg bg-slate-100 shrink-0" onerror="this.src='https://covers.openlibrary.org/b/id/8231856-L.jpg'">
+                        <div class="flex-grow min-w-0">
+                            <h4 class="text-xs font-extrabold text-slate-800 truncate">${b.title}</h4>
+                            <p class="text-[10px] text-slate-500 font-semibold truncate">by ${b.author} • ${b.yearPublished}</p>
+                            <span class="text-[9px] font-black uppercase text-brand-600 bg-brand-50 px-1.5 py-0.5 rounded">${b.category}</span>
+                        </div>
+                        <i data-lucide="arrow-right" class="w-4 h-4 text-slate-400 shrink-0"></i>
+                    </div>
+                `).join('');
+                suggestionsEl.classList.remove('hidden');
+                window._cachedAdminSuggestions = docs;
+                if (window.lucide) lucide.createIcons();
+            }
+        }
+    } catch (e) {
+        showNotification("Failed to connect to Open Library: " + e.message, "error");
+    } finally {
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = `<i data-lucide="sparkles" class="w-3.5 h-3.5"></i><span>Auto-Fill Details</span>`;
+            if (window.lucide) lucide.createIcons();
+        }
+    }
+}
+
+function selectAdminSuggestionByIndex(idx) {
+    if (window._cachedAdminSuggestions && window._cachedAdminSuggestions[idx]) {
+        applyAdminAutoFillBook(window._cachedAdminSuggestions[idx]);
+        const suggestionsEl = document.getElementById('adminLookupSuggestions');
+        if (suggestionsEl) suggestionsEl.classList.add('hidden');
+        showNotification(`Auto-filled details for "${window._cachedAdminSuggestions[idx].title}"!`, "success");
+    }
+}
+
+function applyAdminAutoFillBook(book) {
+    const titleEl = document.getElementById('bookTitle');
+    const authorEl = document.getElementById('bookAuthor');
+    const isbnEl = document.getElementById('bookISBN');
+    const catSelect = document.getElementById('bookCategory');
+    const deptSelect = document.getElementById('bookDept');
+    const descEl = document.getElementById('bookDescription');
+    const coverEl = document.getElementById('bookCover');
+
+    if (titleEl) titleEl.value = book.title;
+    if (authorEl) authorEl.value = book.author;
+    if (isbnEl) isbnEl.value = book.isbn;
+    if (descEl) descEl.value = book.description;
+    if (coverEl) coverEl.value = book.cover;
+
+    if (catSelect) {
+        catSelect.value = book.category;
+        catSelect.dispatchEvent(new Event('change'));
+    }
+    if (deptSelect) {
+        deptSelect.value = book.department;
+        deptSelect.dispatchEvent(new Event('change'));
+    }
+
+    if (typeof syncCustomSelects === 'function') {
+        syncCustomSelects();
+    }
+
+    updateAdminCoverLivePreview();
+}
+
+function updateAdminCoverLivePreview() {
+    const coverInput = document.getElementById('bookCover');
+    const previewImg = document.getElementById('adminBookCoverPreviewImg');
+    const icon = document.getElementById('adminCoverPlaceholderIcon');
+    const hint = document.getElementById('adminCoverPreviewHint');
+    const url = coverInput ? coverInput.value.trim() : '';
+
+    if (url && previewImg) {
+        previewImg.src = url;
+        previewImg.classList.remove('hidden');
+        if (icon) icon.classList.add('hidden');
+        if (hint) hint.textContent = 'Previewing image URL';
+    } else {
+        if (previewImg) previewImg.classList.add('hidden');
+        if (icon) icon.classList.remove('hidden');
+        if (hint) hint.textContent = 'Updates as you type';
+    }
+}
+
+async function executeAdminOpenLibrarySearch(searchQuery) {
+    const input = document.getElementById('adminApiSearchInput');
+    const query = searchQuery || (input ? input.value.trim() : '');
+    if (!query) {
+        showNotification("Please enter a search topic or title.", "info");
+        return;
+    }
+    if (input) input.value = query;
+
+    const grid = document.getElementById('adminApiResultsGrid');
+    const statusEl = document.getElementById('adminApiStatus');
+    const statusText = document.getElementById('adminApiStatusText');
+
+    if (grid) {
+        grid.innerHTML = `
+            <div class="col-span-full py-20 flex flex-col items-center justify-center text-center gap-3">
+                <div class="w-12 h-12 rounded-2xl bg-brand-50 text-brand-600 flex items-center justify-center animate-spin">
+                    <i data-lucide="loader-2" class="w-6 h-6"></i>
+                </div>
+                <p class="text-xs font-bold text-slate-500">Querying Open Library database for "${query}"...</p>
+            </div>
+        `;
+        if (window.lucide) lucide.createIcons();
+    }
+
+    try {
+        const { docs } = await window.GBLMS_OpenLibrary.search(query, { limit: 24 });
+        if (grid) {
+            grid.innerHTML = '';
+            if (!docs || docs.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full py-16 text-center text-slate-400">
+                        <i data-lucide="search-x" class="w-10 h-10 mx-auto text-slate-300 mb-2"></i>
+                        <h4 class="text-sm font-bold text-slate-700">No books found for "${query}"</h4>
+                        <p class="text-xs text-slate-400 mt-1">Try another keyword or category query.</p>
+                    </div>
+                `;
+                if (statusEl) statusEl.classList.add('hidden');
+                if (window.lucide) lucide.createIcons();
+                return;
+            }
+
+            if (statusEl && statusText) {
+                statusText.textContent = `Found ${docs.length} real books for "${query}"`;
+                statusEl.classList.remove('hidden');
+            }
+
+            docs.forEach(book => {
+                grid.appendChild(window.GBLMS_OpenLibrary.createCard(book));
+            });
+
+            if (window.lucide) lucide.createIcons();
+        }
+    } catch (e) {
+        if (grid) {
+            grid.innerHTML = `
+                <div class="col-span-full py-12 text-center text-rose-500 text-xs font-bold">
+                    Error querying Open Library API: ${e.message}
+                </div>
+            `;
+        }
+    }
+}
+
+function quickAdminApiSearch(subject) {
+    executeAdminOpenLibrarySearch(subject);
 }
 
 function updateAdminTable() {
@@ -3784,7 +5040,7 @@ function updateAdminTable() {
         const semColors = { '1st Semester': 'bg-blue-100 text-blue-800 border-blue-300 shadow-sm', '2nd Semester': 'bg-indigo-100 text-indigo-800 border-indigo-300 shadow-sm', '3rd Semester': 'bg-purple-100 text-purple-800 border-purple-300 shadow-sm', '4th Semester': 'bg-pink-100 text-pink-800 border-pink-300 shadow-sm', '5th Semester': 'bg-orange-100 text-orange-850 border-orange-300 shadow-sm', '6th Semester': 'bg-amber-100 text-amber-850 border-amber-300 shadow-sm', '7th Semester': 'bg-emerald-100 text-emerald-850 border-emerald-300 shadow-sm', '8th Semester': 'bg-rose-100 text-rose-850 border-rose-300 shadow-sm' };
         const semClass = semColors[book.semester] || 'bg-slate-100 text-slate-800 border-slate-300 shadow-sm';
 
-        const catColors = { 'Technology': 'bg-cyan-100 text-cyan-850 border-cyan-300 shadow-sm', 'Science': 'bg-teal-100 text-teal-850 border-teal-300 shadow-sm', 'Fiction': 'bg-orange-100 text-orange-850 border-orange-300 shadow-sm', 'History': 'bg-yellow-100 text-yellow-850 border-yellow-300 shadow-sm', 'Business': 'bg-violet-100 text-violet-850 border-violet-300 shadow-sm' };
+        const catColors = { 'Technology': 'bg-cyan-100 text-cyan-850 border-cyan-300 shadow-sm', 'Engineering': 'bg-blue-100 text-blue-850 border-blue-300 shadow-sm', 'Mathematics': 'bg-teal-100 text-teal-850 border-teal-300 shadow-sm', 'Science': 'bg-emerald-100 text-emerald-850 border-emerald-300 shadow-sm', 'Fiction': 'bg-orange-100 text-orange-850 border-orange-300 shadow-sm', 'History': 'bg-yellow-100 text-yellow-850 border-yellow-300 shadow-sm', 'Business': 'bg-violet-100 text-violet-850 border-violet-300 shadow-sm' };
         const catClass = catColors[book.category] || 'bg-slate-100 text-slate-850 border-slate-300 shadow-sm';
 
         const tr = document.createElement('tr');
@@ -3920,7 +5176,7 @@ function addBook(event) {
     }
     
     // Create record
-    const finalCover = cover || "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?auto=format&fit=crop&w=400&q=80";
+    const finalCover = cover || "https://covers.openlibrary.org/b/id/8231856-L.jpg";
     
     const newRecord = {
         id: Date.now(),
@@ -3935,23 +5191,25 @@ function addBook(event) {
         isbn: isbn,
         cover: finalCover,
         description: description,
-        rating: 4.5,
+        rating: 4.8,
         yearPublished: new Date().getFullYear(),
         pages: 380,
-        publisher: "GBLMS Press"
+        publisher: "GBLMS Press",
+        isNew: true,
+        dateAdded: Date.now()
     };
     
     console.log('New record created:', newRecord);
-    console.log('allBooks before push:', allBooks.length);
+    console.log('allBooks before unshift:', allBooks.length);
     
-    // Save to database
+    // Save to database at top of list
     try {
         if (!Array.isArray(allBooks)) {
             console.warn('allBooks not array, initializing');
             window.allBooks = [];
         }
-        allBooks.push(newRecord);
-        console.log('allBooks after push:', allBooks.length);
+        allBooks.unshift(newRecord);
+        console.log('allBooks after unshift:', allBooks.length);
         
         saveDatabase();
         console.log('saveDatabase() completed');
@@ -3967,7 +5225,7 @@ function addBook(event) {
         return;
     }
     
-    // Reset form
+    // Reset form & live preview
     try {
         if (bookTitleEl) bookTitleEl.value = '';
         if (bookAuthorEl) bookAuthorEl.value = '';
@@ -3979,16 +5237,20 @@ function addBook(event) {
         if (bookSemesterSelect) bookSemesterSelect.value = '1st Semester';
         
         syncCustomSelects();
+        if (typeof updateAdminCoverLivePreview === 'function') {
+            updateAdminCoverLivePreview();
+        }
         console.log('Form reset');
     } catch (err) {
         console.error('Form reset error:', err);
     }
     
     // Show success
-    showNotification(`Volume "${title}" successfully cataloged.`, "success");
+    showNotification(`Volume "${title}" successfully cataloged! Placed at top of Database Grid.`, "success");
     console.log('=== addBook COMPLETE ===');
     
     try {
+        adminCurrentPage = 1;
         updateAdminTable();
         console.log('Table updated');
     } catch (err) {
@@ -4242,22 +5504,72 @@ function saveBookEdit() {
 }
 
 // ==================== SYSTEM MODAL: VOLUME INSPECTION ====================
-function openBookModal(bookId) {
-    const bookIdNum = Number(bookId);
-    let book = allBooks.find(b => Number(b.id) === bookIdNum);
-    if (!book && currentUserEmail) {
-        const customBooks = JSON.parse(localStorage.getItem(`customUserBooks_${currentUserEmail}`) || '[]');
-        book = customBooks.find(b => Number(b.id) === bookIdNum);
+// ==================== SYSTEM MODAL: VOLUME INSPECTION ====================
+function openBookModal(bookOrId) {
+    let book;
+    if (typeof bookOrId === 'object' && bookOrId !== null) {
+        book = bookOrId;
+    } else {
+        const bookIdNum = Number(bookOrId);
+        book = allBooks.find(b => Number(b.id) === bookIdNum);
+        if (!book && currentUserEmail) {
+            const customBooks = JSON.parse(localStorage.getItem(`customUserBooks_${currentUserEmail}`) || '[]');
+            book = customBooks.find(b => Number(b.id) === bookIdNum);
+        }
     }
     selectedBookForModal = book;
     if (!selectedBookForModal) return;
 
-    document.getElementById('modalBookTitle').textContent = selectedBookForModal.title;
-    document.getElementById('modalBookAuthor').textContent = `by ${selectedBookForModal.author}`;
-    document.getElementById('modalBookCategory').textContent = selectedBookForModal.category;
-    document.getElementById('modalBookISBN').textContent = `ISBN Index Identifier: ${selectedBookForModal.isbn}`;
-    document.getElementById('modalBookDescription').textContent = selectedBookForModal.description;
-    document.getElementById('modalBookCover').src = selectedBookForModal.cover;
+    const titleEl = document.getElementById('modalBookTitle');
+    const authorEl = document.getElementById('modalBookAuthor');
+    const catEl = document.getElementById('modalBookCategory');
+    const isbnEl = document.getElementById('modalBookISBN');
+    const descEl = document.getElementById('modalBookDescription');
+    const coverEl = document.getElementById('modalBookCover');
+
+    if (titleEl) titleEl.textContent = selectedBookForModal.title;
+    if (authorEl) authorEl.textContent = `by ${selectedBookForModal.author}`;
+    if (catEl) catEl.textContent = selectedBookForModal.category;
+    if (isbnEl) isbnEl.textContent = `ISBN Index Identifier: ${selectedBookForModal.isbn}`;
+    if (descEl) descEl.textContent = selectedBookForModal.description || `${selectedBookForModal.title} by ${selectedBookForModal.author}.`;
+    if (coverEl) {
+        coverEl.src = selectedBookForModal.cover || 'https://covers.openlibrary.org/b/id/8231856-L.jpg';
+        coverEl.onerror = function() {
+            this.src = 'https://covers.openlibrary.org/b/id/8231856-L.jpg';
+        };
+    }
+
+    // Course curriculum header in modal
+    let courseHeaderEl = document.getElementById('modalCourseHeader');
+    if (!courseHeaderEl && catEl && catEl.parentElement) {
+        courseHeaderEl = document.createElement('div');
+        courseHeaderEl.id = 'modalCourseHeader';
+        catEl.parentElement.insertBefore(courseHeaderEl, catEl);
+    }
+    if (courseHeaderEl) {
+        if (selectedBookForModal.isBScCSE || selectedBookForModal.courseCode) {
+            courseHeaderEl.innerHTML = `
+                <div class="mb-4 p-3 rounded-2xl bg-gradient-to-r from-brand-50 via-slate-50 to-emerald-50 border border-brand-100 flex flex-wrap items-center justify-between gap-2 shadow-sm">
+                    <div class="flex items-center gap-2.5">
+                        <span class="w-8 h-8 rounded-xl bg-brand-600 text-white flex items-center justify-center shrink-0 shadow-sm">
+                            <i data-lucide="graduation-cap" class="w-4 h-4"></i>
+                        </span>
+                        <div>
+                            <span class="text-[10px] font-black uppercase text-brand-700 tracking-wider block">BSc in Computer Science & Engineering</span>
+                            <span class="text-xs font-black text-slate-800">${selectedBookForModal.courseCode || 'Core Course'}: ${selectedBookForModal.courseTitle || selectedBookForModal.category}</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <span class="px-2.5 py-1 rounded-lg bg-white border border-slate-200 text-slate-700 font-extrabold text-[10px] shadow-sm">${selectedBookForModal.semester || 'All Semesters'}</span>
+                        <span class="px-2 py-0.5 rounded-full bg-emerald-600 text-white text-[9.5px] font-black uppercase tracking-wider flex items-center gap-1"><i data-lucide="check" class="w-3 h-3"></i> 100% Free Full-Text</span>
+                    </div>
+                </div>
+            `;
+            courseHeaderEl.classList.remove('hidden');
+        } else {
+            courseHeaderEl.classList.add('hidden');
+        }
+    }
 
     // Technical metadata specs table in Light Mode
     const metaContainer = document.getElementById('modalBookMeta');
@@ -4318,12 +5630,53 @@ function openBookModal(bookId) {
         `;
     }
 
-    // Update dynamic download button configuration
-    const btn = document.getElementById('downloadBtn');
-    if (btn) {
-        btn.innerHTML = `<i data-lucide="download" class="w-4 h-4"></i> <span>Download</span>`;
-        btn.disabled = false;
-        btn.className = "flex items-center gap-2 px-6 py-3 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-bold text-sm active:scale-95 transition-all duration-200 shadow-lg shadow-brand-500/10";
+    // Update dynamic modal action buttons (100% Free - No Account / Paywall barriers)
+    const isInLibrary = allBooks.some(b => 
+        (b.isbn && selectedBookForModal.isbn && b.isbn === selectedBookForModal.isbn) ||
+        b.title.toLowerCase().trim() === selectedBookForModal.title.toLowerCase().trim()
+    );
+
+    const actionContainer = document.querySelector('#bookModal .flex.flex-wrap.gap-3');
+    if (actionContainer) {
+        actionContainer.innerHTML = `
+            <button onclick="readBookOnline()" type="button"
+                class="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-extrabold text-xs active:scale-95 transition-all duration-200 shadow-md shadow-brand-500/20 cursor-pointer">
+                <i data-lucide="book-open" class="w-4 h-4"></i>
+                <span>Read Online (Free)</span>
+            </button>
+            <button onclick="downloadBook()" type="button"
+                class="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs active:scale-95 transition-all duration-200 shadow-md shadow-emerald-500/20 cursor-pointer">
+                <i data-lucide="download" class="w-4 h-4"></i>
+                <span>Download PDF (Direct)</span>
+            </button>
+            ${!isInLibrary ? `
+            <button id="modalImportBtn" type="button" class="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs active:scale-95 transition-all duration-200 cursor-pointer">
+                <i data-lucide="bookmark" class="w-3.5 h-3.5"></i>
+                <span>Save to Collection</span>
+            </button>
+            ` : `
+            <div class="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold text-xs select-none">
+                <i data-lucide="check-circle" class="w-3.5 h-3.5 text-emerald-600"></i>
+                <span>Saved in Collection</span>
+            </div>
+            `}
+        `;
+
+        const modalImportBtn = actionContainer.querySelector('#modalImportBtn');
+        if (modalImportBtn) {
+            modalImportBtn.onclick = () => {
+                if (window.GBLMS_OpenLibrary) {
+                    window.GBLMS_OpenLibrary.importToCatalog(selectedBookForModal);
+                    modalImportBtn.outerHTML = `
+                        <div class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold text-xs select-none">
+                            <i data-lucide="check-circle" class="w-4 h-4 text-emerald-600"></i>
+                            <span>Added to Library!</span>
+                        </div>
+                    `;
+                    lucide.createIcons();
+                }
+            };
+        }
     }
 
     const modal = document.getElementById('bookModal');
@@ -4353,18 +5706,27 @@ function closeBookModal() {
     });
 }
 
-function downloadBook() {
-    if (!currentUser) {
-        closeBookModal();
-        showLoginModal();
-        showNotification("Access Denied: Portal Sign In required.", "error");
-        return;
-    }
-
+function readBookOnline() {
     if (selectedBookForModal) {
-        const pdfUrl = selectedBookForModal.pdfUrl || "https://openlibrary.org";
+        const readUrl = selectedBookForModal.readUrl || selectedBookForModal.pdfUrl || "https://openlibrary.org";
+        window.open(readUrl, '_blank');
+        showNotification(`Opening Reader: "${selectedBookForModal.title}" (100% Free Full-Text)`, "success");
+    }
+}
+
+function downloadBook() {
+    if (selectedBookForModal) {
+        const pdfUrl = selectedBookForModal.pdfUrl || selectedBookForModal.readUrl || "https://openlibrary.org";
         window.open(pdfUrl, '_blank');
-        showNotification(`Opening: "${selectedBookForModal.title}" PDF in a new tab.`, "success");
+        showNotification(`Opening direct download / PDF for "${selectedBookForModal.title}" (100% Free)`, "success");
+        if (currentUser && currentUserEmail) {
+            const numId = Number(selectedBookForModal.id);
+            if (!userDownloads.includes(numId)) {
+                userDownloads.push(numId);
+                localStorage.setItem(`userDownloads_${currentUserEmail}`, JSON.stringify(userDownloads));
+                updateCatalogStats();
+            }
+        }
     }
 }
 

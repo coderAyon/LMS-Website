@@ -97,18 +97,34 @@ const setNavbarAvatar = (name, email) => {
   const avatar = document.querySelector("#userAvatar");
   if (!avatar) return;
 
+  const emailLower = (email || "").toLowerCase();
+  let avatarImage = null;
+
   try {
-    const users = JSON.parse(localStorage.getItem("registeredUsers") || "[]");
-    const user = users.find((item) => (item.email || "").toLowerCase() === email.toLowerCase());
-    if (user && user.profileImage) {
-      avatar.innerHTML = `<img src="${user.profileImage}" alt="" />`;
-      return;
+    const role = (localStorage.getItem("currentRole") || "").toLowerCase();
+    if (role === "admin") {
+      avatarImage = localStorage.getItem("adminAvatar") || localStorage.getItem("currentUserAvatar");
+    }
+    if (!avatarImage) {
+      const users = JSON.parse(localStorage.getItem("registeredUsers") || "[]");
+      const user = users.find((item) => (item.email || "").toLowerCase() === emailLower);
+      if (user && (user.profileImage || user.memberPhoto)) {
+        avatarImage = user.profileImage || user.memberPhoto;
+      }
+    }
+    if (!avatarImage) {
+      avatarImage = localStorage.getItem(`userAvatar_${emailLower}`) || localStorage.getItem("currentUserAvatar");
     }
   } catch {
-    // Fall back to the initial below.
+    // Fall back
   }
 
-  avatar.textContent = (name || "U").charAt(0).toUpperCase();
+  if (avatarImage) {
+    avatar.innerHTML = `<img src="${avatarImage}" alt="" />`;
+  } else {
+    avatar.innerHTML = "";
+    avatar.textContent = (name || "U").charAt(0).toUpperCase();
+  }
 };
 
 const closePortalDropdown = () => {
@@ -153,10 +169,16 @@ const updateMemberNavbar = () => {
     return;
   }
 
-  document.querySelector("#navUserName").textContent = name;
-  document.querySelector("#navUserRole").textContent = role.toUpperCase();
-  document.querySelector("#dropdownUserName").textContent = name;
-  document.querySelector("#dropdownUserRole").textContent = role.toUpperCase();
+  const navNameEl = document.querySelector("#navUserName");
+  if (navNameEl) navNameEl.textContent = name;
+  const navRoleEl = document.querySelector("#navUserRole");
+  if (navRoleEl) navRoleEl.textContent = role.toUpperCase();
+  const dropNameEl = document.querySelector("#dropdownUserName");
+  if (dropNameEl) dropNameEl.textContent = name;
+  const dropRoleEl = document.querySelector("#dropdownUserRole");
+  if (dropRoleEl) dropRoleEl.textContent = role.toUpperCase();
+  const dropEmailEl = document.querySelector("#dropdownUserEmail");
+  if (dropEmailEl) dropEmailEl.textContent = email || "";
   setNavbarAvatar(name, email);
 };
 
