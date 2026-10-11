@@ -532,8 +532,8 @@
                     : (doc.isbn_13 && doc.isbn_13.length > 0 ? doc.isbn_13[0] : `978-${Math.floor(1000000000 + Math.random() * 9000000000)}`);
 
                 const coverUrl = coverId
-                    ? `https://covers.openlibrary.org/b/id/${coverId}-L.jpg`
-                    : (doc.isbn ? `https://covers.openlibrary.org/b/isbn/${isbn}-L.jpg` : generateSvgBookCover(doc.title, (doc.author_name && doc.author_name[0]) || 'Author', inferCategory(doc.subject, doc.title), 'OPEN LIBRARY'));
+                    ? `https://covers.openlibrary.org/b/id/${coverId}-M.jpg?default=false`
+                    : (doc.isbn ? `https://covers.openlibrary.org/b/isbn/${isbn}-M.jpg?default=false` : generateSvgBookCover(doc.title, (doc.author_name && doc.author_name[0]) || 'Author', inferCategory(doc.subject, doc.title), 'OPEN LIBRARY'));
 
                 const authorName = doc.author_name && doc.author_name.length > 0
                     ? doc.author_name.slice(0, 2).join(' & ')
@@ -767,9 +767,9 @@
                 <div class="skeleton-loader absolute inset-0 bg-slate-200 animate-pulse flex items-center justify-center">
                     <i data-lucide="book-open" class="w-7 h-7 text-slate-400 animate-bounce"></i>
                 </div>
-                <img src="${book.cover}" alt="${book.title}"
+                <img src="${book.cover}" alt="${book.title}" loading="lazy" decoding="async"
                      class="w-full h-full object-cover group-hover:scale-105 transition-all duration-500 opacity-0"
-                     onload="if(typeof handleImageLoad==='function'){handleImageLoad(this);}else{this.classList.remove('opacity-0');if(this.previousElementSibling)this.previousElementSibling.classList.add('hidden');}"
+                     onload="if(this.naturalWidth<=1||this.naturalHeight<=1){if(typeof handleImageError==='function'){handleImageError(this);}else{this.src='${generateSvgBookCover(book.title, book.author, book.category, sourceBadgeText)}';}}else{if(typeof handleImageLoad==='function'){handleImageLoad(this);}else{this.classList.remove('opacity-0');if(this.previousElementSibling)this.previousElementSibling.classList.add('hidden');}}"
                      onerror="if(typeof handleImageError==='function'){handleImageError(this);}else{this.src='${generateSvgBookCover(book.title, book.author, book.category, sourceBadgeText)}';}">
                 
                 <!-- Web Source Badge Ribbon -->

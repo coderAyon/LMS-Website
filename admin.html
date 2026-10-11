@@ -12,6 +12,14 @@
     <meta name="author" content="GBLMS">
 
     <!-- Google Fonts: Plus Jakarta Sans & Playfair Display -->
+    <!-- High-Speed Digital Reader & Archive Preconnect Optimizations -->
+    <link rel="preconnect" href="https://archive.org" crossorigin>
+    <link rel="dns-prefetch" href="https://archive.org">
+    <link rel="preconnect" href="https://ia800000.us.archive.org" crossorigin>
+    <link rel="preconnect" href="https://covers.openlibrary.org" crossorigin>
+    <link rel="dns-prefetch" href="https://covers.openlibrary.org">
+    <link rel="preconnect" href="https://docs.google.com" crossorigin>
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
@@ -127,8 +135,6 @@
                     class="nav-link text-sm font-semibold text-slate-650 hover:text-slate-950 transition-colors duration-200 relative py-2">Home</a>
                 <a href="#" data-section="catalog" onclick="navigateTo('catalog')"
                     class="nav-link text-sm font-semibold text-slate-655 hover:text-slate-950 transition-colors duration-200 relative py-2">Catalog</a>
-                <a href="#" id="savedNavLink" data-section="saved" onclick="navigateTo('saved')"
-                    class="nav-link text-sm font-semibold text-slate-655 hover:text-slate-950 transition-colors duration-200 relative py-2 hidden">Saved Books</a>
                 <a href="#" id="dashboardLink" data-section="dashboard" onclick="navigateTo('dashboard')"
                     class="nav-link text-sm font-semibold text-slate-655 hover:text-slate-950 transition-colors duration-200 relative py-2 hidden">My
                     Library</a>
@@ -217,17 +223,7 @@
                                 <span class="text-[8.5px] font-black text-amber-700 bg-amber-100/80 px-1.5 py-0.5 rounded-md leading-none uppercase shrink-0">CARD</span>
                             </a>
 
-                            <!-- Workspace Links -->
-                            <a href="#" onclick="navigateTo('saved'); return false;" id="dropdownSavedLink"
-                                class="group flex items-center justify-between px-2.5 py-2 rounded-xl text-xs font-bold text-slate-700 hover:text-brand-600 hover:bg-slate-50 transition-all duration-150 hidden">
-                                <div class="flex items-center gap-2.5 min-w-0">
-                                    <div class="w-7 h-7 rounded-lg bg-purple-50 group-hover:bg-purple-100/80 text-purple-600 flex items-center justify-center transition-colors shrink-0">
-                                        <i data-lucide="bookmark" class="w-3.5 h-3.5"></i>
-                                    </div>
-                                    <span class="truncate">Saved Books</span>
-                                </div>
-                                <svg class="w-3.5 h-3.5 text-slate-300 group-hover:text-purple-400 group-hover:translate-x-0.5 transition-all shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-                            </a>
+
 
                             <a href="#" onclick="navigateTo('dashboard'); return false;" id="dropdownDashboardLink"
                                 class="group flex items-center justify-between px-2.5 py-2 rounded-xl text-xs font-bold text-slate-700 hover:text-brand-600 hover:bg-slate-50 transition-all duration-150">
@@ -284,18 +280,13 @@
             var role = localStorage.getItem('currentRole');
             var user = localStorage.getItem('currentUser');
             if (role && user) {
-                var saved = document.getElementById('savedNavLink');
                 var dash = document.getElementById('dashboardLink');
                 var admin = document.getElementById('adminLink');
                 var login = document.getElementById('loginBtn');
                 var navUser = document.getElementById('navUser');
                 
-                var mobSaved = document.getElementById('mobileSavedNavLink');
                 var mobDash = document.getElementById('mobileDashboardLink');
                 var mobAdmin = document.getElementById('mobileAdminLink');
-
-                if (saved) saved.classList.remove('hidden');
-                if (mobSaved) mobSaved.classList.remove('hidden');
 
                 if (role === 'admin') {
                     if (admin) admin.classList.remove('hidden');

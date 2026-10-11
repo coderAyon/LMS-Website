@@ -235,9 +235,9 @@ function renderKnowledgeAreas() {
 // ==================== DATABASE INTEGRATION (AXIOS) ====================
 async function fetchCatalogDatabase() {
     try {
-        // Force complete 135 books sync with Mathematics & Engineering
-        const DB_VERSION_KEY = 'gblms_catalog_db_version_v8';
-        const CURRENT_DB_VERSION = 'v8_135_books_math_eng_sync';
+        // Force complete 535 CSE curriculum books sync with fast medium covers (-M.jpg) & instant SVG fallback
+        const DB_VERSION_KEY = 'gblms_catalog_db_version_v10';
+        const CURRENT_DB_VERSION = 'v10_fast_medium_covers_sync';
         const savedVersion = localStorage.getItem(DB_VERSION_KEY);
         const storedLegacy = localStorage.getItem('libraryBooks');
 
@@ -245,7 +245,7 @@ async function fetchCatalogDatabase() {
         if (savedVersion === CURRENT_DB_VERSION && storedLegacy) {
             try {
                 const parsed = JSON.parse(storedLegacy);
-                if (Array.isArray(parsed) && parsed.length >= 135) {
+                if (Array.isArray(parsed) && parsed.length >= 500) {
                     allBooks = parsed;
                     cacheValid = true;
                 }
@@ -257,7 +257,7 @@ async function fetchCatalogDatabase() {
         if (!cacheValid) {
             try {
                 const response = await axios.get('data/books.json?t=' + Date.now());
-                if (response.data && Array.isArray(response.data) && response.data.length >= 135) {
+                if (response.data && Array.isArray(response.data) && response.data.length >= 500) {
                     allBooks = response.data;
                     localStorage.setItem('libraryBooks', JSON.stringify(allBooks));
                     localStorage.setItem(DB_VERSION_KEY, CURRENT_DB_VERSION);
@@ -343,7 +343,7 @@ async function fetchCatalogDatabase() {
                 "copiesTotal": 8,
                 "copiesAvailable": 6,
                 "description": "The long-anticipated revision of this industry-standard guide. This book offers a comprehensive, up-to-date introduction to the theory and practice of artificial intelligence.",
-                "cover": "https://covers.openlibrary.org/b/isbn/9780136086208-L.jpg",
+                "cover": "https://covers.openlibrary.org/b/isbn/9780136086208-M.jpg?default=false",
                 "isbn": "978-0136086208",
                 "yearPublished": 2021
             },
@@ -358,7 +358,7 @@ async function fetchCatalogDatabase() {
                 "copiesTotal": 5,
                 "copiesAvailable": 3,
                 "description": "A landmark volume in science writing by one of the great minds of our time. Hawking explores the secrets of the universe, from black holes to general relativity.",
-                "cover": "https://covers.openlibrary.org/b/isbn/9780553380163-L.jpg",
+                "cover": "https://covers.openlibrary.org/b/isbn/9780553380163-M.jpg?default=false",
                 "isbn": "978-0553380163",
                 "yearPublished": 1998
             },
@@ -373,7 +373,7 @@ async function fetchCatalogDatabase() {
                 "copiesTotal": 10,
                 "copiesAvailable": 8,
                 "description": "The great secret of our time is that there are still uncharted frontiers to explore and new inventions to create.",
-                "cover": "https://covers.openlibrary.org/b/isbn/9780804139298-L.jpg",
+                "cover": "https://covers.openlibrary.org/b/isbn/9780804139298-M.jpg?default=false",
                 "isbn": "978-0804139298",
                 "yearPublished": 2014
             },
@@ -388,7 +388,7 @@ async function fetchCatalogDatabase() {
                 "copiesTotal": 4,
                 "copiesAvailable": 0,
                 "description": "Bilbo Baggins is a hobbit who enjoys a comfortable, unambitious life...",
-                "cover": "https://covers.openlibrary.org/b/isbn/9780345339683-L.jpg",
+                "cover": "https://covers.openlibrary.org/b/isbn/9780345339683-M.jpg?default=false",
                 "isbn": "978-0345339683",
                 "yearPublished": 1937
             },
@@ -403,7 +403,7 @@ async function fetchCatalogDatabase() {
                 "copiesTotal": 7,
                 "copiesAvailable": 7,
                 "description": "100,000 years ago, at least six human species inhabited the earth. Today there is just one.",
-                "cover": "https://covers.openlibrary.org/b/isbn/9780062316097-L.jpg",
+                "cover": "https://covers.openlibrary.org/b/isbn/9780062316097-M.jpg?default=false",
                 "isbn": "978-0062316097",
                 "yearPublished": 2014
             },
@@ -418,7 +418,7 @@ async function fetchCatalogDatabase() {
                 "copiesTotal": 12,
                 "copiesAvailable": 9,
                 "description": "Even bad code can function. But if code isn't clean, it can bring a development organization to its knees.",
-                "cover": "https://covers.openlibrary.org/b/isbn/9780132350884-L.jpg",
+                "cover": "https://covers.openlibrary.org/b/isbn/9780132350884-M.jpg?default=false",
                 "isbn": "978-0132350884",
                 "yearPublished": 2008
             },
@@ -433,7 +433,7 @@ async function fetchCatalogDatabase() {
                 "copiesTotal": 3,
                 "copiesAvailable": 0,
                 "description": "The Innovators is Walter Isaacson's revealing story of the people who created the computer and the Internet.",
-                "cover": "https://covers.openlibrary.org/b/isbn/9781476708690-L.jpg",
+                "cover": "https://covers.openlibrary.org/b/isbn/9781476708690-M.jpg?default=false",
                 "isbn": "978-1476708690",
                 "yearPublished": 2014
             },
@@ -448,7 +448,7 @@ async function fetchCatalogDatabase() {
                 "copiesTotal": 6,
                 "copiesAvailable": 1,
                 "description": "Daniel Kahneman takes us on a groundbreaking tour of the mind.",
-                "cover": "https://covers.openlibrary.org/b/isbn/9780374275631-L.jpg",
+                "cover": "https://covers.openlibrary.org/b/isbn/9780374275631-M.jpg?default=false",
                 "isbn": "978-0374275631",
                 "yearPublished": 2011
             }
@@ -1706,9 +1706,72 @@ function clearSession() {
     }
 }
 
+function getPortalAdminAvatar() {
+    try {
+        const direct = localStorage.getItem('adminAvatar');
+        if (direct && direct.trim().length > 10) return direct;
+
+        const role = localStorage.getItem('currentRole');
+        const email = (localStorage.getItem('currentUserEmail') || '').toLowerCase();
+        if (role === 'admin' || email === 'admin@gmail.com') {
+            const cur = localStorage.getItem('currentUserAvatar');
+            if (cur && cur.trim().length > 10) return cur;
+        }
+
+        const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
+        const adminUser = registeredUsers.find(u => (u.email || '').toLowerCase() === 'admin@gmail.com' && u.profileImage);
+        if (adminUser && adminUser.profileImage && adminUser.profileImage.trim().length > 10) return adminUser.profileImage;
+    } catch (e) {
+        console.warn("Could not retrieve admin avatar:", e);
+    }
+    return null;
+}
+
+function getPortalUserAvatar() {
+    try {
+        const role = localStorage.getItem('currentRole');
+        const email = (localStorage.getItem('currentUserEmail') || '').toLowerCase();
+
+        // 1. If currently signed in as user, check their specific key first
+        if (email && email !== 'admin@gmail.com') {
+            const userImg = localStorage.getItem(`userAvatar_${email}`);
+            if (userImg && userImg.trim().length > 10) return userImg;
+        }
+        if (role === 'user' || (role && role !== 'admin')) {
+            const cur = localStorage.getItem('currentUserAvatar');
+            if (cur && cur.trim().length > 10) return cur;
+        }
+
+        // 2. Check registeredUsers for any user who saved an image
+        const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
+        const studentUser = registeredUsers.find(u => (u.email || '').toLowerCase() !== 'admin@gmail.com' && u.profileImage);
+        if (studentUser && studentUser.profileImage && studentUser.profileImage.trim().length > 10) return studentUser.profileImage;
+
+        // 3. Check any userAvatar_* in localStorage
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && key.startsWith('userAvatar_') && key !== 'userAvatar_admin@gmail.com') {
+                const val = localStorage.getItem(key);
+                if (val && val.trim().length > 10) return val;
+            }
+        }
+
+        // 4. Check member photo
+        const memberPhoto = localStorage.getItem('memberPhoto') || localStorage.getItem('userPhoto');
+        if (memberPhoto && memberPhoto.trim().length > 10) return memberPhoto;
+    } catch (e) {
+        console.warn("Could not retrieve user avatar:", e);
+    }
+    return null;
+}
+
 function injectLoginModalHTML() {
     const modal = document.getElementById('loginModal');
     if (!modal) return;
+
+    // Retrieve saved profile photos for admin and user
+    const adminAvatar = getPortalAdminAvatar();
+    const userAvatar = getPortalUserAvatar();
 
     modal.innerHTML = `
         <div class="modal-card-glow-wrapper">
@@ -1785,39 +1848,75 @@ function injectLoginModalHTML() {
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 relative z-10">
                     <!-- Admin Card -->
                     <div onclick="selectRole('admin')" 
-                        class="relative border-2 border-slate-200 hover:border-brand-600 rounded-2xl p-5 cursor-pointer bg-white hover:bg-brand-50/20 shadow-sm hover:shadow-[0_0_25px_rgba(37,99,235,0.22)] hover:-translate-y-1.5 transition-all duration-300 group flex flex-col justify-between">
-                        <div>
-                            <div class="flex items-center justify-between mb-4">
-                                <div class="w-12 h-12 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center border border-brand-100 group-hover:bg-brand-600 group-hover:text-white transition-all duration-300 shadow-xs">
-                                    <i data-lucide="shield" class="w-6 h-6"></i>
-                                </div>
-                                <span class="px-2 py-0.5 rounded-full bg-brand-50 text-brand-700 text-[9px] font-black uppercase tracking-wider border border-brand-200/50">Staff Only</span>
-                            </div>
-                            <h4 class="text-base font-black text-slate-900 mb-1 group-hover:text-brand-600 transition-colors">Admin Portal</h4>
-                            <p class="text-[11px] text-slate-500 font-semibold leading-relaxed">Full structural controls, catalog management & system logs</p>
+                        class="border-2 border-slate-200/90 hover:border-brand-600 rounded-3xl p-6 pt-5 pb-6 cursor-pointer bg-white hover:bg-gradient-to-b hover:from-white hover:to-brand-50/20 shadow-sm hover:shadow-[0_14px_35px_-8px_rgba(37,99,235,0.22)] hover:-translate-y-1.5 transition-all duration-300 group flex flex-col items-center text-center justify-between">
+                        
+                        <!-- Top Role Pill Badge (Perfect Centered Alignment) -->
+                        <div class="w-full flex justify-center mb-3.5">
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-50 text-brand-700 text-[9.5px] font-black uppercase tracking-wider border border-brand-200/80 shadow-2xs">
+                                <span class="w-1.5 h-1.5 rounded-full bg-brand-600"></span>
+                                Staff Only
+                            </span>
                         </div>
-                        <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-black text-brand-600">
+
+                        <!-- Centered Avatar Box (Shows Saved Profile Image or Default Shield) -->
+                        <div class="w-16 h-16 rounded-2xl ${adminAvatar ? 'overflow-hidden border-2 border-brand-200/90 shadow-sm bg-slate-100 p-0' : 'bg-gradient-to-tr from-brand-50 via-blue-50 to-indigo-100/70 text-brand-600 border border-brand-100 shadow-xs'} flex items-center justify-center group-hover:scale-105 group-hover:shadow-md transition-all duration-300 mb-3.5 shrink-0 relative">
+                            ${adminAvatar ? `
+                                <img src="${adminAvatar}" alt="Admin Profile" class="w-full h-full object-cover">
+                                <div class="absolute bottom-1 right-1 w-4 h-4 rounded-full bg-brand-600 text-white flex items-center justify-center shadow-xs border border-white" title="Admin Profile">
+                                    <i data-lucide="shield" class="w-2.5 h-2.5"></i>
+                                </div>
+                            ` : `
+                                <i data-lucide="shield" class="w-7 h-7"></i>
+                            `}
+                        </div>
+
+                        <!-- Content Details (Centered) -->
+                        <div class="w-full flex flex-col items-center">
+                            <h4 class="text-base sm:text-lg font-black text-slate-900 mb-1.5 group-hover:text-brand-600 transition-colors">Admin Portal</h4>
+                            <p class="text-xs text-slate-500 font-semibold leading-relaxed max-w-[210px] mx-auto">Full structural controls, catalog management & system logs</p>
+                        </div>
+
+                        <!-- Bottom Action Link (Centered) -->
+                        <div class="mt-5 pt-3.5 border-t border-slate-100 w-full flex items-center justify-center gap-2 text-xs font-black text-brand-600 group-hover:gap-3 transition-all duration-200">
                             <span>Access Console</span>
-                            <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1.5 transition-transform duration-200"></i>
+                            <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform duration-200"></i>
                         </div>
                     </div>
 
                     <!-- User Card -->
                     <div onclick="selectRole('user')" 
-                        class="relative border-2 border-slate-200 hover:border-accent-500 rounded-2xl p-5 cursor-pointer bg-white hover:bg-accent-50/20 shadow-sm hover:shadow-[0_0_25px_rgba(220,38,38,0.22)] hover:-translate-y-1.5 transition-all duration-300 group flex flex-col justify-between">
-                        <div>
-                            <div class="flex items-center justify-between mb-4">
-                                <div class="w-12 h-12 rounded-xl bg-accent-50 text-accent-600 flex items-center justify-center border border-accent-100 group-hover:bg-accent-600 group-hover:text-white transition-all duration-300 shadow-xs">
-                                    <i data-lucide="user" class="w-6 h-6"></i>
-                                </div>
-                                <span class="px-2 py-0.5 rounded-full bg-accent-50 text-accent-700 text-[9px] font-black uppercase tracking-wider border border-accent-200/50">Students & Faculty</span>
-                            </div>
-                            <h4 class="text-base font-black text-slate-900 mb-1 group-hover:text-accent-600 transition-colors">User Portal</h4>
-                            <p class="text-[11px] text-slate-500 font-semibold leading-relaxed">Read & download CSE textbooks, bookmarks & offline vaults</p>
+                        class="border-2 border-slate-200/90 hover:border-accent-500 rounded-3xl p-6 pt-5 pb-6 cursor-pointer bg-white hover:bg-gradient-to-b hover:from-white hover:to-accent-50/20 shadow-sm hover:shadow-[0_14px_35px_-8px_rgba(220,38,38,0.22)] hover:-translate-y-1.5 transition-all duration-300 group flex flex-col items-center text-center justify-between">
+                        
+                        <!-- Top Role Pill Badge (Perfect Centered Alignment) -->
+                        <div class="w-full flex justify-center mb-3.5">
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-accent-50 text-accent-700 text-[9.5px] font-black uppercase tracking-wider border border-accent-200/80 shadow-2xs">
+                                <span class="w-1.5 h-1.5 rounded-full bg-accent-500"></span>
+                                Students & Faculty
+                            </span>
                         </div>
-                        <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-black text-accent-600">
+
+                        <!-- Centered Avatar Box (Shows Saved Profile Image or Default User Icon) -->
+                        <div class="w-16 h-16 rounded-2xl ${userAvatar ? 'overflow-hidden border-2 border-accent-200/90 shadow-sm bg-slate-100 p-0' : 'bg-gradient-to-tr from-accent-50 via-rose-50 to-orange-100/70 text-accent-600 border border-accent-100 shadow-xs'} flex items-center justify-center group-hover:scale-105 group-hover:shadow-md transition-all duration-300 mb-3.5 shrink-0 relative">
+                            ${userAvatar ? `
+                                <img src="${userAvatar}" alt="User Profile" class="w-full h-full object-cover">
+                                <div class="absolute bottom-1 right-1 w-4 h-4 rounded-full bg-accent-600 text-white flex items-center justify-center shadow-xs border border-white" title="User Profile">
+                                    <i data-lucide="user" class="w-2.5 h-2.5"></i>
+                                </div>
+                            ` : `
+                                <i data-lucide="user" class="w-7 h-7"></i>
+                            `}
+                        </div>
+
+                        <!-- Content Details (Centered) -->
+                        <div class="w-full flex flex-col items-center">
+                            <h4 class="text-base sm:text-lg font-black text-slate-900 mb-1.5 group-hover:text-accent-600 transition-colors">User Portal</h4>
+                            <p class="text-xs text-slate-500 font-semibold leading-relaxed max-w-[210px] mx-auto">Read & download CSE textbooks, bookmarks & offline vaults</p>
+                        </div>
+
+                        <!-- Bottom Action Link (Centered) -->
+                        <div class="mt-5 pt-3.5 border-t border-slate-100 w-full flex items-center justify-center gap-2 text-xs font-black text-accent-600 group-hover:gap-3 transition-all duration-200">
                             <span>Enter Workspace</span>
-                            <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1.5 transition-transform duration-200"></i>
+                            <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform duration-200"></i>
                         </div>
                     </div>
                 </div>
@@ -1834,6 +1933,9 @@ function showLoginModal() {
     const currentPage = window.location.pathname.split('/').pop() || 'index.html';
     // If we're already on login.html or register.html, do nothing to prevent cycles
     if (currentPage === 'login.html' || currentPage === 'register.html') return;
+
+    // Refresh modal HTML with latest saved avatars and alignments
+    injectLoginModalHTML();
 
     const modal = document.getElementById('loginModal');
     if (!modal) return;
@@ -2168,10 +2270,9 @@ function updateSessionUI() {
             }
         }
 
-        if (savedNavLink) savedNavLink.classList.remove('hidden');
-        if (dropdownSavedLink) dropdownSavedLink.classList.remove('hidden');
-
         if (currentRole === 'admin') {
+            if (savedNavLink) savedNavLink.classList.add('hidden');
+            if (dropdownSavedLink) dropdownSavedLink.classList.add('hidden');
             if (adminLink) adminLink.classList.remove('hidden');
             if (mobileAdminLink) mobileAdminLink.classList.remove('hidden');
             if (dashboardLink) dashboardLink.classList.add('hidden');
@@ -2181,6 +2282,8 @@ function updateSessionUI() {
             if (dropdownAdminLink) dropdownAdminLink.classList.remove('hidden');
             if (dropdownMemberCardLink) dropdownMemberCardLink.classList.add('hidden');
         } else {
+            if (savedNavLink) savedNavLink.classList.remove('hidden');
+            if (dropdownSavedLink) dropdownSavedLink.classList.remove('hidden');
             if (dashboardLink) dashboardLink.classList.remove('hidden');
             if (mobileDashboardLink) mobileDashboardLink.classList.remove('hidden');
             if (footerLibraryLink) footerLibraryLink.classList.remove('hidden');
@@ -2295,6 +2398,11 @@ function saveUserAvatarGlobally(avatarDataUrl) {
         const dropdownAvatarMini = document.getElementById('dropdownAvatarMini');
         if (dropdownAvatarMini) {
             dropdownAvatarMini.innerHTML = `<img src="${avatarDataUrl}" class="w-full h-full object-cover rounded-xl" style="max-width: 100%; max-height: 100%;" />`;
+        }
+
+        // Also refresh login modal if present in DOM
+        if (typeof injectLoginModalHTML === 'function') {
+            injectLoginModalHTML();
         }
     } catch (err) {
         console.error("Failed to save avatar globally:", err);
@@ -3075,19 +3183,24 @@ function renderFeaturedSlider() {
                     <i data-lucide="book-open" class="w-8 h-8 text-slate-400 animate-bounce"></i>
                 </div>
 
-                <!-- 2. Real Image -->
-                <img src="${book.cover}" alt="${book.title}" class="opacity-0 transition-opacity duration-500"
+                <!-- 2. Real Image (Eager & Async for above-the-fold carousel) -->
+                <img src="${book.cover}" alt="${book.title}" decoding="async" ${index === currentCoverflowIndex ? 'fetchpriority="high"' : ''} class="opacity-0 transition-opacity duration-300"
                      onload="handleImageLoad(this)"
                      onerror="handleImageError(this)">
 
                 <!-- 3. Fallback Cover Container -->
-                <div class="fallback-cover absolute inset-0 hidden flex flex-col justify-between p-4 bg-gradient-to-br from-slate-50 to-slate-100 border border-slate-200/60 text-center select-none rounded-2xl">
+                <div class="fallback-cover absolute inset-0 hidden flex flex-col justify-between p-4 bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-950 text-white border border-slate-700 text-center select-none rounded-2xl">
                     <div class="flex-grow flex flex-col items-center justify-center gap-2">
-                        <i data-lucide="book-open" class="w-8 h-8 text-slate-400"></i>
-                        <div class="text-[11px] font-black text-slate-700 leading-snug px-1 line-clamp-3">${book.title}</div>
-                        <div class="text-[9px] font-bold text-slate-400 truncate w-full">by ${book.author}</div>
+                        <div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
+                            <i data-lucide="book-open" class="w-6 h-6 text-amber-300"></i>
+                        </div>
+                        <div class="text-[12px] font-black text-white leading-snug px-1 line-clamp-3">${book.title}</div>
+                        <div class="text-[9.5px] font-semibold text-slate-300 truncate w-full">by ${book.author}</div>
                     </div>
-                    <div class="text-[8px] font-extrabold uppercase tracking-widest text-slate-400 mt-2">${book.category}</div>
+                    <div class="flex items-center justify-between text-[8px] font-extrabold uppercase tracking-widest text-slate-400 mt-2 border-t border-white/10 pt-2">
+                        <span>${book.category}</span>
+                        <span class="text-amber-300 font-black">GBLMS</span>
+                    </div>
                 </div>
 
                 <div class="mw-card-overlay"></div>
@@ -3115,6 +3228,13 @@ function renderFeaturedSlider() {
             }
             openBookModal(book.id);
         });
+
+        // Fast image resolver for already-cached images
+        const sliderImg = card.querySelector('img');
+        if (sliderImg && sliderImg.complete && sliderImg.naturalWidth > 1) {
+            handleImageLoad(sliderImg);
+        }
+
         wrapper.appendChild(card);
 
         // Create indicator dot
@@ -3355,18 +3475,84 @@ function renderCatalogGrid() {
 }
 
 // ==================== IMAGE LOADING & FALLBACK HANDLERS ====================
+function generateFastBookCover(title, author, category, badge) {
+    if (typeof window !== 'undefined' && window.GBLMS_OpenLibrary && typeof window.GBLMS_OpenLibrary.generateSvgBookCover === 'function') {
+        return window.GBLMS_OpenLibrary.generateSvgBookCover(title, author, category, badge || 'GBLMS');
+    }
+    const safeTitle = String(title || 'Academic Book').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    const safeAuthor = String(author || 'Academic Author').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    const safeCategory = String(category || 'Technology').toUpperCase();
+
+    const colors = {
+        'TECHNOLOGY': { bg1: '#1e3a8a', bg2: '#0f172a', accent: '#38bdf8' },
+        'ENGINEERING': { bg1: '#1e40af', bg2: '#172554', accent: '#60a5fa' },
+        'MATHEMATICS': { bg1: '#0f766e', bg2: '#042f2e', accent: '#2dd4bf' },
+        'SCIENCE': { bg1: '#047857', bg2: '#022c22', accent: '#34d399' },
+        'BUSINESS': { bg1: '#4338ca', bg2: '#1e1b4b', accent: '#a5b4fc' },
+        'FICTION': { bg1: '#be185d', bg2: '#500724', accent: '#f472b6' },
+        'HISTORY': { bg1: '#b45309', bg2: '#451a03', accent: '#fbbf24' }
+    };
+    const c = colors[safeCategory] || colors['TECHNOLOGY'];
+
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 560" width="400" height="560">
+        <defs>
+            <linearGradient id="gFastBg" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="${c.bg1}"/>
+                <stop offset="100%" stop-color="${c.bg2}"/>
+            </linearGradient>
+            <linearGradient id="gFastSpine" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stop-color="rgba(255,255,255,0.25)"/>
+                <stop offset="50%" stop-color="rgba(0,0,0,0.1)"/>
+                <stop offset="100%" stop-color="rgba(0,0,0,0.45)"/>
+            </linearGradient>
+        </defs>
+        <rect width="400" height="560" fill="url(#gFastBg)"/>
+        <rect x="0" y="0" width="24" height="560" fill="url(#gFastSpine)"/>
+        <rect x="24" y="24" width="352" height="512" rx="10" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="1.5"/>
+        <rect x="36" y="36" width="100" height="22" rx="5" fill="rgba(255,255,255,0.15)"/>
+        <text x="86" y="51" font-family="system-ui, sans-serif" font-size="9.5" font-weight="800" fill="${c.accent}" text-anchor="middle" letter-spacing="1">${safeCategory}</text>
+        <text x="364" y="51" font-family="system-ui, sans-serif" font-size="9" font-weight="700" fill="#94a3b8" text-anchor="end">GBLMS LIBRARY</text>
+        <g transform="translate(200, 210)" text-anchor="middle">
+            <circle r="44" fill="rgba(255,255,255,0.06)" stroke="${c.accent}" stroke-width="1.5"/>
+            <path d="M-16 -8 L0 -20 L16 -8 L16 16 L0 6 L-16 16 Z" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linejoin="round"/>
+        </g>
+        <g transform="translate(200, 320)" text-anchor="middle">
+            <text x="0" y="0" font-family="system-ui, sans-serif" font-size="20" font-weight="800" fill="#ffffff">${safeTitle.slice(0, 32)}</text>
+            ${safeTitle.length > 32 ? `<text x="0" y="26" font-family="system-ui, sans-serif" font-size="16" font-weight="700" fill="#e2e8f0">${safeTitle.slice(32, 65)}</text>` : ''}
+            <line x1="-60" y1="56" x2="60" y2="56" stroke="${c.accent}" stroke-width="2" stroke-linecap="round"/>
+            <text x="0" y="86" font-family="system-ui, sans-serif" font-size="13" font-weight="600" fill="#93c5fd">by ${safeAuthor.slice(0, 30)}</text>
+        </g>
+    </svg>`;
+    return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+}
+window.generateFastBookCover = generateFastBookCover;
+
 function handleImageLoad(img) {
+    if (!img) return;
+    // Open Library returns 1x1 transparent dummy GIFs when cover is missing
+    if (img.naturalWidth <= 1 || img.naturalHeight <= 1) {
+        handleImageError(img);
+        return;
+    }
+    img.style.display = '';
     img.classList.remove('opacity-0');
+    img.classList.add('opacity-100');
     const parent = img.parentElement;
     if (parent) {
         const skeleton = parent.querySelector('.skeleton-loader');
         if (skeleton) {
             skeleton.classList.add('hidden');
         }
+        const fallback = parent.querySelector('.fallback-cover');
+        if (fallback) {
+            fallback.classList.add('hidden');
+            fallback.classList.remove('flex');
+        }
     }
 }
 
 function handleImageError(img) {
+    if (!img) return;
     img.style.display = 'none';
     const parent = img.parentElement;
     if (parent) {
@@ -3377,9 +3563,17 @@ function handleImageError(img) {
         const fallback = parent.querySelector('.fallback-cover');
         if (fallback) {
             fallback.classList.remove('hidden');
+            fallback.classList.add('flex');
             if (window.lucide) {
                 window.lucide.createIcons();
             }
+        } else {
+            // For cards without .fallback-cover element (e.g. dynamic openlibrary cards)
+            img.style.display = '';
+            img.classList.remove('opacity-0');
+            img.classList.add('opacity-100');
+            const title = img.getAttribute('alt') || 'Library Book';
+            img.src = generateFastBookCover(title, 'Unknown Author', 'General');
         }
     }
 }
@@ -3447,19 +3641,24 @@ function createBookCard(book, options = {}) {
             </div>
             
             <!-- 2. Real Image (initially opacity-0, becomes opacity-100 on load) -->
-            <img src="${book.cover}" alt="${book.title}" 
-                 class="w-full h-full object-cover group-hover:scale-105 transition-all duration-500 opacity-0"
+            <img src="${book.cover}" alt="${book.title}" loading="lazy" decoding="async"
+                 class="w-full h-full object-cover group-hover:scale-105 transition-all duration-300 opacity-0"
                  onload="handleImageLoad(this)"
                  onerror="handleImageError(this)">
 
             <!-- 3. Fallback Cover Container -->
-            <div class="fallback-cover absolute inset-0 hidden flex flex-col justify-between p-3 bg-gradient-to-br from-slate-50 to-slate-100 border border-slate-200/60 text-center select-none rounded-xl">
+            <div class="fallback-cover absolute inset-0 hidden flex flex-col justify-between p-3 bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-950 text-white border border-slate-700 text-center select-none rounded-xl">
                 <div class="flex-grow flex flex-col items-center justify-center gap-1.5">
-                    <i data-lucide="book-open" class="w-7 h-7 text-slate-400"></i>
-                    <div class="text-[12px] font-black text-slate-700 leading-snug px-1 line-clamp-3">${book.title}</div>
-                    <div class="text-[10px] font-bold text-slate-400 truncate w-full">by ${book.author}</div>
+                    <div class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center mb-0.5">
+                        <i data-lucide="book-open" class="w-4 h-4 text-amber-300"></i>
+                    </div>
+                    <div class="text-[11.5px] font-black text-white leading-snug px-1 line-clamp-3">${book.title}</div>
+                    <div class="text-[9.5px] font-semibold text-slate-300 truncate w-full">by ${book.author}</div>
                 </div>
-                <div class="text-[8.5px] font-extrabold uppercase tracking-widest text-slate-400 mt-1">${book.category}</div>
+                <div class="flex items-center justify-between text-[7.5px] font-extrabold uppercase tracking-widest text-slate-400 mt-1 border-t border-white/10 pt-1.5">
+                    <span>${book.category}</span>
+                    <span class="text-amber-300 font-black">GBLMS</span>
+                </div>
             </div>
 
             <!-- 4. Hover Overlay with Inspect & Direct Free Read Button -->
@@ -3469,8 +3668,12 @@ function createBookCard(book, options = {}) {
                     <span>Inspect</span>
                 </button>
                 ${book.pdfUrl ? `
+                <button onclick="event.stopPropagation(); openBookPreview(${book.id})" class="px-2.5 py-1.5 bg-gradient-to-r from-brand-600 to-indigo-600 text-white rounded-xl text-[11px] font-extrabold active:scale-95 transition-transform shadow-md hover:from-brand-500 hover:to-indigo-500 flex items-center gap-1 cursor-pointer" title="Instant Live Preview">
+                    <i data-lucide="sparkles" class="w-3 h-3 text-amber-300"></i>
+                    <span>Preview</span>
+                </button>
                 <a href="${book.readUrl || book.pdfUrl}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();" class="p-1.5 bg-emerald-600 text-white rounded-xl text-[11px] font-extrabold active:scale-95 transition-transform shadow-md hover:bg-emerald-500 flex items-center justify-center cursor-pointer" title="Direct Free Read / PDF">
-                    <i data-lucide="book-open" class="w-3.5 h-3.5"></i>
+                    <i data-lucide="download" class="w-3.5 h-3.5"></i>
                 </a>
                 ` : ''}
             </div>
@@ -3545,6 +3748,24 @@ function createBookCard(book, options = {}) {
             </div>
         </div>
     `;
+
+    // Fast image resolver for already-cached images with safety fallback timer (4000ms)
+    const cardImg = card.querySelector('img');
+    if (cardImg) {
+        if (cardImg.complete) {
+            if (cardImg.naturalWidth > 1) handleImageLoad(cardImg);
+            else handleImageError(cardImg);
+        } else {
+            const cardTimer = setTimeout(() => {
+                if (!cardImg.complete || cardImg.naturalWidth <= 1) {
+                    handleImageError(cardImg);
+                }
+            }, 4000);
+            cardImg.addEventListener('load', () => clearTimeout(cardTimer), { once: true });
+            cardImg.addEventListener('error', () => clearTimeout(cardTimer), { once: true });
+        }
+    }
+
     return card;
 }
 
@@ -3621,7 +3842,7 @@ function setCatalogSearchMode(mode, optionalQuery = '') {
                 const actionIcon = document.getElementById('searchActionBtnIcon');
                 if (actionIcon) actionIcon.setAttribute('data-lucide', 'search');
             }
-            if (searchModeDesc) searchModeDesc.textContent = `Searching ${window.allBooks ? window.allBooks.length : 135} local university catalog volumes`;
+            if (searchModeDesc) searchModeDesc.textContent = `Searching ${window.allBooks ? window.allBooks.length : 535} local university catalog volumes`;
             if (searchSwitchHint) searchSwitchHint.textContent = "Switch to Web Search →";
             filterBooks(true);
             if (window.lucide) lucide.createIcons();
@@ -4859,7 +5080,9 @@ async function adminAutoFillFromOpenLibrary() {
             if (suggestionsEl) {
                 suggestionsEl.innerHTML = docs.map((b, idx) => `
                     <div class="p-3 hover:bg-brand-50/80 cursor-pointer transition-colors flex items-center gap-3 text-left" onclick="selectAdminSuggestionByIndex(${idx})">
-                        <img src="${b.cover}" class="w-10 h-14 object-cover rounded-lg bg-slate-100 shrink-0" onerror="this.src='https://covers.openlibrary.org/b/id/8231856-L.jpg'">
+                        <img src="${b.cover}" class="w-10 h-14 object-cover rounded-lg bg-slate-100 shrink-0" loading="lazy" decoding="async"
+                             onload="if(this.naturalWidth<=1||this.naturalHeight<=1){this.src=generateFastBookCover('${b.title.replace(/'/g, "\\'")}', '${b.author.replace(/'/g, "\\'")}', '${b.category}');}"
+                             onerror="this.src=generateFastBookCover('${b.title.replace(/'/g, "\\'")}', '${b.author.replace(/'/g, "\\'")}', '${b.category}');">
                         <div class="flex-grow min-w-0">
                             <h4 class="text-xs font-extrabold text-slate-800 truncate">${b.title}</h4>
                             <p class="text-[10px] text-slate-500 font-semibold truncate">by ${b.author} • ${b.yearPublished}</p>
@@ -5046,7 +5269,17 @@ function updateAdminTable() {
         const tr = document.createElement('tr');
         tr.className = 'hover:bg-slate-50/80 transition-all duration-150 border-b border-slate-100 text-slate-700 text-xs group';
         tr.innerHTML = `
-            <td class="p-4 pl-6 align-middle"><div class="w-10 h-14 bg-slate-50 rounded-lg overflow-hidden border border-slate-200 shadow-sm transition-transform duration-200 group-hover:scale-[1.03]"><img src="${book.cover}" alt="Cover" class="w-full h-full object-cover"></div></td>
+            <td class="p-4 pl-6 align-middle">
+                <div class="relative w-10 h-14 bg-slate-900 rounded-lg overflow-hidden border border-slate-200 shadow-sm transition-transform duration-200 group-hover:scale-[1.03] flex items-center justify-center shrink-0">
+                    <div class="absolute inset-0 bg-gradient-to-br from-slate-800 to-indigo-950 flex flex-col items-center justify-center p-1 text-center pointer-events-none">
+                        <i data-lucide="book-open" class="w-3.5 h-3.5 text-amber-300 mb-0.5"></i>
+                        <span class="text-[6.5px] font-black text-slate-300 leading-none line-clamp-1">${book.category || 'CSE'}</span>
+                    </div>
+                    <img src="${book.cover}" alt="Cover" loading="lazy" decoding="async" class="absolute inset-0 w-full h-full object-cover z-10 opacity-0 transition-opacity duration-200"
+                         onload="if(this.naturalWidth<=1||this.naturalHeight<=1){this.style.display='none';}else{this.classList.remove('opacity-0');}"
+                         onerror="this.style.display='none';">
+                </div>
+            </td>
             <td class="p-4 align-middle"><div class="flex flex-col text-left"><span class="text-xs font-bold text-slate-800 leading-tight mb-1 group-hover:text-brand-600 transition-colors duration-150">${book.title}</span><div class="flex items-center gap-1.5 text-[10px] text-slate-455 leading-none"><span>by ${book.author}</span><span class="text-slate-300">•</span><span>Year: ${book.yearPublished}</span><span class="text-slate-300">•</span><span class="font-semibold text-slate-550">${book.department || 'General Education'}</span></div></div></td>
             <td class="p-4 align-middle"><span class="inline-flex items-center px-2.5 py-0.5 border text-[10px] font-black rounded-full ${semClass}">${book.semester || '1st Semester'}</span></td>
             <td class="p-4 align-middle"><span class="inline-flex items-center gap-1 px-2.5 py-0.5 border text-[10px] font-black rounded-full ${statusClass}"><span class="w-1.5 h-1.5 rounded-full ${statusDot} mr-1"></span>${book.status || 'Available'}</span></td>
@@ -5176,7 +5409,7 @@ function addBook(event) {
     }
     
     // Create record
-    const finalCover = cover || "https://covers.openlibrary.org/b/id/8231856-L.jpg";
+    const finalCover = cover || generateFastBookCover(title, author, category);
     
     const newRecord = {
         id: Date.now(),
@@ -5533,9 +5766,16 @@ function openBookModal(bookOrId) {
     if (isbnEl) isbnEl.textContent = `ISBN Index Identifier: ${selectedBookForModal.isbn}`;
     if (descEl) descEl.textContent = selectedBookForModal.description || `${selectedBookForModal.title} by ${selectedBookForModal.author}.`;
     if (coverEl) {
-        coverEl.src = selectedBookForModal.cover || 'https://covers.openlibrary.org/b/id/8231856-L.jpg';
+        const fallbackSvg = generateFastBookCover(selectedBookForModal.title, selectedBookForModal.author, selectedBookForModal.category);
+        coverEl.src = selectedBookForModal.cover || fallbackSvg;
         coverEl.onerror = function() {
-            this.src = 'https://covers.openlibrary.org/b/id/8231856-L.jpg';
+            this.onerror = null;
+            this.src = fallbackSvg;
+        };
+        coverEl.onload = function() {
+            if (this.naturalWidth <= 1 || this.naturalHeight <= 1) {
+                this.src = fallbackSvg;
+            }
         };
     }
 
@@ -5639,13 +5879,18 @@ function openBookModal(bookOrId) {
     const actionContainer = document.querySelector('#bookModal .flex.flex-wrap.gap-3');
     if (actionContainer) {
         actionContainer.innerHTML = `
-            <button onclick="readBookOnline()" type="button"
-                class="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-extrabold text-xs active:scale-95 transition-all duration-200 shadow-md shadow-brand-500/20 cursor-pointer">
-                <i data-lucide="book-open" class="w-4 h-4"></i>
-                <span>Read Online (Free)</span>
+            <button onclick="openBookPreview(selectedBookForModal)" type="button"
+                class="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white font-extrabold text-xs active:scale-95 transition-all duration-200 shadow-md shadow-brand-500/25 cursor-pointer">
+                <i data-lucide="eye" class="w-4 h-4"></i>
+                <span>⚡ Live In-App Preview</span>
+            </button>
+            <button onclick="toggleBookInlinePreview()" type="button"
+                class="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-extrabold text-xs active:scale-95 transition-all duration-200 shadow-sm cursor-pointer">
+                <i data-lucide="book-open" class="w-3.5 h-3.5 text-brand-300"></i>
+                <span>Quick View</span>
             </button>
             <button onclick="downloadBook()" type="button"
-                class="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs active:scale-95 transition-all duration-200 shadow-md shadow-emerald-500/20 cursor-pointer">
+                class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs active:scale-95 transition-all duration-200 shadow-md shadow-emerald-500/20 cursor-pointer">
                 <i data-lucide="download" class="w-4 h-4"></i>
                 <span>Download PDF (Direct)</span>
             </button>
@@ -5679,6 +5924,13 @@ function openBookModal(bookOrId) {
         }
     }
 
+    // Reset inline preview if open from previous volume
+    const inlineContainer = document.getElementById('modalInlinePreviewContainer');
+    if (inlineContainer) {
+        inlineContainer.classList.add('hidden');
+        inlineContainer.innerHTML = '';
+    }
+
     const modal = document.getElementById('bookModal');
     modal.classList.remove('hidden');
     modal.classList.add('flex');
@@ -5694,6 +5946,11 @@ function openBookModal(bookOrId) {
 // Dialog closing configurations
 function closeBookModal() {
     const modal = document.getElementById('bookModal');
+    const inlineContainer = document.getElementById('modalInlinePreviewContainer');
+    if (inlineContainer) {
+        inlineContainer.classList.add('hidden');
+        inlineContainer.innerHTML = '';
+    }
     gsap.to(modal.querySelector('.modal-card'), {
         y: 60,
         opacity: 0,
@@ -5706,11 +5963,326 @@ function closeBookModal() {
     });
 }
 
+// ==================== INLINE MODAL QUICK PREVIEW ====================
+function toggleBookInlinePreview(bookOrId) {
+    const book = bookOrId || selectedBookForModal;
+    if (!book) return;
+
+    let inlineContainer = document.getElementById('modalInlinePreviewContainer');
+    if (!inlineContainer) {
+        const descEl = document.getElementById('modalBookDescription');
+        if (descEl && descEl.parentElement) {
+            inlineContainer = document.createElement('div');
+            inlineContainer.id = 'modalInlinePreviewContainer';
+            inlineContainer.className = 'w-full mb-6 hidden';
+            descEl.parentElement.insertBefore(inlineContainer, descEl.nextSibling);
+        }
+    }
+    if (!inlineContainer) return;
+
+    if (!inlineContainer.classList.contains('hidden') && inlineContainer.innerHTML.trim() !== '') {
+        inlineContainer.classList.add('hidden');
+        inlineContainer.innerHTML = '';
+        return;
+    }
+
+    const iaId = book.previewId || (book.title ? book.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') : 'preview');
+    const embedUrl = book.previewEmbedUrl || `https://archive.org/embed/${iaId}?ui=embed`;
+
+    inlineContainer.classList.remove('hidden');
+    inlineContainer.innerHTML = `
+        <div class="w-full rounded-2xl border border-slate-200 bg-slate-900 p-2 overflow-hidden shadow-xl mt-3 mb-4">
+            <div class="px-3 py-2 bg-slate-800 rounded-xl mb-2 flex items-center justify-between text-white text-xs">
+                <div class="flex items-center gap-2 min-w-0">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0"></span>
+                    <span class="font-extrabold text-[11px] truncate">Fast Preview: ${book.title}</span>
+                </div>
+                <div class="flex items-center gap-1.5 shrink-0">
+                    <button type="button" onclick="openBookPreview(selectedBookForModal)" class="px-2.5 py-1 rounded-lg bg-brand-600 hover:bg-brand-500 text-[10px] font-bold text-white flex items-center gap-1 cursor-pointer">
+                        <i data-lucide="maximize" class="w-3 h-3"></i> Fullscreen
+                    </button>
+                    <button type="button" onclick="toggleBookInlinePreview()" class="p-1 rounded-lg hover:bg-slate-700 text-slate-400 hover:text-white cursor-pointer" title="Close Preview">
+                        <i data-lucide="x" class="w-3.5 h-3.5"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="relative w-full h-[360px] sm:h-[420px] rounded-xl overflow-hidden bg-slate-950">
+                <div id="inlineSkeleton" class="absolute inset-0 flex flex-col items-center justify-center p-4 text-center z-10 bg-slate-950 transition-opacity duration-300">
+                    <div class="w-10 h-10 rounded-xl bg-brand-900/60 border border-brand-500/30 flex items-center justify-center text-brand-400 mb-2 animate-pulse">
+                        <i data-lucide="book-open" class="w-5 h-5"></i>
+                    </div>
+                    <p class="text-xs font-black text-white mb-1">⚡ Initializing Ultra-Fast Stream...</p>
+                    <p class="text-[10px] text-slate-400 mb-3">Connecting to Academic Digital Archive CDN...</p>
+                    <div class="w-48 h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                        <div class="h-full w-full reader-skeleton-shimmer"></div>
+                    </div>
+                </div>
+                <iframe src="${embedUrl}" class="w-full h-full border-0" loading="lazy" allow="fullscreen" onload="const s=document.getElementById('inlineSkeleton'); if(s) { s.style.opacity='0'; setTimeout(()=>s.remove(), 250); }"></iframe>
+            </div>
+        </div>
+    `;
+    if (window.lucide) lucide.createIcons();
+}
+
+// ==================== ULTRA-FAST FULLSCREEN BOOK READER MODAL ====================
+let activeReaderBook = null;
+let activeReaderEngine = 'archive';
+const cachedReaderIframes = new Map(); // Fast session cache (bookId -> DOM iframe element)
+
+function ensureReaderModalDOM() {
+    let modal = document.getElementById('gblmsReaderModal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'gblmsReaderModal';
+        modal.className = 'fixed inset-0 z-[100] bg-slate-950/85 backdrop-blur-md flex flex-col p-2 sm:p-4 md:p-6 opacity-0 invisible pointer-events-none transition-all duration-200';
+        modal.innerHTML = `
+            <div id="gblmsReaderCard" class="w-full max-w-6xl h-full mx-auto bg-slate-900 border border-slate-700/80 rounded-2xl sm:rounded-3xl shadow-2xl flex flex-col overflow-hidden">
+                <!-- Top Navigation & Controls Bar -->
+                <div class="px-4 py-3 bg-slate-800/95 border-b border-slate-700/80 flex items-center justify-between gap-3 text-white shrink-0">
+                    <div class="flex items-center gap-3 min-w-0">
+                        <span class="w-8 h-8 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-600 text-white flex items-center justify-center shrink-0 shadow-sm">
+                            <i data-lucide="book-open" class="w-4 h-4"></i>
+                        </span>
+                        <div class="min-w-0">
+                            <div class="flex items-center gap-2">
+                                <h3 id="readerModalTitle" class="text-xs sm:text-sm font-black text-white truncate max-w-[200px] sm:max-w-md md:max-w-lg">Academic Volume</h3>
+                                <span id="readerModalCourseBadge" class="hidden sm:inline-block px-2 py-0.5 rounded-md bg-brand-500/20 text-brand-300 border border-brand-400/30 text-[9.5px] font-extrabold uppercase">CSE CORE</span>
+                            </div>
+                            <p id="readerModalAuthor" class="text-[11px] text-slate-400 truncate">by Author Name</p>
+                        </div>
+                    </div>
+
+                    <!-- Engine Switcher & Tool Controls -->
+                    <div class="flex items-center gap-2 shrink-0">
+                        <!-- Dual Stream Engine Switcher -->
+                        <div class="hidden sm:flex items-center p-1 bg-slate-950/70 rounded-xl border border-slate-700/60 text-[11px] font-bold">
+                            <button type="button" id="readerEngineArchiveBtn" onclick="switchReaderEngine('archive')"
+                                class="px-2.5 py-1 rounded-lg text-white bg-brand-600 shadow-sm transition-all flex items-center gap-1 cursor-pointer">
+                                <i data-lucide="sparkles" class="w-3 h-3"></i>
+                                <span>Digital Stream</span>
+                            </button>
+                            <button type="button" id="readerEnginePdfBtn" onclick="switchReaderEngine('google_pdf')"
+                                class="px-2.5 py-1 rounded-lg text-slate-400 hover:text-white transition-all flex items-center gap-1 cursor-pointer">
+                                <i data-lucide="file-text" class="w-3 h-3"></i>
+                                <span>PDF Viewer</span>
+                            </button>
+                        </div>
+
+                        <!-- Direct PDF Download -->
+                        <button type="button" onclick="downloadCurrentReaderBook()"
+                            class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm active:scale-95 cursor-pointer"
+                            title="Direct PDF Download">
+                            <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                            <span class="hidden md:inline">Download PDF</span>
+                        </button>
+
+                        <!-- External Window -->
+                        <button type="button" onclick="openCurrentReaderInNewTab()"
+                            class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-all active:scale-95 border border-slate-700 cursor-pointer"
+                            title="Open in Full Browser Tab">
+                            <i data-lucide="external-link" class="w-4 h-4"></i>
+                        </button>
+
+                        <!-- Fullscreen -->
+                        <button type="button" onclick="toggleReaderFullscreen()"
+                            class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-all active:scale-95 border border-slate-700 cursor-pointer"
+                            title="Toggle Fullscreen View">
+                            <i data-lucide="maximize" class="w-4 h-4"></i>
+                        </button>
+
+                        <!-- Close -->
+                        <button type="button" onclick="closeBookReader()"
+                            class="p-2 rounded-xl bg-rose-600/80 hover:bg-rose-600 text-white transition-all active:scale-95 cursor-pointer"
+                            title="Close Digital Reader (Esc)">
+                            <i data-lucide="x" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Reader Stream Area with Instant Shimmer Skeleton Loader -->
+                <div class="relative flex-1 w-full h-full bg-slate-950 overflow-hidden flex flex-col">
+                    <div id="readerSkeleton" class="absolute inset-0 z-10 bg-slate-950 flex flex-col items-center justify-center p-6 text-center transition-opacity duration-300">
+                        <div class="w-16 h-16 rounded-2xl bg-brand-950/80 border border-brand-500/30 flex items-center justify-center text-brand-400 mb-4 animate-pulse">
+                            <i data-lucide="book-open" class="w-8 h-8"></i>
+                        </div>
+                        <h4 class="text-sm sm:text-base font-black text-white mb-1.5">⚡ Initializing Ultra-Fast Digital Stream...</h4>
+                        <p class="text-xs text-slate-400 max-w-sm mb-4 leading-relaxed">Loading high-speed academic reader pages and indexing digital volume...</p>
+                        
+                        <!-- Shimmer animation bar -->
+                        <div class="w-64 sm:w-80 h-2 bg-slate-800 rounded-full overflow-hidden mb-6 relative">
+                            <div class="h-full w-full reader-skeleton-shimmer"></div>
+                        </div>
+
+                        <!-- Instant Fallbacks -->
+                        <div class="flex flex-wrap items-center justify-center gap-2.5">
+                            <button type="button" onclick="openCurrentReaderInNewTab()" class="px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 text-xs font-semibold flex items-center gap-1.5 cursor-pointer">
+                                <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                                <span>Open Directly in Tab</span>
+                            </button>
+                            <button type="button" onclick="switchReaderEngine('google_pdf')" class="px-3.5 py-1.5 rounded-xl bg-brand-600/30 hover:bg-brand-600/50 border border-brand-500/40 text-brand-300 text-xs font-semibold flex items-center gap-1.5 cursor-pointer">
+                                <i data-lucide="zap" class="w-3.5 h-3.5"></i>
+                                <span>Switch to Alternative Stream</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Live Frame Viewport -->
+                    <div id="readerIframeContainer" class="w-full h-full"></div>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+
+        // Escape key listener for keyboard convenience
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const reader = document.getElementById('gblmsReaderModal');
+                if (reader && reader.classList.contains('reader-active')) {
+                    closeBookReader();
+                }
+            }
+        });
+    }
+    return modal;
+}
+
+function openBookPreview(bookOrId, engine = 'archive') {
+    let book = bookOrId;
+    if (typeof bookOrId === 'number' || typeof bookOrId === 'string') {
+        const numId = Number(bookOrId);
+        book = allBooks.find(b => Number(b.id) === numId);
+    }
+    if (!book) book = selectedBookForModal;
+    if (!book) return;
+
+    activeReaderBook = book;
+    activeReaderEngine = engine;
+
+    const modal = ensureReaderModalDOM();
+    const titleEl = document.getElementById('readerModalTitle');
+    const authorEl = document.getElementById('readerModalAuthor');
+    const courseBadgeEl = document.getElementById('readerModalCourseBadge');
+    const skeleton = document.getElementById('readerSkeleton');
+    const iframeContainer = document.getElementById('readerIframeContainer');
+
+    if (titleEl) titleEl.textContent = book.title;
+    if (authorEl) authorEl.textContent = `by ${book.author}`;
+    if (courseBadgeEl) {
+        courseBadgeEl.textContent = book.courseCode ? `${book.courseCode} • ${book.semester || 'BSc CSE'}` : 'BSc CSE Core';
+    }
+
+    // Update active engine pill buttons
+    const archiveBtn = document.getElementById('readerEngineArchiveBtn');
+    const pdfBtn = document.getElementById('readerEnginePdfBtn');
+    if (archiveBtn && pdfBtn) {
+        if (engine === 'archive') {
+            archiveBtn.className = "px-2.5 py-1 rounded-lg text-white bg-brand-600 shadow-sm transition-all flex items-center gap-1 cursor-pointer";
+            pdfBtn.className = "px-2.5 py-1 rounded-lg text-slate-400 hover:text-white transition-all flex items-center gap-1 cursor-pointer";
+        } else {
+            pdfBtn.className = "px-2.5 py-1 rounded-lg text-white bg-brand-600 shadow-sm transition-all flex items-center gap-1 cursor-pointer";
+            archiveBtn.className = "px-2.5 py-1 rounded-lg text-slate-400 hover:text-white transition-all flex items-center gap-1 cursor-pointer";
+        }
+    }
+
+    // Determine target stream URL
+    const iaId = book.previewId || (book.title ? book.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') : 'preview');
+    let targetUrl;
+    if (engine === 'archive') {
+        targetUrl = book.previewEmbedUrl || `https://archive.org/embed/${iaId}?ui=embed`;
+    } else {
+        const docUrl = book.pdfUrl || book.readUrl;
+        targetUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(docUrl)}&embedded=true`;
+    }
+
+    // Instant perceived speed: Check memory cache
+    const cacheKey = `${book.id}_${engine}`;
+    if (cachedReaderIframes.has(cacheKey)) {
+        const cachedIframe = cachedReaderIframes.get(cacheKey);
+        iframeContainer.innerHTML = '';
+        iframeContainer.appendChild(cachedIframe);
+        if (skeleton) {
+            skeleton.style.opacity = '0';
+            setTimeout(() => { skeleton.classList.add('hidden'); }, 150);
+        }
+    } else {
+        if (skeleton) {
+            skeleton.classList.remove('hidden');
+            skeleton.style.opacity = '1';
+        }
+        iframeContainer.innerHTML = '';
+
+        const iframe = document.createElement('iframe');
+        iframe.src = targetUrl;
+        iframe.className = 'w-full h-full border-0';
+        iframe.loading = 'lazy';
+        iframe.allow = 'fullscreen; autoplay';
+
+        // When stream loads, smoothly hide skeleton
+        iframe.onload = () => {
+            if (skeleton) {
+                skeleton.style.opacity = '0';
+                setTimeout(() => { skeleton.classList.add('hidden'); }, 200);
+            }
+        };
+
+        // Safety fallback timer (3.5s) to guarantee view is visible even on strict CORS
+        setTimeout(() => {
+            if (skeleton && skeleton.style.opacity !== '0') {
+                skeleton.style.opacity = '0';
+                setTimeout(() => { skeleton.classList.add('hidden'); }, 200);
+            }
+        }, 3500);
+
+        iframeContainer.appendChild(iframe);
+        cachedReaderIframes.set(cacheKey, iframe);
+    }
+
+    // Display reader modal
+    modal.classList.add('reader-active');
+    if (window.lucide) lucide.createIcons();
+    showNotification(`⚡ Stream Connected: "${book.title}" (100% Free Full-Text)`, "success");
+}
+
+function switchReaderEngine(engine) {
+    if (activeReaderBook) {
+        openBookPreview(activeReaderBook, engine);
+    }
+}
+
+function closeBookReader() {
+    const modal = document.getElementById('gblmsReaderModal');
+    if (modal) {
+        modal.classList.remove('reader-active');
+    }
+}
+
+function toggleReaderFullscreen() {
+    const card = document.getElementById('gblmsReaderCard') || document.getElementById('gblmsReaderModal');
+    if (!document.fullscreenElement) {
+        if (card && card.requestFullscreen) card.requestFullscreen();
+    } else {
+        if (document.exitFullscreen) document.exitFullscreen();
+    }
+}
+
+function downloadCurrentReaderBook() {
+    if (activeReaderBook) {
+        const pdfUrl = activeReaderBook.pdfUrl || activeReaderBook.readUrl || "https://archive.org";
+        window.open(pdfUrl, '_blank');
+        showNotification(`Downloading PDF: "${activeReaderBook.title}"`, "success");
+    }
+}
+
+function openCurrentReaderInNewTab() {
+    if (activeReaderBook) {
+        const readUrl = activeReaderBook.readUrl || activeReaderBook.pdfUrl || "https://archive.org";
+        window.open(readUrl, '_blank');
+    }
+}
+
 function readBookOnline() {
     if (selectedBookForModal) {
-        const readUrl = selectedBookForModal.readUrl || selectedBookForModal.pdfUrl || "https://openlibrary.org";
-        window.open(readUrl, '_blank');
-        showNotification(`Opening Reader: "${selectedBookForModal.title}" (100% Free Full-Text)`, "success");
+        openBookPreview(selectedBookForModal);
     }
 }
 
