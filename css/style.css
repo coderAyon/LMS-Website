@@ -1401,9 +1401,7 @@ body.session-role-admin #navUserRole {
         max-width: 80px !important;
     }
     #navUserRole {
-        font-size: 9px !important;
-        padding: 2px 6.5px !important;
-        letter-spacing: 0.04em !important;
+        display: none !important;
     }
     #userDropdownMenu {
         right: -4px !important;
@@ -1550,3 +1548,18 @@ body.session-role-admin #navUserRole {
 
 
 
+
+
+/* Ensure mobile navbar branding stays on one line and user badge is hidden on mobile */
+@media (max-width: 768px) {
+    #navUserRole {
+        display: none !important;
+    }
+    header a[onclick*="navigateTo('home')"] span,
+    header .brand span strong,
+    header .brand span small,
+    .portal-brand-link small,
+    .portal-brand-link strong {
+        white-space: nowrap !important;
+    }
+}

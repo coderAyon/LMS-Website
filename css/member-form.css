@@ -2229,14 +2229,25 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     grid-template-columns: 1fr;
   }
 
-  .library-card-body,
+  /* Keep library card structured like desktop, scaled down gracefully for mobile */
+  .library-card-body {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 12px;
+    align-items: center;
+    padding: 10px 14px 14px;
+  }
+
   .library-card-body dl {
-    grid-template-columns: 1fr;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px 10px;
+    margin: 0;
   }
 
   .library-card-avatar {
-    width: 82px;
-    height: 96px;
+    width: 76px;
+    height: 92px;
   }
 }
 
@@ -2301,18 +2312,125 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     grid-template-columns: 1fr;
   }
 
-  .button {
+  .button:not(.library-card-footer .button) {
     width: 100%;
   }
 
-  .library-card-top,
-  .library-card-footer {
-    grid-template-columns: 1fr;
-    align-items: start;
+  /* Preserve desktop card proportions on mobile */
+  .library-card-top {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 10px;
+    align-items: center;
+    padding: 12px 14px 10px;
+  }
+
+  .library-card-logo {
+    width: 36px;
+    height: 44px;
+    padding: 2px;
+  }
+
+  .library-card-top span {
+    font-size: 0.62rem;
+  }
+
+  .library-card-top strong {
+    font-size: 0.86rem;
+  }
+
+  .library-card-top mark {
+    font-size: 0.62rem;
+    padding: 4px 8px;
+    letter-spacing: 0.05em;
+  }
+
+  .library-card-body {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 10px;
+    align-items: center;
+    padding: 8px 14px 12px;
+  }
+
+  .library-card-avatar {
+    width: 66px;
+    height: 84px;
+    font-size: 1.6rem;
+    border-radius: 8px;
+  }
+
+  .library-card-body dl {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px 8px;
+    margin: 0;
+  }
+
+  .library-card-body dt {
+    font-size: 0.54rem;
+  }
+
+  .library-card-body dd {
+    font-size: 0.74rem;
+    line-height: 1.2;
   }
 
   .library-card-footer {
-    display: grid;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 8px 14px 10px;
+  }
+
+  .library-card-footer > span {
+    font-size: 0.72rem;
+    min-width: 0;
+  }
+
+  .library-card-footer .button {
+    width: auto !important;
+    min-height: 30px;
+    height: 30px;
+    padding: 4px 10px;
+    font-size: 0.72rem;
+    flex-shrink: 0;
+  }
+}
+
+@media (max-width: 380px) {
+  .library-card-top {
+    padding: 10px 10px 8px;
+    gap: 8px;
+  }
+  .library-card-logo {
+    width: 32px;
+    height: 40px;
+  }
+  .library-card-top strong {
+    font-size: 0.78rem;
+  }
+  .library-card-body {
+    padding: 6px 10px 10px;
+    gap: 8px;
+  }
+  .library-card-avatar {
+    width: 58px;
+    height: 74px;
+  }
+  .library-card-body dl {
+    gap: 5px 6px;
+  }
+  .library-card-body dt {
+    font-size: 0.5rem;
+  }
+  .library-card-body dd {
+    font-size: 0.68rem;
+  }
+  .library-card-footer {
+    padding: 8px 10px;
   }
 }
 
